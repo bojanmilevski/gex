@@ -3,5 +3,4 @@
 - improve args impl functions and by extension the main function
 - improvements to the install_extensions and install_extension functions are possible
 - organize errors
-- seperate into modules
 - windows and macos compatibility

@@ -31,8 +31,8 @@ Options:
 	-i, --install <INSTALL>...
 	-p, --profile <PROFILE>		[default: default-release]
 	-b, --browser <BROWSER>		[default: firefox]
-	-h, --help					Print help
-	-V, --version				Print version
+    -h, --help			Print help
+	-V, --version			Print version
 ```
 
 ### EXAMPLES
