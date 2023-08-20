@@ -5,39 +5,52 @@ mod install;
 mod profile;
 mod query;
 
+use errors::ProfileError;
+
 use args::Args;
 use clap::Parser;
-use errors::ArgsError;
-use tokio::task;
 
-#[tokio::main]
-async fn main() -> Result<(), ArgsError> {
-	let args = Args::parse().validate_args().await?;
-	let download_path = args.get_download_path().await?;
-	let mut tasks = Vec::new();
+fn create_install_tasks(extensions: &[String], download_path: &String) -> Vec<tokio::task::JoinHandle<()>> {
+	extensions
+		.iter()
+		.map(|ext| {
+			let ext_clone = ext.clone();
+			let dp_clone = download_path.to_owned();
+			tokio::task::spawn(async move {
+				install_extension_task(&ext_clone, &dp_clone).await;
+			})
+		})
+		.collect()
+}
 
-	for ext in args.install {
-		let ext_clone = ext.clone();
-		let dp_clone = download_path.clone();
+async fn install_extension_task(ext: &String, download_path: &String) {
+	match query::query_extension(&ext).await {
+		Ok(ext_info) => {
+			println!("Installing extension {}.", ext);
+			match install::install_extension(&ext_info, download_path).await {
+				Ok(_) => println!("Successfully installed extension {}.", &ext),
+				Err(error) => eprintln!("Error installing extension {}. Error: {}", ext, error),
+			};
+		}
 
-		let task = task::spawn(async move {
-			let query_result = query::query_extension(&ext_clone);
-			eprintln!("Installing extension {}.", &ext_clone);
-
-			if let Some(extension) = query_result.await.unwrap().results.first() {
-				install::install_extension(extension, &dp_clone).await.unwrap();
-				eprintln!("Successfully installed extension {}.", &ext_clone);
-			} else {
-				eprintln!("Extension {} not found.", &ext_clone);
-			}
-		});
-
-		tasks.push(task);
+		Err(error) => {
+			eprintln!("{}", error);
+		}
 	}
+}
 
+async fn execute_tasks(tasks: Vec<tokio::task::JoinHandle<()>>) {
 	for task in tasks {
 		let _ = task.await;
 	}
+}
+
+#[tokio::main]
+async fn main() -> Result<(), ProfileError> {
+	let args = Args::parse();
+	let download_path = args.get_download_path().await?;
+	let install_tasks = create_install_tasks(&args.install, &download_path);
+	execute_tasks(install_tasks).await;
 
 	Ok(())
 }

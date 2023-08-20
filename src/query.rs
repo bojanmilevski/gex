@@ -1,19 +1,15 @@
 use crate::config::QUERY_URL;
+use crate::errors::QueryError;
 
-use serde::Serialize;
 use serde::Deserialize;
+use serde::Serialize;
 
-#[derive(Debug, Serialize, Deserialize)]
-pub struct FileCurrentVersion {
-	pub id: i32,
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct QueryResult {
+	pub results: Vec<Extension>,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
-pub struct CurrentVersion {
-	pub file: FileCurrentVersion,
-}
-
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Extension {
 	pub id: i32,
 	pub slug: String,
@@ -21,12 +17,28 @@ pub struct Extension {
 	pub current_version: CurrentVersion,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
-pub struct QueryResult {
-	pub results: Vec<Extension>,
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct CurrentVersion {
+	pub file: FileCurrentVersion,
 }
 
-pub async fn query_extension(extension: &str) -> Result<QueryResult, reqwest::Error> {
-	let query_request = reqwest::Client::new().get(format!("{}{}", QUERY_URL, extension)).send().await?.json().await?;
-	Ok(query_request)
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct FileCurrentVersion {
+	pub id: i32,
+}
+
+pub async fn query_extension(ext_slug: &str) -> Result<Extension, QueryError> {
+	let query_request: QueryResult = reqwest::Client::new()
+		.get(format!("{}{}", QUERY_URL, ext_slug))
+		.send()
+		.await?
+		.json()
+		.await?;
+
+	query_request
+		.results
+		.iter()
+		.find(|&ext| &ext.slug == &ext_slug)
+		.ok_or(QueryError::ExtensionNotFound(ext_slug))
+		.cloned()
 }

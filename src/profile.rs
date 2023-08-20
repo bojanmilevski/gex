@@ -1,11 +1,11 @@
-#[derive(Debug, Default)]
+#[derive(Debug, Default, Clone)]
 pub struct Profile {
 	pub name: String,
 	pub path: String,
 }
 
 impl Profile {
-	pub fn from(name: String, path: String) -> Self {
+	pub fn new(name: String, path: String) -> Self {
 		Self { name, path }
 	}
 }
