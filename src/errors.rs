@@ -1,6 +1,18 @@
 use thiserror::Error;
 
 #[derive(Debug, Error)]
+pub enum BrowserError {
+	#[error("Can not find $HOME enviornment variable.")]
+	HomeVar(#[from] std::env::VarError),
+
+	#[error("Browser path not found.")]
+	PathNotFound,
+
+	#[error("Browser not supported.")]
+	NotSupported,
+}
+
+#[derive(Debug, Error)]
 pub enum InstallError {
 	#[error("Request error.")]
 	Request(#[from] reqwest::Error),
@@ -17,20 +29,14 @@ pub enum InstallError {
 
 #[derive(Debug, Error)]
 pub enum ProfileError {
-	#[error("Can not find $HOME enviornment variable.")]
-	HomeVar(#[from] std::env::VarError),
-
 	#[error("Ini error.")]
 	Ini(#[from] ini::Error),
 
+	#[error("Cannot create folder.")]
+	Folder(#[from] std::io::Error),
+
 	#[error("Profile not found.")]
 	ProfileNotFound,
-
-	#[error("Browser path not found.")]
-	BrowserPathNotFound,
-
-	#[error("Browser not supported.")]
-	BrowserNotSupported,
 }
 
 #[derive(Debug, Error)]

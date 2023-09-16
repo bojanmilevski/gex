@@ -55,16 +55,6 @@ gex -i darkreader -b librewolf
 gex -i darkreader -b librewolf -p default
 ```
 
-## DEPENDENCIES
-
--   clap
--   reqwest
--   rust-ini
--   serde
--   serde_json
--   thiserror
--   tokio
-
 ## LICENSE
 
 This software is licensed under the [GPL v3.0 License](https://www.gnu.org/licenses/gpl-3.0.en.html).

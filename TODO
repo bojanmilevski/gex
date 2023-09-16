@@ -1,7 +1,7 @@
 - arch linux aur package
 - add more browsers and respective data paths
 - add plugin search functionality
-- improve args.rs
-- organize errors
 - split ext querying and ext installing process
 - windows and macos compatibility
+- install for multiple browsers
+- install for multiple profiles
