@@ -12,7 +12,7 @@ impl Profile {
 		let ini_file = browser_data_path.join("profiles.ini");
 		let config = ini::Ini::load_from_file(&ini_file)?;
 
-        // this is ugly... i need to fix asap
+		// this is ugly... i need to fix asap
 		let path_slug = config
 			.iter()
 			.find_map(|(sec, prop)| {
