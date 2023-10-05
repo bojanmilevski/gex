@@ -1,3 +1,4 @@
+use crate::browser::Browser;
 use crate::errors::ProfileError;
 use std::path::PathBuf;
 
@@ -8,13 +9,13 @@ pub struct Profile {
 }
 
 impl Profile {
-	pub async fn from(profile_name: &str, browser_data_path: &PathBuf) -> Result<Profile, ProfileError> {
-		let ini_file = browser_data_path.join("profiles.ini");
+	pub async fn from(profile_name: &str, browser: &Browser) -> Result<Profile, ProfileError> {
+		let ini_file = browser.path.join("profiles.ini");
 		let config = ini::Ini::load_from_file(&ini_file)?;
 
 		// this is ugly... i need to fix asap
 		let path_slug = config
-			.iter()
+			.iter() // replace with .par_iter()
 			.find_map(|(sec, prop)| {
 				sec.and_then(|s| {
 					if s.starts_with("Profile") {
@@ -28,12 +29,14 @@ impl Profile {
 			})
 			.ok_or(ProfileError::ProfileNotFound)?;
 
-		let path = browser_data_path.join(&path_slug).join("extensions");
+		let path = browser.path.join(&path_slug).join("extensions");
 
 		if !path.exists() {
 			std::fs::create_dir(&path)?;
 		}
 
-		Ok(Profile { name: profile_name.to_owned(), path })
+		let profile = Profile { name: profile_name.to_owned(), path };
+
+		Ok(profile)
 	}
 }

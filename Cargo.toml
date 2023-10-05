@@ -3,11 +3,24 @@ name = "gex"
 version = "0.4.1"
 edition = "2021"
 authors = [ "Bojan Milevski <bojan@bojanmilevski.com>" ]
+description = "An extension installer for Gecko browsers"
+readme = "README.md"
+keywords = [ "firefox", "extensions" ]
+categories = [ "command-line-utilities" ]
+license = "GPL-v3.0"
+repository = "https://github.com/bojanmilevski/gex"
 
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+[profile.release]
+codegen-units = 1
+lto = true
+opt-level = 'z'
+panic = 'abort'
+strip = true
 
 [dependencies]
 clap = { version = "4.3.11", features = ["derive"] }
+indicatif = "0.17.7"
+rayon = "1.8.0"
 reqwest = { version = "0.11.18", features = ["json"] }
 rust-ini = "0.19.0"
 serde = { version = "1.0.171", features = ["derive"] }

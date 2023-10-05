@@ -16,9 +16,9 @@ use profile::Profile;
 #[tokio::main]
 async fn main() -> Result<(), ProfileError> {
 	let args = Args::parse();
-	let profile = Profile::from(&args.profile, &args.browser.path).await?;
+	let profile = Profile::from(&args.profile, &args.browser).await?;
 
-	let install_tasks = async_func::create_install_tasks(&args.install, &profile.path);
+	let install_tasks = async_func::create_install_tasks(&args.install, &profile);
 	async_func::execute_tasks(install_tasks).await;
 
 	Ok(())

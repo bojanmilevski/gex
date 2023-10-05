@@ -1,27 +1,28 @@
 use crate::install;
+use crate::profile::Profile;
 use crate::query;
-use std::path::PathBuf;
+use tokio::task::JoinHandle;
 
-pub fn create_install_tasks(extensions: &[String], download_path: &PathBuf) -> Vec<tokio::task::JoinHandle<()>> {
+pub fn create_install_tasks(extensions: &[String], profile: &Profile) -> Vec<JoinHandle<()>> {
 	extensions
 		.iter()
 		.map(|ext| {
 			let ext_clone = ext.clone();
-			let dp_clone = download_path.to_owned();
+			let profile_clone = profile.clone();
 			tokio::task::spawn(async move {
-				install_extension_task(&ext_clone, &dp_clone).await;
+				install_extension_task(&ext_clone, &profile_clone).await;
 			})
 		})
 		.collect()
 }
 
-pub async fn install_extension_task(ext: &String, download_path: &PathBuf) {
-	match query::query_extension(&ext).await {
-		Ok(e) => {
-			println!("Installing extension {}.", ext);
-			match install::install_extension(&e, download_path).await {
-				Ok(_) => println!("Successfully installed extension {}.", &ext),
-				Err(error) => eprintln!("Error installing extension {}. Error: {}", ext, error),
+pub async fn install_extension_task(extension: &str, profile: &Profile) {
+	match query::query_extension(&extension).await {
+		Ok(ext) => {
+			println!("Installing extension {}.", extension);
+			match install::install_extension(&ext, &profile).await {
+				Ok(_) => println!("Successfully installed extension {}.", extension),
+				Err(error) => eprintln!("Error installing extension {}. Error: {}", extension, error),
 			};
 		}
 
@@ -31,7 +32,7 @@ pub async fn install_extension_task(ext: &String, download_path: &PathBuf) {
 	}
 }
 
-pub async fn execute_tasks(tasks: Vec<tokio::task::JoinHandle<()>>) {
+pub async fn execute_tasks(tasks: Vec<JoinHandle<()>>) {
 	for task in tasks {
 		let _ = task.await;
 	}

@@ -4,7 +4,7 @@ use std::str::FromStr;
 
 #[derive(Debug, Clone)]
 pub struct Browser {
-	name: String,
+	pub name: String,
 	pub path: PathBuf,
 }
 
@@ -21,9 +21,12 @@ impl FromStr for Browser {
 			_ => return Err(BrowserError::NotSupported),
 		};
 
-		match &path.exists() {
-			true => Ok(Browser { name: browser_name.to_owned(), path }),
-			false => Err(BrowserError::PathNotFound),
+		if !path.exists() {
+			return Err(BrowserError::PathNotFound);
 		}
+
+		let browser = Browser { name: browser_name.to_owned(), path };
+
+		Ok(browser)
 	}
 }
