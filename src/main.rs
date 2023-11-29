@@ -11,8 +11,8 @@ mod query;
 use args::Args;
 use clap::Parser;
 use colored::Colorize;
-use profile::Profile;
 use itertools::Itertools;
+use profile::Profile;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
@@ -20,11 +20,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
 	if !args.query.is_empty() {
 		let extensions = query::query_extensions_list(args.query).await?;
-        let len = extensions.len();
-		extensions
-			.iter()
-            .sorted()
-			.for_each(|e| println!("{}\n", e));
+		let len = extensions.len();
+		extensions.iter().sorted().for_each(|e| println!("{}\n", e));
 		println!("{}: {}", "Total extensions queried".bold().bright_blue(), len);
 		return Ok(());
 	}

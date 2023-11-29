@@ -1,6 +1,11 @@
-- add more browsers and respective data paths
+HIGH PRIORITY
+- implement FromStr for Extension and QueryResult
 - split ext querying and ext installing async
+
+LOW PRIORITY
+- add more browsers and respective data paths
 - windows and macos compatibility
 - install for multiple browsers
 - install for multiple profiles
 - add progress bar
+- execute async tasks without waiting for finish

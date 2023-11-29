@@ -1,7 +1,6 @@
 use crate::install;
 use crate::profile::Profile;
 use crate::query;
-
 use colored::Colorize;
 use tokio::task::JoinHandle;
 

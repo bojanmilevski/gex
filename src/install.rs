@@ -6,8 +6,8 @@ use crate::profile::Profile;
 pub async fn install_extension(extension: &Extension, profile: &Profile) -> Result<(), InstallError> {
 	let ext_guid = &extension.guid;
 	let ext_ver = &extension.current_version.file.id;
-	let ext_url = format!("{}/{}", DOWNLOAD_URL, &ext_ver);
-	let request = reqwest::get(&ext_url).await?;
+	let url = format!("{}/{}", DOWNLOAD_URL, &ext_ver);
+	let request = reqwest::get(&url).await?;
 
 	if !request.status().is_success() {
 		return Err(InstallError::InstallUnsuccessfull);
