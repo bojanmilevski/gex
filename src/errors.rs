@@ -40,10 +40,13 @@ pub enum ProfileError {
 }
 
 #[derive(Debug, Error)]
-pub enum QueryError<'a> {
+pub enum QueryError {
 	#[error("Request error.")]
 	Request(#[from] reqwest::Error),
 
-	#[error("Extension {0} not found.")]
-	ExtensionNotFound(&'a str),
+	#[error("Request was not sent successfully.")]
+    Send,
+
+	#[error("Extension not found.")]
+	ExtensionNotFound,
 }

@@ -1,6 +1,8 @@
 use crate::install;
 use crate::profile::Profile;
 use crate::query;
+
+use colored::Colorize;
 use tokio::task::JoinHandle;
 
 pub fn create_install_tasks(extensions: &[String], profile: &Profile) -> Vec<JoinHandle<()>> {
@@ -10,19 +12,27 @@ pub fn create_install_tasks(extensions: &[String], profile: &Profile) -> Vec<Joi
 			let ext_clone = ext.clone();
 			let profile_clone = profile.clone();
 			tokio::task::spawn(async move {
-				install_extension_task(&ext_clone, &profile_clone).await;
+				install_extension_task(ext_clone.clone(), &profile_clone).await;
 			})
 		})
 		.collect()
 }
 
-pub async fn install_extension_task(extension: &str, profile: &Profile) {
-	match query::query_extension(&extension).await {
+pub async fn install_extension_task(extension: String, profile: &Profile) {
+	match query::query_extension(extension.clone()).await {
 		Ok(ext) => {
-			println!("Installing extension {}.", extension);
+			println!("{}", "Installing extension".bold().green());
+			println!("{}", ext);
+
 			match install::install_extension(&ext, &profile).await {
-				Ok(_) => println!("Successfully installed extension {}.", extension),
-				Err(error) => eprintln!("Error installing extension {}. Error: {}", extension, error),
+				Ok(_) => {
+					println!("{} {}.", "Successfully installed extension".bold().green(), extension.bold().green())
+				}
+
+				Err(error) => {
+					eprintln!("{} {}.", "Error installing extension".bold().red(), extension.bold().red());
+					eprintln!("Error: {}", error);
+				}
 			};
 		}
 

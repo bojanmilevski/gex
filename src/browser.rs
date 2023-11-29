@@ -18,6 +18,7 @@ impl FromStr for Browser {
 		let path = match browser_name {
 			"firefox" => home.join(".mozilla/firefox"),
 			"librewolf" => home.join(".librewolf"),
+			"firedragon" => home.join(".firedragon"),
 			_ => return Err(BrowserError::NotSupported),
 		};
 
