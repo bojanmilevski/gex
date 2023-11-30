@@ -4,7 +4,8 @@ use std::fmt::Display;
 
 #[derive(Debug, Clone, Deserialize)]
 pub struct QueryResult {
-	pub results: Vec<Extension>,
+	#[serde(rename = "results")]
+	pub extensions: Vec<Extension>,
 }
 
 #[derive(Debug, Clone, Deserialize)]
@@ -22,7 +23,7 @@ pub struct Extension {
 	pub url: String,
 	pub weekly_downloads: i32,
 	#[serde(rename = "_score")]
-	pub score: f32,
+	pub score: Option<f32>,
 }
 
 #[derive(Debug, Clone, Deserialize)]
@@ -55,7 +56,7 @@ pub struct License {
 
 #[derive(Debug, Clone, Deserialize)]
 pub struct Ratings {
-	pub average: f32,
+	pub average: Option<f32>,
 }
 
 #[derive(Debug, Clone, Deserialize)]
@@ -71,94 +72,6 @@ impl Extension {
 			.map(|author| author.name.clone())
 			.collect::<Vec<String>>()
 			.join(", ")
-	}
-}
-
-impl Ord for Extension {
-	fn cmp(&self, other: &Self) -> std::cmp::Ordering {
-		self.score.partial_cmp(&other.score).unwrap()
-	}
-}
-
-impl PartialOrd for Extension {
-	fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
-		self.score.partial_cmp(&other.score)
-	}
-}
-
-impl Eq for Extension {}
-
-impl PartialEq for Extension {
-	fn eq(&self, other: &Self) -> bool {
-		self.id == other.id
-			&& self.authors == other.authors
-			&& self.categories == other.categories
-			&& self.created == other.created
-			&& self.description == other.description
-			&& self.current_version == other.current_version
-			&& self.guid == other.guid
-			&& self.name == other.name
-			&& self.ratings == other.ratings
-			&& self.slug == other.slug
-			&& self.url == other.url
-			&& self.weekly_downloads == other.weekly_downloads
-			&& self.score == other.score
-	}
-}
-
-impl Eq for Author {}
-
-impl PartialEq for Author {
-	fn eq(&self, other: &Self) -> bool {
-		self.name == other.name
-	}
-}
-
-impl Eq for Description {}
-
-impl PartialEq for Description {
-	fn eq(&self, other: &Self) -> bool {
-		self.description == other.description
-	}
-}
-
-impl Eq for CurrentVersion {}
-
-impl PartialEq for CurrentVersion {
-	fn eq(&self, other: &Self) -> bool {
-		self.file == other.file && self.license == other.license && self.version == other.version
-	}
-}
-
-impl Eq for FileCurrentVersion {}
-
-impl PartialEq for FileCurrentVersion {
-	fn eq(&self, other: &Self) -> bool {
-		self.id == other.id
-	}
-}
-
-impl Eq for License {}
-
-impl PartialEq for License {
-	fn eq(&self, other: &Self) -> bool {
-		self.slug == other.slug
-	}
-}
-
-impl Eq for Name {}
-
-impl PartialEq for Name {
-	fn eq(&self, other: &Self) -> bool {
-		self.name == other.name
-	}
-}
-
-impl Eq for Ratings {}
-
-impl PartialEq for Ratings {
-	fn eq(&self, other: &Self) -> bool {
-		self.average == other.average
 	}
 }
 
@@ -185,9 +98,9 @@ impl Display for Extension {
 				.slug
 				.unwrap_or("EMPTY".to_owned()),
 			"Rating".bold().bright_blue(),
-			&self.ratings.average,
+			&self.ratings.average.unwrap_or(0.0),
 			"Score".bold().bright_blue(),
-			&self.score,
+			&self.score.unwrap_or(0.0),
 			"Weekly downloads".bold().bright_blue(),
 			&self.weekly_downloads,
 			"Description".bold().bright_blue(),

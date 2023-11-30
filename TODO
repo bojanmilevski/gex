@@ -1,8 +1,10 @@
 HIGH PRIORITY
-- implement FromStr for Extension and QueryResult
+- implement wrapper structs for program configuration
+- follow lsd's (ls replacement) design
 - split ext querying and ext installing async
 
 LOW PRIORITY
+- configuration file
 - add more browsers and respective data paths
 - windows and macos compatibility
 - install for multiple browsers

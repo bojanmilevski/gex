@@ -13,6 +13,21 @@ pub enum BrowserError {
 }
 
 #[derive(Debug, Error)]
+pub enum FlagsError {
+	#[error("Profile error.")]
+	Profile(#[from] ProfileError),
+
+	#[error("Browser error.")]
+	Browser(#[from] BrowserError),
+
+	#[error("Install error.")]
+	Install(#[from] InstallError),
+
+	#[error("Query error.")]
+	Query(#[from] QueryError),
+}
+
+#[derive(Debug, Error)]
 pub enum InstallError {
 	#[error("Request error.")]
 	Request(#[from] reqwest::Error),
@@ -29,11 +44,14 @@ pub enum InstallError {
 
 #[derive(Debug, Error)]
 pub enum ProfileError {
-	#[error("Ini error.")]
-	Ini(#[from] ini::Error),
+	#[error("Browser error.")]
+	Browser(#[from] BrowserError),
 
 	#[error("Cannot create folder.")]
 	Folder(#[from] std::io::Error),
+
+	#[error("Ini error.")]
+	Ini(#[from] ini::Error),
 
 	#[error("Profile not found.")]
 	ProfileNotFound,
@@ -45,7 +63,7 @@ pub enum QueryError {
 	Request(#[from] reqwest::Error),
 
 	#[error("Request was not sent successfully.")]
-    Send,
+	Send,
 
 	#[error("Extension not found.")]
 	ExtensionNotFound,

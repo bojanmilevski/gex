@@ -71,6 +71,8 @@ As this repository grows, the documentation changes along with it - providing in
 
 This is my first program written in `rust`. I am aware that a large portion of the code is in need of refactoring. I assure anyone that this program will continue to improve, along with it's code.
 
-## INSPIRATION
+## SPECIAL THANKS
 
-This project was inspired by [Interfiber's `firefoxext` program written in `C`.](https://github.com/Interfiber/firefoxext). This program is it's spiritual successor. 🙂
+- [Interfiber's `firefoxext` program written in `C`](https://github.com/Interfiber/firefoxext) for being an inspiration. This program is it's spiritual successor. 🙂
+
+- [lsd](https://github.com/lsd-rs/lsd) for providing a well designed structured code base.

@@ -1,7 +1,8 @@
-use crate::config::DOWNLOAD_URL;
 use crate::errors::InstallError;
 use crate::extension::Extension;
-use crate::profile::Profile;
+use crate::flags::Profile;
+
+const DOWNLOAD_URL: &str = "https://addons.mozilla.org/firefox/downloads/file";
 
 pub async fn install_extension(extension: &Extension, profile: &Profile) -> Result<(), InstallError> {
 	let ext_guid = &extension.guid;
