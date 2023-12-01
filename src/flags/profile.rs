@@ -9,6 +9,7 @@ use async_trait::async_trait;
 
 #[derive(Debug, Default, Clone)]
 pub struct Profile {
+	pub browser: Browser,
 	pub name: String,
 	pub path: PathBuf,
 }
@@ -18,12 +19,16 @@ impl Configurable for Profile {
 	type Err = ProfileError;
 
 	async fn configure_from(args: &Args) -> Result<Self, Self::Err> {
+		if !args.search.is_empty() {
+			return Ok(Self { ..Default::default() });
+		}
+
+		let browser = Browser::configure_from(&args).await?;
+
 		/*
 			browser configure_from will be run 2 times during flags construction
 			this is a very very very stupid workaround
 		*/
-		let browser = Browser::configure_from(&args).await?;
-
 		let ini_file = browser.path.join("profiles.ini");
 		let config = ini::Ini::load_from_file(&ini_file)?;
 
@@ -54,8 +59,8 @@ impl Configurable for Profile {
 			std::fs::create_dir(&path)?;
 		}
 
-		let profile = Profile { name: args.profile.to_owned(), path };
+		let name = args.profile.to_owned();
 
-		Ok(profile)
+		Ok(Self { browser, name, path })
 	}
 }

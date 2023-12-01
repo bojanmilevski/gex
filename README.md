@@ -25,14 +25,17 @@ This program assumes that you are using `firefox` as your default browser and th
 Running `gex -h` issues the following output:
 
 ```
-Usage:  gex [OPTIONS]
+An extension installer for Gecko browsers
+
+Usage: gex [OPTIONS] --extensions <EXTENSIONS>...
 
 Options:
-    -i, --install <INSTALL>...
-    -p, --profile <PROFILE>        [default: default-release]
-    -b, --browser <BROWSER>        [default: firefox]
-    -h, --help                     Print help
-    -V, --version                  Print version
+  -e, --extensions <EXTENSIONS>...
+  -p, --profile <PROFILE>           [default: default-release]
+  -b, --browser <BROWSER>           [default: firefox]
+  -s, --search <SEARCH>             [default: ]
+  -h, --help                        Print help
+  -V, --version                     Print version
 ```
 
 ### EXAMPLES
@@ -40,19 +43,19 @@ Options:
 To install [Dark Reader](https://addons.mozilla.org/en-US/firefox/addon/darkreader) for `Firefox`, simply run the following command:
 
 ```
-gex -i darkreader
+gex -e darkreader
 ```
 
 To achieve the same for `Librewolf`:
 
 ```
-gex -i darkreader -b librewolf
+gex -e darkreader -b librewolf
 ```
 
 ... for the `default` profile:
 
 ```
-gex -i darkreader -b librewolf -p default
+gex -e darkreader -b librewolf -p default
 ```
 
 ## LICENSE
@@ -75,4 +78,4 @@ This is my first program written in `rust`. I am aware that a large portion of t
 
 - [Interfiber's `firefoxext` program written in `C`](https://github.com/Interfiber/firefoxext) for being an inspiration. This program is it's spiritual successor. 🙂
 
-- [lsd](https://github.com/lsd-rs/lsd) for providing a well designed structured code base.
+- [lsd](https://github.com/lsd-rs/lsd) for providing a well designed and structured code base.

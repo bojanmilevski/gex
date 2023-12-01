@@ -1,7 +1,5 @@
 HIGH PRIORITY
-- implement wrapper structs for program configuration
-- follow lsd's (ls replacement) design
-- split ext querying and ext installing async
+- add progress bar
 
 LOW PRIORITY
 - configuration file
@@ -9,5 +7,4 @@ LOW PRIORITY
 - windows and macos compatibility
 - install for multiple browsers
 - install for multiple profiles
-- add progress bar
 - execute async tasks without waiting for finish

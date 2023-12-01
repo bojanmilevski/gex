@@ -1,8 +1,9 @@
-0.6.0 code structure and design changed (thanks lsd (THE PROGRAM!!!))
-0.5.0 added plugin search and colored output
-0.4.2 minor code improvements
-0.4.1 browser module, code and qol improvements
-0.4.0 Major code structure and qol improvements.
-0.3.0 Async functionality "properly" implemented.
-0.2.0 Split functionality into modules.
-0.1.0 Initial release.
+0.0.6.1		minor code improvements
+0.0.6			code structure and design changed (thanks lsd (THE PROGRAM!!!))
+0.0.5			added plugin search and colored output
+0.0.4.2		minor code improvements
+0.0.4.1		browser module, code and qol improvements
+0.0.4			Major code structure and qol improvements.
+0.0.3			Async functionality "properly" implemented.
+0.0.2			Split functionality into modules.
+0.0.1			Initial release.

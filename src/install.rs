@@ -8,16 +8,24 @@ pub async fn install_extension(extension: &Extension, profile: &Profile) -> Resu
 	let ext_guid = &extension.guid;
 	let ext_ver = &extension.current_version.file.id;
 	let url = format!("{}/{}", DOWNLOAD_URL, &ext_ver);
-	let request = reqwest::get(&url).await?;
+	let client = reqwest::Client::new();
+	let content_len = client.head(&url).send().await?.content_length();
+
+	if let None = content_len {
+		return Err(InstallError::InstallUnsuccessfull);
+	}
+
+	let request = client.get(&url).send().await?;
 
 	if !request.status().is_success() {
 		return Err(InstallError::InstallUnsuccessfull);
 	}
 
-	let mut path_str = profile.path.join(&ext_guid);
-	path_str.set_extension("xpi");
-	let mut ext_file = std::fs::File::create(&path_str)?;
-	std::io::copy(&mut request.bytes().await?.as_ref(), &mut ext_file)?;
+	let mut path = profile.path.join(&ext_guid);
+	path.set_extension("xpi");
+	let mut file = tokio::fs::File::create(&path).await?;
+	let bytes = request.bytes().await?;
+	tokio::io::copy(&mut bytes.as_ref(), &mut file).await?;
 
 	Ok(())
 }

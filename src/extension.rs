@@ -79,7 +79,7 @@ impl Display for Extension {
 	fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
 		write!(
 			f,
-			"{}: {}\n{}: {}\n{}: {}\n{}: {}\n{}: {}\n{}: {}\n{}: {}\n{}: {}\n{}: {}\n{}: {}",
+			"{}: {}\n{}: {}\n{}: {}\n{}: {}\n{}: {}\n{}: {}\n{}: {}\n{}: {}\n{}: {}\n",
 			"Name".bold().bright_blue(),
 			&self.name.name.clone().unwrap_or("EMPTY".to_string()),
 			"Version".bold().bright_blue(),
@@ -103,13 +103,13 @@ impl Display for Extension {
 			&self.score.unwrap_or(0.0),
 			"Weekly downloads".bold().bright_blue(),
 			&self.weekly_downloads,
-			"Description".bold().bright_blue(),
+			/* "Description".bold().bright_blue(),
 			&self
 				.description
 				.clone()
 				.unwrap_or(Description { description: None })
 				.description
-				.unwrap_or("EMPTY".to_owned()),
+				.unwrap_or("EMPTY".to_owned()), */
 		)
 	}
 }

@@ -1,14 +1,13 @@
 use crate::args::Args;
 use crate::errors::QueryError;
 use crate::extension::Extension;
+use crate::flags::Configurable;
 use crate::query;
 
 use async_trait::async_trait;
 use serde::Deserialize;
 
-use super::Configurable;
-
-#[derive(Debug, Clone, Deserialize)]
+#[derive(Debug, Clone, Default, Deserialize)]
 pub struct Extensions {
 	pub extensions: Vec<Extension>,
 }
@@ -18,6 +17,10 @@ impl Configurable for Extensions {
 	type Err = QueryError;
 
 	async fn configure_from(args: &Args) -> Result<Self, Self::Err> {
+		if args.extensions.is_empty() {
+			return Ok(Self { ..Default::default() });
+		}
+
 		let mut extensions = Vec::new();
 
 		for extension in &args.extensions {

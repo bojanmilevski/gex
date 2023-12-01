@@ -6,7 +6,7 @@ use std::path::PathBuf;
 
 use async_trait::async_trait;
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Default)]
 pub struct Browser {
 	pub name: String,
 	pub path: PathBuf,
@@ -17,6 +17,10 @@ impl Configurable for Browser {
 	type Err = BrowserError;
 
 	async fn configure_from(args: &Args) -> Result<Self, Self::Err> {
+		if !args.search.is_empty() {
+			return Ok(Self { ..Default::default() });
+		}
+
 		let home_str = std::env::var("HOME")?;
 		let home = PathBuf::from(&home_str);
 
@@ -31,8 +35,6 @@ impl Configurable for Browser {
 			return Err(BrowserError::PathNotFound);
 		}
 
-		let browser = Browser { name: args.browser.to_string(), path };
-
-		Ok(browser)
+		Ok(Self { name: args.browser.to_string(), path })
 	}
 }

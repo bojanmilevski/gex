@@ -21,9 +21,8 @@ pub trait Configurable: Sized {
 }
 
 pub struct Flags {
-	pub profile: Profile,
-	pub browser: Browser,
 	pub extensions: Extensions,
+	pub profile: Profile,
 	pub search: Search,
 }
 
@@ -33,9 +32,8 @@ impl Configurable for Flags {
 
 	async fn configure_from(args: &Args) -> Result<Self, Self::Err> {
 		Ok(Self {
-			profile: Profile::configure_from(&args).await?,
-			browser: Browser::configure_from(&args).await?,
 			extensions: Extensions::configure_from(&args).await?,
+			profile: Profile::configure_from(&args).await?,
 			search: Search::configure_from(&args).await?,
 		})
 	}
