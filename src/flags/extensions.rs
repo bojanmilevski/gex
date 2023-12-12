@@ -1,9 +1,9 @@
 use crate::args::Args;
-use crate::errors::QueryError;
+use crate::errors::Error;
+use crate::errors::Result;
 use crate::extension::Extension;
 use crate::flags::Configurable;
 use crate::query;
-
 use async_trait::async_trait;
 use serde::Deserialize;
 
@@ -14,9 +14,9 @@ pub struct Extensions {
 
 #[async_trait]
 impl Configurable for Extensions {
-	type Err = QueryError;
+	type Err = Error;
 
-	async fn configure_from(args: &Args) -> Result<Self, Self::Err> {
+	async fn configure_from(args: &Args) -> Result<Self> {
 		if args.extensions.is_empty() {
 			return Ok(Self { ..Default::default() });
 		}

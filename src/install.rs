@@ -1,10 +1,11 @@
-use crate::errors::InstallError;
+use crate::errors::Error;
+use crate::errors::Result;
 use crate::extension::Extension;
 use crate::flags::Profile;
 
 const DOWNLOAD_URL: &str = "https://addons.mozilla.org/firefox/downloads/file";
 
-pub async fn install_extension(extension: &Extension, profile: &Profile) -> Result<(), InstallError> {
+pub async fn install_extension(extension: &Extension, profile: &Profile) -> Result<()> {
 	let ext_guid = &extension.guid;
 	let ext_ver = &extension.current_version.file.id;
 	let url = format!("{}/{}", DOWNLOAD_URL, &ext_ver);
@@ -12,13 +13,13 @@ pub async fn install_extension(extension: &Extension, profile: &Profile) -> Resu
 	let content_len = client.head(&url).send().await?.content_length();
 
 	if let None = content_len {
-		return Err(InstallError::InstallUnsuccessfull);
+		return Err(Error::InstallUnsuccessfull);
 	}
 
 	let request = client.get(&url).send().await?;
 
 	if !request.status().is_success() {
-		return Err(InstallError::InstallUnsuccessfull);
+		return Err(Error::InstallUnsuccessfull);
 	}
 
 	let mut path = profile.path.join(&ext_guid);

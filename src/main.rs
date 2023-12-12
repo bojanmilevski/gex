@@ -6,15 +6,14 @@ mod flags;
 mod install;
 mod query;
 
+use crate::errors::Result;
 use args::Args;
-use errors::FlagsError;
+use clap::Parser;
 use flags::Configurable;
 use flags::Flags;
 
-use clap::Parser;
-
 #[tokio::main]
-async fn main() -> Result<(), FlagsError> {
+async fn main() -> Result<()> {
 	let args = Args::parse();
 	let flags = Flags::configure_from(&args).await?;
 

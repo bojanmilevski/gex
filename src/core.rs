@@ -2,7 +2,6 @@ use crate::extension::Extension;
 use crate::flags::profile::Profile;
 use crate::flags::Flags;
 use crate::install;
-
 use colored::Colorize;
 use rayon::iter::IntoParallelRefIterator;
 use rayon::iter::ParallelIterator;

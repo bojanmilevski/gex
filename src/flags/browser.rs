@@ -1,10 +1,10 @@
 use crate::args::Args;
-use crate::errors::BrowserError;
+use crate::errors::Error;
+use crate::errors::Result;
 use crate::Configurable;
-
-use std::path::PathBuf;
-
 use async_trait::async_trait;
+use home::home_dir;
+use std::path::PathBuf;
 
 #[derive(Debug, Clone, Default)]
 pub struct Browser {
@@ -14,25 +14,25 @@ pub struct Browser {
 
 #[async_trait]
 impl Configurable for Browser {
-	type Err = BrowserError;
+	type Err = Error;
 
-	async fn configure_from(args: &Args) -> Result<Self, Self::Err> {
+	async fn configure_from(args: &Args) -> Result<Self> {
 		if !args.search.is_empty() {
 			return Ok(Self { ..Default::default() });
 		}
 
-		let home_str = std::env::var("HOME")?;
+		let home_str = home_dir().ok_or(Error::HomeVar)?;
 		let home = PathBuf::from(&home_str);
 
 		let path = match args.browser.as_str() {
 			"firefox" => home.join(".mozilla/firefox"),
 			"librewolf" => home.join(".librewolf"),
 			"firedragon" => home.join(".firedragon"),
-			_ => return Err(BrowserError::NotSupported),
+			_ => return Err(Error::BrowserNotSupported),
 		};
 
 		if !path.exists() {
-			return Err(BrowserError::PathNotFound);
+			return Err(Error::BrowserPathNotFound);
 		}
 
 		Ok(Self { name: args.browser.to_string(), path })
