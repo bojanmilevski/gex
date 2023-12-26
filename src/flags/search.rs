@@ -17,11 +17,11 @@ impl Configurable for Search {
 	type Err = Error;
 
 	async fn configure_from(args: &Args) -> Result<Self> {
-		if args.search.is_empty() {
+		if args.search.is_none() {
 			return Ok(Self { ..Default::default() });
 		}
 
-		let extensions = query::query_extensions(&args.search).await?;
+		let extensions = query::query_extensions(&args.search.clone().unwrap()).await?;
 		Ok(Self { extensions })
 	}
 }

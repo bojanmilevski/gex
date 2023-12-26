@@ -10,22 +10,16 @@ pub async fn install_extension(extension: &Extension, profile: &Profile) -> Resu
 	let ext_ver = &extension.current_version.file.id;
 	let url = format!("{}/{}", DOWNLOAD_URL, &ext_ver);
 	let client = reqwest::Client::new();
-	let content_len = client.head(&url).send().await?.content_length();
+	let response = client.get(&url).send().await?;
 
-	if let None = content_len {
+	if !response.status().is_success() {
 		return Err(Error::InstallUnsuccessfull);
 	}
 
-	let request = client.get(&url).send().await?;
-
-	if !request.status().is_success() {
-		return Err(Error::InstallUnsuccessfull);
-	}
-
-	let mut path = profile.path.join(&ext_guid);
+	let mut path = profile.path.join("extensions").join(&ext_guid);
 	path.set_extension("xpi");
 	let mut file = tokio::fs::File::create(&path).await?;
-	let bytes = request.bytes().await?;
+	let bytes = response.bytes().await?;
 	tokio::io::copy(&mut bytes.as_ref(), &mut file).await?;
 
 	Ok(())

@@ -1,8 +1,9 @@
 HIGH PRIORITY
 - add progress bar
-- install ext to currently selected profile (profiles.ini -> [Install*] -> Default=...)
+- manage installed extensions (delete, update, list)
 
 LOW PRIORITY
+- enable extension so the user does not have to
 - configuration file
 - execute async tasks without waiting for finish
 - install for multiple browsers

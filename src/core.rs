@@ -13,16 +13,16 @@ pub fn create_install_tasks(flags: &Flags) -> Vec<JoinHandle<()>> {
 		.extensions
 		.par_iter()
 		.map(|ext| {
-			let ext_clone = ext.clone();
-			let profile_clone = flags.profile.clone();
+			let ext = ext.clone();
+			let profile = flags.profile.clone();
 			tokio::task::spawn(async move {
-				install_extension_task(ext_clone, &profile_clone).await;
+				install_extension_task(&ext, &profile).await;
 			})
 		})
 		.collect()
 }
 
-pub async fn install_extension_task(extension: Extension, profile: &Profile) {
+pub async fn install_extension_task(extension: &Extension, profile: &Profile) {
 	println!("{}", "Installing extension".bold().green());
 	println!("{}", extension);
 	let name = extension.clone().name.name.unwrap_or("EMPTY".to_string()); // stupid but works for now

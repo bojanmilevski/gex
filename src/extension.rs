@@ -5,7 +5,7 @@ use serde::Deserialize;
 use std::fmt::Display;
 
 #[derive(Debug, Clone, Deserialize)]
-pub struct QueryResult {
+pub struct ExtensionsList {
 	#[serde(rename = "results")]
 	pub extensions: Vec<Extension>,
 }

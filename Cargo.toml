@@ -1,6 +1,6 @@
 [package]
 name = "gex"
-version = "0.6.2"
+version = "0.6.3"
 edition = "2021"
 authors = [ "Bojan Milevski <bojan@bojanmilevski.com>" ]
 description = "An extension installer for Gecko browsers"
@@ -21,7 +21,7 @@ strip = true
 async-trait = "0.1.74"
 clap = { version = "4.3.11", features = ["derive"] }
 colored = "2.0.4"
-home = "0.5.5"
+home = "0.5.9"
 indicatif = "0.17.7"
 rayon = "1.8.0"
 reqwest = { version = "0.11.18", features = ["json"] }

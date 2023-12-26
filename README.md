@@ -40,15 +40,15 @@ Running `gex -h` issues the following output:
 ```
 An extension installer for Gecko browsers
 
-Usage: gex [OPTIONS] --extensions <EXTENSIONS>...
+Usage: gex [OPTIONS] --install <EXTENSIONS>...
 
 Options:
-  -e, --extensions <EXTENSIONS>...
-  -p, --profile <PROFILE>           [default: default-release]
-  -b, --browser <BROWSER>           [default: firefox]
-  -s, --search <SEARCH>             [default: ]
-  -h, --help                        Print help
-  -V, --version                     Print version
+  -b, --browser <BROWSER>        [default: firefox]
+  -i, --install <EXTENSIONS>...
+  -p, --profile <PROFILE>
+  -s, --search <SEARCH>
+  -h, --help                     Print help
+  -V, --version                  Print version
 ```
 
 ### EXAMPLES
@@ -93,7 +93,7 @@ of refactoring. I assure anyone that this program will continue to improve, alon
 
 ## SPECIAL THANKS
 
--   [Interfiber's `firefoxext` program written in `C`](https://github.com/Interfiber/firefoxext)
-    for being an inspiration. This program is it's spiritual successor. 🙂
+- [Interfiber's `firefoxext` program written in `C`](https://github.com/Interfiber/firefoxext)
+  for being an inspiration. This program is it's spiritual successor. 🙂
 
--   [lsd](https://github.com/lsd-rs/lsd) for providing a well designed and structured code base.
+- [lsd](https://github.com/lsd-rs/lsd) for providing a well designed and structured code base.

@@ -17,7 +17,7 @@ impl Configurable for Browser {
 	type Err = Error;
 
 	async fn configure_from(args: &Args) -> Result<Self> {
-		if !args.search.is_empty() {
+		if args.search.is_some() {
 			return Ok(Self { ..Default::default() });
 		}
 

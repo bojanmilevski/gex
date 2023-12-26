@@ -3,15 +3,14 @@ pub mod extensions;
 pub mod profile;
 pub mod search;
 
-pub use browser::Browser;
-pub use extensions::Extensions;
-pub use profile::Profile;
-pub use search::Search;
-
 use crate::args::Args;
 use crate::errors::Error;
 use crate::errors::Result;
 use async_trait::async_trait;
+pub use browser::Browser;
+pub use extensions::Extensions;
+pub use profile::Profile;
+pub use search::Search;
 
 #[async_trait]
 pub trait Configurable: Sized {
