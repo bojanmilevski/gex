@@ -34,7 +34,7 @@ pub async fn install_extension_task(extension: &Extension, profile: &Profile) {
 
 		Err(err) => {
 			eprintln!("{}: {}.", "Error installing extension".bold().red(), name);
-			eprintln!("Error: {}", err);
+			eprintln!("{}: {}", "Error".bold().red(), err);
 		}
 	};
 }

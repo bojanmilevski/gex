@@ -16,8 +16,7 @@ pub async fn install_extension(extension: &Extension, profile: &Profile) -> Resu
 		return Err(Error::InstallUnsuccessfull);
 	}
 
-	let mut path = profile.path.join("extensions").join(&ext_guid);
-	path.set_extension("xpi");
+	let path = format!("{}/extensions/{}.xpi", profile.path.display(), &ext_guid);
 	let mut file = tokio::fs::File::create(&path).await?;
 	let bytes = response.bytes().await?;
 	tokio::io::copy(&mut bytes.as_ref(), &mut file).await?;
