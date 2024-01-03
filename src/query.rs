@@ -2,8 +2,6 @@ use crate::errors::Error;
 use crate::errors::Result;
 use crate::extension::Extension;
 use crate::extension::ExtensionsList;
-use rayon::iter::IntoParallelRefIterator;
-use rayon::iter::ParallelIterator;
 
 const QUERY_URL: &str = "https://addons.mozilla.org/api/v5/addons/search/?q=";
 
@@ -24,8 +22,8 @@ pub async fn query_extension(ext_slug: &str) -> Result<Extension> {
 	send_query(&ext_slug)
 		.await?
 		.extensions
-		.par_iter()
-		.find_any(|ext| ext.slug == ext_slug)
+		.iter()
+		.find(|ext| ext.slug == ext_slug)
 		.ok_or(Error::ExtensionNotFound)
 		.cloned()
 }

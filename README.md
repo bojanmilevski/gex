@@ -15,23 +15,21 @@ by looking at an extension's URL:
 https://addons.mozilla.org/en-US/firefox/addon/darkreader
 ```
 
-In this case, (`darkreader`) is this extension's slug. A request is sent to
+In this case, `darkreader` is this extension's slug. A request is sent to
 `https://addons.mozilla.org/api/v5/addons/search/?q=` with the slug appended to this string. This
-page returns a `.json` file which contains a list of results containing extensions that met the
-search query. Out of the queried extensions, the one that matches the slug gets installed to the
-profile's `extensions` folder with it's `guid` being the filename.
+page returns a `.json` containing a list of results containing extensions that met the search query.
+Out of the queried extensions, the one that matches the slug gets installed to the profile's
+`extensions` folder with it's `guid` being the filename.
 
 ### CAVEATS
 
-The only caveat with `gex` is that the desired browser must have been previously opened in order for
-the `default` and `default-release` profiles to be created. `Gecko` browsers have a (rather weird)
-random profile naming scheme. This causes unnecessary overhead for programmers.
+The only caveat with `gex` is that the desired browser must have been previously opened in order
+for the `default` and `default-release` profiles to be created.
 
 ### ASSUMPTIONS
 
-This program assumes that you are using `firefox` as your default browser and the `default-release`
-profile as your currently selected profile. It installs all extensions to
-`~/.mozilla/firefox/*.default-release/extensions`.
+This program assumes that you are using `firefox` as your default browser. It installs all
+extensions to `~/.mozilla/firefox/<currently_selected_profile>/extensions`.
 
 ## INSTRUCTIONS
 
@@ -57,19 +55,19 @@ To install [Dark Reader](https://addons.mozilla.org/en-US/firefox/addon/darkread
 simply run the following command:
 
 ```
-gex -e darkreader
+gex -i darkreader
 ```
 
 To achieve the same for `Librewolf`:
 
 ```
-gex -e darkreader -b librewolf
+gex -i darkreader -b librewolf
 ```
 
 ... for the `default` profile:
 
 ```
-gex -e darkreader -b librewolf -p default
+gex -i darkreader -b librewolf -p default
 ```
 
 ## LICENSE
@@ -85,11 +83,6 @@ this project.
 
 As this repository grows, the documentation changes along with it - providing information that is up
 to date and relevant to the state of this project.
-
-## A NOTE FROM THE AUTHOR
-
-This is my first program written in `rust`. I am aware that a large portion of the code is in need
-of refactoring. I assure anyone that this program will continue to improve, along with it's code.
 
 ## SPECIAL THANKS
 

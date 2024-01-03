@@ -6,12 +6,15 @@ pub struct Args {
 	#[arg(short, long, default_value = "firefox")]
 	pub browser: String,
 
-	#[arg(short = 'i', long = "install", required = true, num_args = 1.., value_delimiter = ' ', conflicts_with = "search")]
+	#[arg(short = 'i', long = "install", num_args = 1.., value_delimiter = ' ', conflicts_with = "search")]
 	pub extensions: Vec<String>,
 
-	#[arg(short, long, required = false)]
+	#[arg(short, long)]
 	pub profile: Option<String>,
 
 	#[arg(short, long, conflicts_with = "extensions")]
 	pub search: Option<String>,
+
+	#[arg(short, long)]
+	pub verbose: bool,
 }

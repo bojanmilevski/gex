@@ -3,7 +3,6 @@ use crate::errors::Error;
 use crate::errors::Result;
 use crate::flags::Browser;
 use crate::Configurable;
-use async_trait::async_trait;
 use ini::Ini;
 use std::path::PathBuf;
 
@@ -25,13 +24,13 @@ impl Profile {
 			.to_owned())
 	}
 
-	async fn get_specified_profile(ini: &Ini, profile_name: &str) -> Result<String> {
+	async fn get_specified_profile(ini: &Ini, profile: &str) -> Result<String> {
 		Ok(ini
 			.sections()
 			.flatten()
 			.filter(|section| section.starts_with("Profile"))
 			.find_map(|section| {
-				if ini.get_from(Some(section), "Name")? == profile_name {
+				if ini.get_from(Some(section), "Name")? == profile {
 					ini.get_from(Some(section), "Path")
 				} else {
 					None
@@ -42,10 +41,7 @@ impl Profile {
 	}
 }
 
-#[async_trait]
 impl Configurable for Profile {
-	type Err = Error;
-
 	async fn configure_from(args: &Args) -> Result<Self> {
 		if args.search.is_some() {
 			return Ok(Self { ..Default::default() });
@@ -57,7 +53,7 @@ impl Configurable for Profile {
 		let ini = Ini::load_from_file(&profiles_file)?;
 
 		let path_slug = match &args.profile {
-			Some(profile_name) => Self::get_specified_profile(&ini, &profile_name).await?,
+			Some(profile) => Self::get_specified_profile(&ini, &profile).await?,
 			None => Self::get_profile_in_use(&ini).await?,
 		};
 

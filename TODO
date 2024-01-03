@@ -11,3 +11,4 @@ LOW PRIORITY
 - more browsers and respective data paths
 - thunderbird (and derivatives) support
 - windows and macos compatibility
+- verbose flag

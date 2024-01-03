@@ -1,6 +1,4 @@
 use colored::Colorize;
-use rayon::iter::IntoParallelRefIterator;
-use rayon::iter::ParallelIterator;
 use serde::Deserialize;
 use std::fmt::Display;
 
@@ -70,7 +68,7 @@ pub struct Name {
 impl Extension {
 	fn get_authors_as_string(&self) -> String {
 		self.authors
-			.par_iter()
+			.iter()
 			.map(|author| author.name.clone())
 			.collect::<Vec<String>>()
 			.join(", ")

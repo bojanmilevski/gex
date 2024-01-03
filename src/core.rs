@@ -3,15 +3,13 @@ use crate::flags::profile::Profile;
 use crate::flags::Flags;
 use crate::install;
 use colored::Colorize;
-use rayon::iter::IntoParallelRefIterator;
-use rayon::iter::ParallelIterator;
 use tokio::task::JoinHandle;
 
 pub fn create_install_tasks(flags: &Flags) -> Vec<JoinHandle<()>> {
 	flags
 		.extensions
 		.extensions
-		.par_iter()
+		.iter()
 		.map(|ext| {
 			let ext = ext.clone();
 			let profile = flags.profile.clone();

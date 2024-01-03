@@ -2,7 +2,6 @@ use crate::args::Args;
 use crate::errors::Error;
 use crate::errors::Result;
 use crate::Configurable;
-use async_trait::async_trait;
 use home::home_dir;
 use std::path::PathBuf;
 
@@ -12,10 +11,7 @@ pub struct Browser {
 	pub path: PathBuf,
 }
 
-#[async_trait]
 impl Configurable for Browser {
-	type Err = Error;
-
 	async fn configure_from(args: &Args) -> Result<Self> {
 		if args.search.is_some() {
 			return Ok(Self { ..Default::default() });
