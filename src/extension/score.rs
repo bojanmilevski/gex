@@ -5,11 +5,11 @@ use std::fmt::Display;
 #[derive(Clone, Debug, Deserialize)]
 #[serde(transparent)]
 pub struct Score {
-	score: Option<f32>,
+	score: Option<f64>,
 }
 
 impl Display for Score {
 	fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-		write!(f, "{}: {}", "Score".bold().bright_blue(), &self.score.unwrap_or(0.0))
+		write!(f, "{}: {:.2}", "Score".bold().bright_blue(), &self.score.unwrap_or(0.0))
 	}
 }

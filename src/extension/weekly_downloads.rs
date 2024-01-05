@@ -10,6 +10,6 @@ pub struct WeeklyDownloads {
 
 impl Display for WeeklyDownloads {
 	fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-		write!(f, "{}: {}", "Score".bold().bright_blue(), &self.weekly_downloads)
+		write!(f, "{}: {}", "Weekly downloads".bold().bright_blue(), &self.weekly_downloads)
 	}
 }

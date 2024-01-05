@@ -1,5 +1,5 @@
 use super::authors::Authors;
-use super::creation_date::CreationDate;
+use super::creation_date::CreationDateTime;
 use super::current_version::CurrentVersion;
 use super::description::Description;
 use super::name::Name;
@@ -15,7 +15,7 @@ pub struct Extension {
 	pub id: i32,
 	pub authors: Authors,
 	// pub categories: Vec<String>,
-	pub created: CreationDate,
+	pub created: CreationDateTime,
 	pub description: Description,
 	pub current_version: CurrentVersion,
 	pub guid: String,
