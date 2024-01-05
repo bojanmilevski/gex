@@ -1,0 +1,13 @@
+mod authors;
+mod creation_date;
+mod current_version;
+mod description;
+pub mod extension;
+pub mod extensions_list;
+mod file;
+mod license;
+mod name;
+mod ratings;
+mod score;
+mod url;
+mod weekly_downloads;

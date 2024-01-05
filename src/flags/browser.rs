@@ -1,8 +1,9 @@
 use crate::args::Args;
 use crate::errors::Error;
 use crate::errors::Result;
-use crate::Configurable;
+use crate::flags::configurable::Configurable;
 use home::home_dir;
+use std::fmt::Display;
 use std::path::PathBuf;
 
 #[derive(Debug, Clone, Default)]
@@ -32,5 +33,17 @@ impl Configurable for Browser {
 		}
 
 		Ok(Self { name: args.browser.to_string(), path })
+	}
+}
+
+impl Display for Browser {
+	fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+		write!(f, "TODO: impl Display for Browser")
+	}
+}
+
+impl Into<String> for Browser {
+	fn into(self) -> String {
+		String::from("TODO: impl Into<String> for Browser")
 	}
 }

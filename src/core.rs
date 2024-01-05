@@ -1,6 +1,6 @@
-use crate::extension::Extension;
+use crate::extension::extension::Extension;
+use crate::flags::flags::Flags;
 use crate::flags::profile::Profile;
-use crate::flags::Flags;
 use crate::install;
 use colored::Colorize;
 use tokio::task::JoinHandle;
@@ -20,7 +20,7 @@ pub fn create_install_tasks(flags: &Flags) -> Vec<JoinHandle<()>> {
 		.collect()
 }
 
-pub async fn install_extension_task(extension: &Extension, profile: &Profile) {
+async fn install_extension_task(extension: &Extension, profile: &Profile) {
 	println!("{}", "Installing extension".bold().green());
 	println!("{}", extension);
 	let name = extension.clone().name.name.unwrap_or("EMPTY".to_string()); // stupid but works for now

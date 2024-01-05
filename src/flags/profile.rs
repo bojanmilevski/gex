@@ -1,9 +1,10 @@
 use crate::args::Args;
 use crate::errors::Error;
 use crate::errors::Result;
-use crate::flags::Browser;
-use crate::Configurable;
+use crate::flags::browser::Browser;
+use crate::flags::configurable::Configurable;
 use ini::Ini;
+use std::fmt::Display;
 use std::path::PathBuf;
 
 #[derive(Debug, Default, Clone)]
@@ -64,5 +65,17 @@ impl Configurable for Profile {
 		}
 
 		Ok(Self { browser, path })
+	}
+}
+
+impl Display for Profile {
+	fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+		write!(f, "TODO: impl Display for Profile")
+	}
+}
+
+impl Into<String> for Profile {
+	fn into(self) -> String {
+		String::from("TODO: impl Into<String> for Profile")
 	}
 }

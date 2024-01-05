@@ -6,11 +6,11 @@ mod flags;
 mod install;
 mod query;
 
-use crate::errors::Result;
 use args::Args;
 use clap::Parser;
-use flags::Configurable;
-use flags::Flags;
+use errors::Result;
+use flags::configurable::Configurable;
+use flags::flags::Flags;
 
 #[tokio::main]
 async fn main() -> Result<()> {

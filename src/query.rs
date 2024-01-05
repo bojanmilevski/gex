@@ -1,7 +1,7 @@
 use crate::errors::Error;
 use crate::errors::Result;
-use crate::extension::Extension;
-use crate::extension::ExtensionsList;
+use crate::extension::extension::Extension;
+use crate::extension::extensions_list::ExtensionsList;
 
 const QUERY_URL: &str = "https://addons.mozilla.org/api/v5/addons/search/?q=";
 

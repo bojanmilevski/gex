@@ -1,9 +1,10 @@
 use crate::args::Args;
 use crate::errors::Result;
-use crate::extension::Extension;
-use crate::flags::Configurable;
+use crate::extension::extension::Extension;
+use crate::flags::configurable::Configurable;
 use crate::query;
 use serde::Deserialize;
+use std::fmt::Display;
 
 #[derive(Debug, Clone, Default, Deserialize)]
 pub struct Search {
@@ -18,5 +19,17 @@ impl Configurable for Search {
 
 		let extensions = query::query_extensions(&args.search.clone().unwrap()).await?;
 		Ok(Self { extensions })
+	}
+}
+
+impl Display for Search {
+	fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+		write!(f, "TODO: impl Display for Search")
+	}
+}
+
+impl Into<String> for Search {
+	fn into(self) -> String {
+		String::from("TODO: impl Into<String> for Search")
 	}
 }
