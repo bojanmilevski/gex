@@ -34,6 +34,6 @@ pub enum Error {
 	#[error("Request was not sent successfully.")]
 	Send,
 
-	#[error("Extension not found.")]
-	ExtensionNotFound,
+	#[error("Extension {0} not found.")]
+	ExtensionNotFound(String),
 }

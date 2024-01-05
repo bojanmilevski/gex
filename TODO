@@ -1,14 +1,18 @@
 HIGH PRIORITY
 - add progress bar
-- manage installed extensions (delete, update, list)
 - enable extension in extensions.json
+- manage installed extensions (delete, update, list)
 - verbose flag
 
 LOW PRIORITY
+- chrono crate for creation date and last update date for plugin
 - configuration file
 - execute async tasks without waiting for finish
 - install for multiple browsers
 - install for multiple profiles
+- log
 - more browsers and respective data paths
 - thunderbird (and derivatives) support
 - windows and macos compatibility
+- smallvec, tinyvec
+- only one client instance in install and query

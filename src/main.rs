@@ -4,6 +4,7 @@ mod errors;
 mod extension;
 mod flags;
 mod install;
+mod progress_bar;
 mod query;
 
 use args::Args;

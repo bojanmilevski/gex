@@ -3,19 +3,20 @@ use crate::errors::Result;
 use crate::extension::extension::Extension;
 use crate::extension::extensions_list::ExtensionsList;
 
-const QUERY_URL: &str = "https://addons.mozilla.org/api/v5/addons/search/?q=";
+const QUERY_URL: &str = "https://addons.mozilla.org/api/v5/addons/search";
 
 async fn send_query(ext_slug: &str) -> Result<ExtensionsList> {
-	let url = format!("{}{}", QUERY_URL, &ext_slug);
-	let response = reqwest::Client::new().get(&url).send().await?;
+	let response = reqwest::Client::new()
+		.get(QUERY_URL)
+		.query(&[("", ext_slug)])
+		.send()
+		.await?; // TODO: change with .or(Err(Error::QueryError))?;
 
 	if !response.status().is_success() {
 		return Err(Error::Send);
 	}
 
-	let json = response.json().await?;
-
-	Ok(json)
+	Ok(response.json().await?)
 }
 
 pub async fn query_extension(ext_slug: &str) -> Result<Extension> {
@@ -24,7 +25,7 @@ pub async fn query_extension(ext_slug: &str) -> Result<Extension> {
 		.extensions
 		.iter()
 		.find(|ext| ext.slug == ext_slug)
-		.ok_or(Error::ExtensionNotFound)
+		.ok_or(Error::ExtensionNotFound(ext_slug.to_owned()))
 		.cloned()
 }
 
