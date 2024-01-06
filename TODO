@@ -1,21 +1,32 @@
 HIGH PRIORITY
-- enable extension in extensions.json
-- manage installed extensions (delete, update, list)
+- fix api error
+- fix -i delimiter
 
 MID PRORITY
-- download multiple exts at one time
-- execute async tasks without waiting for finish
+- async tasks execute without waiting
+- add and enable extension in extensions.json
+- manage installed extensions (delete, update, list)
 - multi progress bar
-- only one client instance in install and query
-- send multiple requests at one time
-- smallvec, tinyvec
+- parallel extension installs
+- properly implement Into<String> and Display for src/extension/*
+- send multiple extensions in one query in order to avoid multiple requests - avoid spamming mozilla servers
+- single client instance in install and query
 
 LOW PRIORITY
-- configuration file
+- &str instead of String
+- description language
+- fix borrows and ownerships
+- fix struct and field access modifiers
+- gex configuration file
+- if ext list empty, print "no extension found"
 - install for multiple browsers
 - install for multiple profiles
-- log
+- log flag
 - more browsers and respective data paths
+- remove .cloned(), .to_owned(), .to_string(), .unwrap(), .clone()
+- remove format!()
+- search params (sort output by rating, score...)
+- smallvec, tinyvec
 - thunderbird (and derivatives) support
 - verbose flag
 - windows and macos compatibility

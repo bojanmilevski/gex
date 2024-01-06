@@ -20,7 +20,7 @@ impl Configurable for Extensions {
 		let mut extensions = Vec::new();
 
 		for extension in &args.extensions {
-			match query::query_extension(&extension).await {
+			match query::find_extension(&extension).await {
 				Ok(ext) => extensions.push(ext),
 				Err(err) => return Err(err),
 			};

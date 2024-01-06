@@ -5,30 +5,29 @@ use crate::extension::extensions_list::ExtensionsList;
 
 const QUERY_URL: &str = "https://addons.mozilla.org/api/v5/addons/search";
 
-async fn send_query(ext_slug: &str) -> Result<ExtensionsList> {
-	let response = reqwest::Client::new()
+pub async fn query_extensions(ext_slug: &str) -> Result<ExtensionsList> {
+	Ok(reqwest::Client::new()
 		.get(QUERY_URL)
-		.query(&[("", ext_slug)])
+		.query(&[("q", ext_slug), ("page_size", "1000"), ("lang", "en-US"), ("sort", "users")])
 		.send()
-		.await?; // TODO: change with .or(Err(Error::QueryError))?;
+		.await
+		.or(Err(Error::Placeholder("send_query".to_owned())))?
+		.json()
+		.await?)
 
-	if !response.status().is_success() {
+	/* if !response.status().is_success() {
 		return Err(Error::Send);
 	}
 
-	Ok(response.json().await?)
+	Ok(response.json().await?) */
 }
 
-pub async fn query_extension(ext_slug: &str) -> Result<Extension> {
-	send_query(&ext_slug)
+pub async fn find_extension(ext_slug: &str) -> Result<Extension> {
+	query_extensions(&ext_slug)
 		.await?
 		.extensions
 		.iter()
 		.find(|ext| ext.slug == ext_slug)
 		.ok_or(Error::ExtensionNotFound(ext_slug.to_owned()))
 		.cloned()
-}
-
-pub async fn query_extensions(ext_slug: &str) -> Result<Vec<Extension>> {
-	Ok(send_query(&ext_slug).await?.extensions)
 }

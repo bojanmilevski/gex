@@ -25,15 +25,12 @@ pub enum Error {
 	#[error("Browser not supported.")]
 	BrowserNotSupported,
 
-	#[error("Install was unsuccessfull.")]
-	InstallUnsuccessfull,
-
 	#[error("Profile not found.")]
 	ProfileNotFound,
 
-	#[error("Request was not sent successfully.")]
-	Send,
-
 	#[error("Extension {0} not found.")]
 	ExtensionNotFound(String),
+
+	#[error("Placeholder error for: {0}.")]
+	Placeholder(String),
 }

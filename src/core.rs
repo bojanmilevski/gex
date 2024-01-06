@@ -5,7 +5,7 @@ use crate::install;
 use colored::Colorize;
 use tokio::task::JoinHandle;
 
-pub fn create_install_tasks(flags: &Flags) -> Vec<JoinHandle<()>> {
+pub fn create_install_tasks(flags: Flags) -> Vec<JoinHandle<()>> {
 	flags
 		.extensions
 		.extensions
@@ -14,18 +14,18 @@ pub fn create_install_tasks(flags: &Flags) -> Vec<JoinHandle<()>> {
 			let ext = ext.clone();
 			let profile = flags.profile.clone();
 			tokio::task::spawn(async move {
-				install_extension_task(&ext, &profile).await;
+				install_extension_task(ext, profile).await;
 			})
 		})
 		.collect()
 }
 
-async fn install_extension_task(extension: &Extension, profile: &Profile) {
+async fn install_extension_task(extension: Extension, profile: Profile) {
 	println!("{}", "Installing extension".bold().green());
 	println!("{}", extension);
-	let name = extension.clone().name.name.unwrap_or("EMPTY".to_string()); // stupid but works for now
+	let name: String = extension.clone().into();
 
-	match install::install_extension(&extension, &profile).await {
+	match install::install_extension(extension, profile).await {
 		Ok(_) => {
 			println!("{} {}.", "Successfully installed extension".bold().green(), name);
 		}
@@ -39,6 +39,6 @@ async fn install_extension_task(extension: &Extension, profile: &Profile) {
 
 pub async fn execute_tasks(tasks: Vec<JoinHandle<()>>) {
 	for task in tasks {
-		let _ = task.await;
+		task.await.unwrap();
 	}
 }

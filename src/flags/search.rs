@@ -17,7 +17,10 @@ impl Configurable for Search {
 			return Ok(Self { ..Default::default() });
 		}
 
-		let extensions = query::query_extensions(&args.search.clone().unwrap()).await?;
+		let extensions = query::query_extensions(&args.search.clone().unwrap())
+			.await?
+			.extensions;
+
 		Ok(Self { extensions })
 	}
 }

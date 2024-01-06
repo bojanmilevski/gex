@@ -4,7 +4,7 @@ use std::fmt::Display;
 
 #[derive(Debug, Clone, Deserialize)]
 pub struct Ratings {
-	pub average: Option<f32>,
+	average: Option<f32>,
 }
 
 impl Display for Ratings {

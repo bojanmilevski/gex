@@ -8,7 +8,7 @@ use std::fmt::Display;
 pub struct CurrentVersion {
 	pub file: File,
 	pub license: License,
-	pub version: String,
+	version: String,
 }
 
 impl Display for CurrentVersion {

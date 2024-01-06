@@ -16,15 +16,23 @@ https://addons.mozilla.org/en-US/firefox/addon/darkreader
 ```
 
 In this case, `darkreader` is this extension's slug. A request is sent to
-`https://addons.mozilla.org/api/v5/addons/search/?q=` with the slug appended to this string. This
-page returns a `.json` containing a list of results containing extensions that met the search query.
-Out of the queried extensions, the one that matches the slug gets installed to the profile's
+`https://addons.mozilla.org/api/v5/addons/search` with the slug appended to this string. This page
+returns a `.json` containing a list of results containing extensions that met the search query. Out
+of the queried extensions, the one that matches the slug gets installed to the profile's
 `extensions` folder with it's `guid` being the filename.
+
+More information on Mozilla's Add-On API can be found
+[here](https://addons-server.readthedocs.io/en/latest/topics/api/addons.html).
 
 ### CAVEATS
 
-The only caveat with `gex` is that the desired browser must have been previously opened in order
-for the `default` and `default-release` profiles to be created.
+1. Due to Mozilla's weird choices, querying some extensions by their `slug` simply does not return
+   a result. This is something that I have not made an effort to find a solution.
+
+- try installing `duckduckgo-for-firefox` or `istilldontcareaboutcookies`
+
+2. The desired browser must have been previously opened in order for the `default` and
+   `default-release` profiles to be created.
 
 ### ASSUMPTIONS
 

@@ -5,7 +5,7 @@ use std::fmt::Display;
 #[derive(Debug, Clone, Deserialize)]
 #[serde(transparent)]
 pub struct Authors {
-	pub authors: Vec<Author>,
+	authors: Vec<Author>,
 }
 
 #[derive(Debug, Clone, Deserialize)]

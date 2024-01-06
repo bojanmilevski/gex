@@ -5,7 +5,13 @@ use std::fmt::Display;
 #[derive(Debug, Clone, Deserialize)]
 pub struct Name {
 	#[serde(rename = "en-US")]
-	pub name: Option<String>,
+	name: Option<String>,
+}
+
+impl Into<String> for Name {
+	fn into(self) -> String {
+		self.name.unwrap_or("EMPTY".to_string())
+	}
 }
 
 impl Display for Name {

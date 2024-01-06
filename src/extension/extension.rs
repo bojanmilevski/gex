@@ -12,20 +12,26 @@ use std::fmt::Display;
 
 #[derive(Debug, Clone, Deserialize)]
 pub struct Extension {
-	pub id: i32,
-	pub authors: Authors,
+	// id: i32,
+	authors: Authors,
 	// pub categories: Vec<String>,
-	pub created: CreationDateTime,
-	pub description: Description,
+	created: CreationDateTime,
+	description: Description,
 	pub current_version: CurrentVersion,
 	pub guid: String,
 	pub name: Name,
-	pub ratings: Ratings,
+	ratings: Ratings,
 	pub slug: String,
-	pub url: URL,
-	pub weekly_downloads: WeeklyDownloads,
+	url: URL,
+	weekly_downloads: WeeklyDownloads,
 	#[serde(rename = "_score")]
-	pub score: Score,
+	score: Score,
+}
+
+impl Into<String> for Extension {
+	fn into(self) -> String {
+		self.name.into()
+	}
 }
 
 impl Display for Extension {

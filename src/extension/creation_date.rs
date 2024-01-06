@@ -18,7 +18,7 @@ impl Display for CreationDateTime {
 
 		write!(
 			f,
-			"{}: {:2}.{:02}.{:04} {:02}:{:02}:{:02}",
+			"{}: {:02}.{:02}.{:04} {:02}:{:02}:{:02}",
 			"Created".bold().bright_blue(),
 			parsed_datetime.day(),
 			parsed_datetime.month(),
