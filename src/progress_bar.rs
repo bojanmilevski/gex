@@ -14,14 +14,15 @@ pub struct Bar {
 impl Bar {
 	pub fn new(total_size: u64) -> Result<Self> {
 		let bar = ProgressBar::new(total_size);
-		bar.set_style(
+		let style =
 			ProgressStyle::with_template("[{elapsed_precise}] [{wide_bar:.green/black}] {bytes}/{total_bytes} ({eta})")
 				.unwrap()
 				.with_key("eta", |state: &ProgressState, w: &mut dyn Write| {
 					write!(w, "{:.1}s", state.eta().as_secs_f64()).unwrap()
 				})
-				.progress_chars("#>-"),
-		);
+				.progress_chars("██ ");
+
+		bar.set_style(style);
 
 		Ok(Self { bar, total_size, progress: 0 })
 	}

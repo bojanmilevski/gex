@@ -1,6 +1,11 @@
 pub mod browser;
 pub mod configurable;
-pub mod extensions;
+pub mod delete;
 pub mod flags;
+pub mod install;
+pub mod list;
+pub mod log;
 pub mod profile;
 pub mod search;
+pub mod update;
+pub mod verbose;

@@ -1,9 +1,8 @@
-use std::fmt::Display;
-
 use colored::Colorize;
 use serde::Deserialize;
+use std::fmt::Display;
 
-#[derive(Clone, Debug, Deserialize)]
+#[derive(Clone, Deserialize)]
 #[serde(transparent)]
 pub struct URL {
 	url: String,
@@ -11,6 +10,6 @@ pub struct URL {
 
 impl Display for URL {
 	fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-		write!(f, "{}: {}", "URL".bold().bright_blue(), &self.url)
+		write!(f, "{}: {}", "URL".bold().bright_blue(), self.url)
 	}
 }

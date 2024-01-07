@@ -1,21 +1,20 @@
 HIGH PRIORITY
-- fix api error
-- fix -i delimiter
+- fix -i ' ' delimiter
 
 MID PRORITY
-- async tasks execute without waiting
 - add and enable extension in extensions.json
+- async tasks execute without waiting
 - manage installed extensions (delete, update, list)
 - multi progress bar
 - parallel extension installs
-- properly implement Into<String> and Display for src/extension/*
 - send multiple extensions in one query in order to avoid multiple requests - avoid spamming mozilla servers
-- single client instance in install and query
+- single client instance
 
 LOW PRIORITY
 - &str instead of String
 - description language
 - fix borrows and ownerships
+- fix derives
 - fix struct and field access modifiers
 - gex configuration file
 - if ext list empty, print "no extension found"
@@ -23,7 +22,7 @@ LOW PRIORITY
 - install for multiple profiles
 - log flag
 - more browsers and respective data paths
-- remove .cloned(), .to_owned(), .to_string(), .unwrap(), .clone()
+- remove .cloned(), clone(), .to_owned(), .to_string(), .unwrap(), .as_str(), .as_ref()
 - remove format!()
 - search params (sort output by rating, score...)
 - smallvec, tinyvec

@@ -4,7 +4,6 @@ mod current_version;
 mod description;
 pub mod extension;
 pub mod extensions_list;
-mod file;
 mod license;
 mod name;
 mod ratings;

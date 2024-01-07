@@ -1,7 +1,6 @@
-use crate::args::Args;
+use crate::cli::Cli;
 use crate::errors::Result;
-use std::fmt::Display;
 
-pub trait Configurable: Sized + Display + Into<String> {
-	async fn configure_from(args: &Args) -> Result<Self>;
+pub trait Configurable: Sized {
+	async fn try_configure_from(cli: &Cli) -> Result<Self>;
 }

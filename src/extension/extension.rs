@@ -10,28 +10,20 @@ use super::weekly_downloads::WeeklyDownloads;
 use serde::Deserialize;
 use std::fmt::Display;
 
-#[derive(Debug, Clone, Deserialize)]
+#[derive(Clone, Deserialize)]
 pub struct Extension {
-	// id: i32,
 	authors: Authors,
-	// pub categories: Vec<String>,
 	created: CreationDateTime,
 	description: Description,
+	pub name: Name,
 	pub current_version: CurrentVersion,
 	pub guid: String,
-	pub name: Name,
-	ratings: Ratings,
 	pub slug: String,
-	url: URL,
-	weekly_downloads: WeeklyDownloads,
+	ratings: Ratings,
 	#[serde(rename = "_score")]
 	score: Score,
-}
-
-impl Into<String> for Extension {
-	fn into(self) -> String {
-		self.name.into()
-	}
+	url: URL,
+	weekly_downloads: WeeklyDownloads,
 }
 
 impl Display for Extension {
@@ -39,16 +31,16 @@ impl Display for Extension {
 		write!(
 			f,
 			"{}\n{}\n{}\n{}\n{}\n{}\n{}\n{}\n{}\n{}\n",
-			&self.name,
-			&self.current_version,
-			&self.url,
-			&self.authors,
-			&self.created,
-			&self.current_version.license,
-			&self.ratings,
-			&self.score,
-			&self.weekly_downloads,
-			&self.description,
+			self.name,
+			self.current_version,
+			self.url,
+			self.authors,
+			self.created,
+			self.current_version.license,
+			self.ratings,
+			self.score,
+			self.weekly_downloads,
+			self.description,
 		)
 	}
 }

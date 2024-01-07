@@ -1,24 +1,24 @@
-mod args;
+mod api_url;
+mod cli;
 mod core;
 mod errors;
 mod extension;
 mod flags;
 mod install;
 mod progress_bar;
-mod query;
 
-use args::Args;
 use clap::Parser;
+use cli::Cli;
 use errors::Result;
 use flags::configurable::Configurable;
 use flags::flags::Flags;
 
 #[tokio::main]
 async fn main() -> Result<()> {
-	let args = Args::parse();
-	let flags = Flags::configure_from(&args).await?;
+	let cli = Cli::parse();
+	let flags = Flags::try_configure_from(&cli).await?;
 
-	if args.search.is_none() {
+	if cli.operation.search.is_none() {
 		let tasks = core::create_install_tasks(flags);
 		core::execute_tasks(tasks).await;
 	} else {

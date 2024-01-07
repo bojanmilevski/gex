@@ -1,7 +1,7 @@
-use crate::extension::extension::Extension;
+use super::extension::Extension;
 use serde::Deserialize;
 
-#[derive(Debug, Clone, Deserialize)]
+#[derive(Deserialize)]
 pub struct ExtensionsList {
 	#[serde(rename = "results")]
 	pub extensions: Vec<Extension>,

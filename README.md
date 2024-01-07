@@ -16,23 +16,17 @@ https://addons.mozilla.org/en-US/firefox/addon/darkreader
 ```
 
 In this case, `darkreader` is this extension's slug. A request is sent to
-`https://addons.mozilla.org/api/v5/addons/search` with the slug appended to this string. This page
-returns a `.json` containing a list of results containing extensions that met the search query. Out
-of the queried extensions, the one that matches the slug gets installed to the profile's
-`extensions` folder with it's `guid` being the filename.
+`https://addons.mozilla.org/api/v5/addons/addon` with the slug appended to this string. This page
+returns a `.json` containing information about the extension, if it exists. The extension gets
+installed to the profile's `extensions` folder with it's `guid` being the filename.
 
 More information on Mozilla's Add-On API can be found
 [here](https://addons-server.readthedocs.io/en/latest/topics/api/addons.html).
 
 ### CAVEATS
 
-1. Due to Mozilla's weird choices, querying some extensions by their `slug` simply does not return
-   a result. This is something that I have not made an effort to find a solution.
-
-- try installing `duckduckgo-for-firefox` or `istilldontcareaboutcookies`
-
-2. The desired browser must have been previously opened in order for the `default` and
-   `default-release` profiles to be created.
+The desired browser must have been previously opened in order for the `default` and
+`default-release` profiles to be created.
 
 ### ASSUMPTIONS
 
@@ -46,13 +40,18 @@ Running `gex -h` issues the following output:
 ```
 An extension installer for Gecko browsers
 
-Usage: gex [OPTIONS] --install <EXTENSIONS>...
+Usage: gex [OPTIONS] <--install <EXTENSIONS>...|--search <SEARCH>|--delete <DELETE>|--update <UPDATE>|--list>
 
 Options:
-  -b, --browser <BROWSER>        [default: firefox]
   -i, --install <EXTENSIONS>...
-  -p, --profile <PROFILE>
   -s, --search <SEARCH>
+  -d, --delete <DELETE>
+  -u, --update <UPDATE>
+  -l, --list
+  -b, --browser <BROWSER>        [default: firefox]
+  -p, --profile <PROFILE>
+  -v, --verbose
+  -o, --log
   -h, --help                     Print help
   -V, --version                  Print version
 ```
@@ -82,19 +81,9 @@ gex -i darkreader -b librewolf -p default
 
 This software is licensed under the [GPL v3.0 License](https://www.gnu.org/licenses/gpl-3.0.en.html).
 
-## CONTRIBUTION
-
-Everyone is welcome to contribute. Pull requests and issue reports are just one way of improving
-this project.
-
-## LIVE DOCUMENTATION
-
-As this repository grows, the documentation changes along with it - providing information that is up
-to date and relevant to the state of this project.
-
 ## SPECIAL THANKS
 
 - [Interfiber's `firefoxext` program written in `C`](https://github.com/Interfiber/firefoxext)
-  for being an inspiration. This program is it's spiritual successor. 🙂
+  for being an inspiration. This program is it's spiritual successor. :)
 
 - [lsd](https://github.com/lsd-rs/lsd) for providing a well designed and structured code base.

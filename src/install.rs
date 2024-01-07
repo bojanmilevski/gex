@@ -1,4 +1,6 @@
-use crate::errors::{Error, Result};
+use crate::api_url::DOWNLOAD_URL;
+use crate::errors::Error;
+use crate::errors::Result;
 use crate::extension::extension::Extension;
 use crate::flags::profile::Profile;
 use crate::progress_bar::Bar;
@@ -6,33 +8,24 @@ use futures_util::StreamExt;
 use reqwest::Client;
 use tokio::io::AsyncWriteExt;
 
-const DOWNLOAD_URL: &str = "https://addons.mozilla.org/firefox/downloads/file";
-
 pub async fn install_extension(extension: Extension, profile: Profile) -> Result<()> {
-	let url = format!("{}/{}", DOWNLOAD_URL, extension.current_version.file.id);
+	let version = extension.current_version.file.id;
+	let guid = extension.guid;
+	let name = extension.name.clone().name.unwrap_or("EMPTY".to_string());
+	let url = format!("{}/{}", DOWNLOAD_URL, version);
+
 	let response = Client::new()
 		.get(url)
 		.send()
 		.await
-		.or(Err(Error::Placeholder("install_extension -> response".to_owned())))?;
+		.or(Err(Error::Install(name.clone())))?;
 
-	/* if !response.status().is_success() {
-		return Err(Error::InstallUnsuccessfull);
-	} */
-
-	let file_path = format!(
-		"{}.xpi",
-		profile
-			.path
-			.join("extensions")
-			.join(&extension.guid)
-			.display()
-	);
+	let file_path = format!("{}.xpi", profile.path.join("extensions").join(guid).display());
 	let mut file = tokio::fs::File::create(file_path).await?;
 
 	let total_size = response
 		.content_length()
-		.ok_or(Error::Placeholder("install_extension -> total_size".to_owned()))?;
+		.ok_or(Error::ContentLength(name))?;
 	let mut bar = Bar::new(total_size)?;
 
 	let mut bytes_stream = response.bytes_stream();

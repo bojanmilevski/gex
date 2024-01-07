@@ -2,7 +2,7 @@ use colored::Colorize;
 use serde::Deserialize;
 use std::fmt::Display;
 
-#[derive(Clone, Debug, Deserialize)]
+#[derive(Clone, Deserialize)]
 #[serde(transparent)]
 pub struct WeeklyDownloads {
 	weekly_downloads: i32,
@@ -10,6 +10,6 @@ pub struct WeeklyDownloads {
 
 impl Display for WeeklyDownloads {
 	fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-		write!(f, "{}: {}", "Weekly downloads".bold().bright_blue(), &self.weekly_downloads)
+		write!(f, "{}: {}", "Weekly downloads".bold().bright_blue(), self.weekly_downloads)
 	}
 }

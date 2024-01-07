@@ -2,13 +2,13 @@ use colored::Colorize;
 use serde::Deserialize;
 use std::fmt::Display;
 
-#[derive(Debug, Clone, Deserialize)]
+#[derive(Clone, Deserialize)]
 #[serde(transparent)]
 pub struct Authors {
 	authors: Vec<Author>,
 }
 
-#[derive(Debug, Clone, Deserialize)]
+#[derive(Clone, Deserialize)]
 pub struct Author {
 	name: String,
 }
@@ -25,6 +25,6 @@ impl Authors {
 
 impl Display for Authors {
 	fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-		write!(f, "{}: {}", "Authors".bold().bright_blue(), &self.get_joined())
+		write!(f, "{}: {}", "Authors".bold().bright_blue(), self.get_joined())
 	}
 }

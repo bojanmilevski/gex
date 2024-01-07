@@ -17,20 +17,26 @@ pub enum Error {
 	SerdeJson(#[from] serde_json::Error),
 
 	#[error("Can not find HOME enviornment variable.")]
-	HomeVar,
+	Home,
 
-	#[error("Browser path not found.")]
-	BrowserPathNotFound,
+	#[error("Browser {0} path not found.")]
+	BrowserPathNotFound(String),
 
-	#[error("Browser not supported.")]
-	BrowserNotSupported,
+	#[error("Browser {0} not supported.")]
+	BrowserNotSupported(String),
 
-	#[error("Profile not found.")]
-	ProfileNotFound,
+	#[error("Profile {0} not found.")]
+	ProfileNotFound(String),
 
 	#[error("Extension {0} not found.")]
 	ExtensionNotFound(String),
 
-	#[error("Placeholder error for: {0}.")]
-	Placeholder(String),
+	#[error("Error while installing extension {0}")]
+	Install(String),
+
+	#[error("Content length not received for extension {0}")]
+	ContentLength(String),
+
+	#[error("Querying extension {0} failed")]
+	Query(String),
 }
