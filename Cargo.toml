@@ -1,6 +1,6 @@
 [package]
 name = "gex"
-version = "0.9.0"
+version = "0.9.1"
 edition = "2021"
 authors = [ "Bojan Milevski <bojan@bojanmilevski.com>" ]
 description = "An extension installer for Gecko browsers"
@@ -31,3 +31,4 @@ serde = { version = "1.0.171", features = ["derive"] }
 serde_json = "1.0.100"
 thiserror = "1.0.43"
 tokio = { version = "1.29.1", features = ["full"] }
+zip = "0.6.6"

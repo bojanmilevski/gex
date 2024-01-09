@@ -1,10 +1,13 @@
-mod api_url;
+mod addon;
+mod api;
 mod cli;
 mod core;
+mod database;
 mod errors;
 mod extension;
 mod flags;
 mod install;
+mod manifest;
 mod progress_bar;
 
 use clap::Parser;
@@ -19,22 +22,15 @@ async fn main() -> Result<()> {
 	let flags = Flags::try_configure_from(&cli).await?;
 
 	if cli.operation.search.is_none() {
-		let tasks = core::create_install_tasks(flags);
+		let tasks = core::create_install_tasks(&flags);
 		core::execute_tasks(tasks).await;
 	} else {
-		for extension in flags.search.extensions {
+		for extension in &flags.search.extensions {
 			println!("{}", extension);
 		}
 	}
 
-	/*
-	// for manipulating the extensions.json file
-	  let path = flags.profile.path.join("extensions.json");
-	  let file = std::fs::File::open(&path)?;
-	  let reader = BufReader::new(&file);
-	  let content: Value = serde_json::from_reader(reader)?;
-	  println!("{:#?}", content);
-	  */
+	database::add_extension(&flags).await?;
 
 	Ok(())
 }

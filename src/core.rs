@@ -3,7 +3,7 @@ use crate::install;
 use colored::Colorize;
 use tokio::task::JoinHandle;
 
-pub fn create_install_tasks(flags: Flags) -> Vec<JoinHandle<()>> {
+pub fn create_install_tasks(flags: &Flags) -> Vec<JoinHandle<()>> {
 	flags
 		.install
 		.extensions

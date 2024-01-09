@@ -3,6 +3,8 @@
 An `ex`tension installer for `Ge`cko browsers. I created this extension to further simplify and
 automate a system (re)install. Currently only tested on `Linux`.
 
+## THIS PROGRAM IS IN VERY EARLY STAGES AND SHOULD NOT BE USED IN PRODUCTION
+
 ## FUNCTIONALITY
 
 At first, `gex` finds your browser's data path, where all user data is stored. This is achieved by

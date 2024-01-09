@@ -12,7 +12,7 @@ use std::fmt::Display;
 
 #[derive(Clone, Deserialize)]
 pub struct Extension {
-	authors: Authors,
+	pub authors: Authors,
 	created: CreationDateTime,
 	description: Description,
 	pub name: Name,

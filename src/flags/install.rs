@@ -1,5 +1,5 @@
 use super::configurable::Configurable;
-use crate::api_url::API_URL;
+use crate::api::API_URL;
 use crate::cli::Cli;
 use crate::errors::Error;
 use crate::errors::Result;

@@ -14,7 +14,7 @@ pub struct Author {
 }
 
 impl Authors {
-	fn get_joined(&self) -> String {
+	pub fn get_joined(&self) -> String {
 		self.authors
 			.iter()
 			.map(|author| author.name.to_owned())

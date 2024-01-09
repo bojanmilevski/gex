@@ -1,4 +1,4 @@
-use crate::api_url::DOWNLOAD_URL;
+use crate::api::DOWNLOAD_URL;
 use crate::errors::Error;
 use crate::errors::Result;
 use crate::extension::extension::Extension;
@@ -20,7 +20,13 @@ pub async fn install_extension(extension: Extension, profile: Profile) -> Result
 		.await
 		.or(Err(Error::Install(name.clone())))?;
 
-	let file_path = format!("{}.xpi", profile.path.join("extensions").join(guid).display());
+	let extensions_folder = profile.path.join("extensions");
+
+	if !extensions_folder.exists() {
+		tokio::fs::create_dir(&extensions_folder).await?;
+	}
+
+	let file_path = format!("{}.xpi", extensions_folder.join(guid).display());
 	let mut file = tokio::fs::File::create(file_path).await?;
 
 	let total_size = response

@@ -7,7 +7,7 @@ use std::fmt::Display;
 pub struct CurrentVersion {
 	pub file: File,
 	pub license: License,
-	version: String,
+	pub version: String,
 }
 
 #[derive(Clone, Deserialize)]
