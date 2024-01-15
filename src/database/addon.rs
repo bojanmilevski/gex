@@ -44,9 +44,9 @@ pub struct Addon {
 	#[serde(rename = "embedderDisabled")]
 	pub embedder_disabled: bool,
 	#[serde(rename = "installDate")]
-	pub install_date: Option<u64>,
+	pub install_date: Option<i64>,
 	#[serde(rename = "updateDate")]
-	pub update_date: Option<u64>,
+	pub update_date: Option<i64>,
 	#[serde(rename = "applyBackgroundUpdates")]
 	pub apply_background_updates: u32,
 	pub path: Option<PathBuf>,
@@ -88,7 +88,7 @@ pub struct Addon {
 	pub startup_data: Option<HashMap<String, String>>,
 	pub hidden: Option<bool>,
 	#[serde(rename = "installTelemetryInfo")]
-	pub install_telemetry_info: Option<HashMap<String, String>>,
+	pub install_telemetry_info: Option<InstallTelemetryInfo>,
 	#[serde(rename = "recommendationState")]
 	pub recommendation_state: Option<RecommendationState>,
 	#[serde(rename = "rootURI")]
@@ -126,7 +126,9 @@ pub struct Permissions {
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct TargetApplication {
 	pub id: String,
+	#[serde(rename = "minVersion")]
 	pub min_version: Option<String>,
+	#[serde(rename = "maxVersion")]
 	pub max_version: Option<String>,
 }
 
@@ -147,4 +149,10 @@ pub struct LocaleFile {
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct Message {
 	pub message: String,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct InstallTelemetryInfo {
+	pub source: String,
+	pub method: String,
 }

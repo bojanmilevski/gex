@@ -1,5 +1,6 @@
 HIGH PRIORITY
 - fix -i ' ' delimiter
+- runnable trait
 
 MID PRORITY
 - add and enable extension in extensions.json

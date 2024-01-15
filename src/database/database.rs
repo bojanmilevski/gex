@@ -1,67 +1,33 @@
-use crate::addon::Addon;
-use crate::addon::Addons;
-use crate::addon::DefaultLocale;
-use crate::addon::Locale;
-use crate::addon::LocaleFile;
-use crate::addon::Permissions;
-use crate::addon::RecommendationState;
-use crate::addon::TargetApplication;
+use super::addon::Addon;
+use super::addon::Addons;
+use super::addon::DefaultLocale;
+use super::addon::InstallTelemetryInfo;
+use super::addon::Locale;
+use super::addon::LocaleFile;
+use super::addon::Permissions;
+use super::addon::RecommendationState;
+use super::addon::TargetApplication;
+use super::manifest::Manifest;
 use crate::errors::Result;
-use crate::extension::extension::Extension;
 use crate::flags::flags::Flags;
-use crate::manifest::Manifest;
+use std::fs::File;
 use std::io::BufReader;
 use std::io::Read;
 use std::path::PathBuf;
 
-async fn read_manifest(flags: &Flags, ext: &Extension) -> Result<Addon> {
-	let ext_path = PathBuf::from(format!(
-		"{}.xpi",
-		&flags
-			.profile
-			.path
-			.join("extensions")
-			.join(&ext.guid)
-			.display()
-	));
-
-	let file = std::fs::File::open(ext_path)?;
-	let mut zip = zip::ZipArchive::new(&file).unwrap();
+async fn read_manifest(file: &File) -> Result<Manifest> {
+	let mut zip = zip::ZipArchive::new(file).unwrap();
 	let mut manifest_file = zip
 		.by_name("manifest.json")
 		.or(Err(crate::errors::Error::Home))?;
 	let mut content = String::new();
 	manifest_file.read_to_string(&mut content).unwrap();
 	let manifest: Manifest = serde_json::from_str(content.as_str())?;
+	Ok(manifest)
+}
 
-	let path = PathBuf::from(format!("{}/{}.xpi", flags.profile.path.display(), ext.guid));
-	let target_applications = TargetApplication {
-		id: String::from("toolkit@mozilla.org"),
-		min_version: manifest
-			.clone()
-			.browser_specific_settings
-			.gecko
-			.strict_min_version,
-		max_version: manifest
-			.clone()
-			.browser_specific_settings
-			.gecko
-			.strict_max_version,
-	};
-	let user_permissions = Permissions {
-		permissions: manifest.clone().permissions,
-		origins: manifest
-			.clone()
-			.permissions
-			.iter()
-			.filter(|o| o.starts_with("<"))
-			.map(|o| o.clone())
-			.collect(),
-	};
-	let optional_permissions = Permissions { permissions: Vec::new(), origins: Vec::new() };
-
-	// locales
-	let mut zip = zip::ZipArchive::new(&file).unwrap();
+async fn read_locales(manifest: &Manifest, file: &File) -> Result<Vec<Locale>> {
+	let mut zip = zip::ZipArchive::new(file).unwrap();
 	let mut locale_folders: Vec<String> = Vec::new();
 
 	for i in 0..zip.len() {
@@ -81,13 +47,13 @@ async fn read_manifest(flags: &Flags, ext: &Extension) -> Result<Addon> {
 			.to_string();
 		let mut messages_json = zip
 			.by_name(l.as_str())
-			.or(Err(crate::errors::Error::Home))?;
+			.or(Err(crate::errors::Error::Install("asd".to_string())))?;
 		let mut content = String::new();
 		messages_json.read_to_string(&mut content).unwrap();
 		let l_f: LocaleFile = serde_json::from_str(content.as_str())?;
 		let locale = Locale {
 			description: Some(l_f.extension_description.message),
-			locales: Some(vec![locale_slug]),
+			locales: Some(vec![locale_slug.replace("_", "-")]),
 			contributors: None,
 			translators: None,
 			creator: Some(manifest.clone().author),
@@ -97,14 +63,47 @@ async fn read_manifest(flags: &Flags, ext: &Extension) -> Result<Addon> {
 		locales.push(locale);
 	}
 
-	let asd = locales
+	Ok(locales)
+}
+
+async fn generate_addon_info(manifest: &Manifest, locales: &Vec<Locale>, path: &PathBuf) -> Result<Addon> {
+	let target_applications = TargetApplication {
+		id: String::from("toolkit@mozilla.org"),
+		min_version: manifest
+			.clone()
+			.browser_specific_settings
+			.gecko
+			.strict_min_version,
+		max_version: manifest
+			.clone()
+			.browser_specific_settings
+			.gecko
+			.strict_max_version,
+	};
+	let mut user_permissions = Permissions {
+		permissions: manifest.clone().permissions,
+		origins: manifest
+			.clone()
+			.permissions
+			.iter()
+			.filter(|o| o.starts_with("<"))
+			.map(|o| o.clone())
+			.collect(),
+	};
+	user_permissions.permissions.retain(|p| !p.starts_with("<"));
+	let optional_permissions = Permissions { permissions: Vec::new(), origins: Vec::new() };
+
+	let description = locales
 		.iter()
-		.find(|l| l.locales.iter().find(|a| a.as_ow == "en").unwrap())
+		.find(|l| l.locales.clone().unwrap()[0] == "en")
+		.unwrap()
+		.clone()
+		.description
 		.unwrap();
 
 	let default_locale = DefaultLocale {
 		name: Some(manifest.clone().name),
-		description: Some(),
+		description: Some(description),
 		creator: Some(manifest.clone().author),
 		contributors: None,
 		developers: None,
@@ -117,6 +116,12 @@ async fn read_manifest(flags: &Flags, ext: &Extension) -> Result<Addon> {
 		states: vec!["recommended-android".to_string(), "recommended".to_string()],
 	};
 
+	let install_telemetry_info =
+		InstallTelemetryInfo { source: String::from("app-profile"), method: String::from("sideload") };
+
+	let install_date = chrono::Utc::now().timestamp_millis();
+	let update_date = install_date.clone();
+
 	let addon = Addon {
 		_type: String::from("extension"),
 		about_url: None,
@@ -128,18 +133,18 @@ async fn read_manifest(flags: &Flags, ext: &Extension) -> Result<Addon> {
 		default_locale: Some(default_locale),
 		dependencies: Vec::new(),
 		embedder_disabled: false,
-		foreign_install: false,
+		foreign_install: true,
 		hidden: Some(false),
 		icon_url: None,
 		icons: manifest.clone().icons.clone(),
 		id: manifest.clone().browser_specific_settings.gecko.id,
 		incognito: Some(String::from("spanning")),
-		install_date: None,
+		install_date: Some(install_date),
 		install_origins: None,
-		install_telemetry_info: None,
+		install_telemetry_info: Some(install_telemetry_info),
 		loader: None,
-		locales,
-		location: Some(String::from("app-builtin")),
+		locales: locales.clone(),
+		location: Some(String::from("app-profile")),
 		manifest_version: manifest.manifest_version,
 		optional_permissions: Some(optional_permissions),
 		options_browser_style: true,
@@ -160,18 +165,18 @@ async fn read_manifest(flags: &Flags, ext: &Extension) -> Result<Addon> {
 		sync_guid: Some(String::new()),
 		target_applications: vec![target_applications],
 		target_platforms: Vec::new(),
-		update_date: None,
+		update_date: Some(update_date),
 		update_url: None,
 		user_disabled: false,
 		user_permissions: Some(user_permissions),
-		version: manifest.version,
+		version: manifest.clone().version,
 		visible: true,
 	};
 
 	Ok(addon)
 }
 
-pub async fn add_extension(flags: &Flags) -> Result<()> {
+pub async fn add_extensions_to_database(flags: &Flags) -> Result<()> {
 	let path = flags.profile.path.join("extensions.json");
 
 	if !path.exists() {
@@ -183,7 +188,19 @@ pub async fn add_extension(flags: &Flags) -> Result<()> {
 	let mut addons: Addons = serde_json::from_reader(reader)?;
 
 	for ext in &flags.install.extensions {
-		let addon = read_manifest(&flags, &ext).await?;
+		let ext_path = PathBuf::from(format!(
+			"{}.xpi",
+			&flags
+				.profile
+				.path
+				.join("extensions")
+				.join(&ext.guid)
+				.display()
+		));
+		let ext_file = std::fs::File::open(ext_path.clone())?;
+		let manifest = read_manifest(&ext_file).await?;
+		let locales = read_locales(&manifest, &ext_file).await?;
+		let addon = generate_addon_info(&manifest, &locales, &ext_path).await?;
 		addons.addons.push(addon);
 	}
 

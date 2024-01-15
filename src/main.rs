@@ -1,4 +1,3 @@
-mod addon;
 mod api;
 mod cli;
 mod core;
@@ -7,7 +6,6 @@ mod errors;
 mod extension;
 mod flags;
 mod install;
-mod manifest;
 mod progress_bar;
 
 use clap::Parser;
@@ -30,7 +28,7 @@ async fn main() -> Result<()> {
 		}
 	}
 
-	database::add_extension(&flags).await?;
+	database::database::add_extensions_to_database(&flags).await?;
 
 	Ok(())
 }

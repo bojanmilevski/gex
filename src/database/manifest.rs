@@ -21,7 +21,7 @@ pub struct SuggestedKey {
 
 #[derive(Serialize, Deserialize, Debug, Clone, Default)]
 pub struct ExecuteBrowserAction {
-	pub suggested_key: SuggestedKey,
+	pub suggested_key: Option<SuggestedKey>,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone, Default)]
