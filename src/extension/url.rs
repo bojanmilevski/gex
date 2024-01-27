@@ -2,7 +2,7 @@ use colored::Colorize;
 use serde::Deserialize;
 use std::fmt::Display;
 
-#[derive(Clone, Deserialize)]
+#[derive(Deserialize)]
 #[serde(transparent)]
 pub struct URL {
 	url: String,

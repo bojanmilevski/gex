@@ -6,10 +6,9 @@ use crate::errors::Result;
 use ini::Ini;
 use std::path::PathBuf;
 
-#[derive(Clone)]
 pub struct Profile {
+	name: String,
 	pub browser: Browser,
-	// pub name: String,
 	pub path: PathBuf,
 }
 
@@ -24,7 +23,7 @@ impl Profile {
 			.to_owned())
 	}
 
-	async fn get_specified_profile(ini: &Ini, profile: &str) -> Result<String> {
+	async fn get_specified_profile(ini: &Ini, profile: String) -> Result<String> {
 		Ok(ini
 			.sections()
 			.flatten()
@@ -36,7 +35,7 @@ impl Profile {
 					None
 				}
 			})
-			.ok_or(Error::ProfileNotFound(profile.to_owned()))?
+			.ok_or(Error::ProfileNotFound(profile))?
 			.to_owned())
 	}
 }
@@ -48,7 +47,7 @@ impl Configurable for Profile {
 		let ini = Ini::load_from_file(&profiles_file)?;
 
 		let path_slug = match &cli.profile {
-			Some(profile) => Self::get_specified_profile(&ini, &profile).await?,
+			Some(profile) => Self::get_specified_profile(&ini, profile.to_owned()).await?,
 			None => Self::get_profile_in_use(&ini).await?,
 		};
 
@@ -58,6 +57,6 @@ impl Configurable for Profile {
 			tokio::fs::create_dir(&path).await?;
 		}
 
-		Ok(Self { browser, path })
+		Ok(Self { browser, path, name: "TODO".to_string() })
 	}
 }

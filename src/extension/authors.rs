@@ -2,13 +2,13 @@ use colored::Colorize;
 use serde::Deserialize;
 use std::fmt::Display;
 
-#[derive(Clone, Deserialize)]
+#[derive(Deserialize)]
 #[serde(transparent)]
 pub struct Authors {
 	authors: Vec<Author>,
 }
 
-#[derive(Clone, Deserialize)]
+#[derive(Deserialize)]
 pub struct Author {
 	name: String,
 }
@@ -18,7 +18,7 @@ impl Authors {
 		self.authors
 			.iter()
 			.map(|author| author.name.to_owned())
-			.collect::<Vec<String>>()
+			.collect::<Vec<_>>()
 			.join(", ")
 	}
 }

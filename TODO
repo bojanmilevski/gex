@@ -1,9 +1,10 @@
 HIGH PRIORITY
-- fix -i ' ' delimiter
-- runnable trait
+- delete
+- list
+- organize database
+- update
 
 MID PRORITY
-- add and enable extension in extensions.json
 - async tasks execute without waiting
 - manage installed extensions (delete, update, list)
 - multi progress bar
@@ -13,7 +14,9 @@ MID PRORITY
 
 LOW PRIORITY
 - &str instead of String
+- code documentation
 - description language
+- extension already installed
 - fix borrows and ownerships
 - fix derives
 - fix struct and field access modifiers
@@ -23,10 +26,12 @@ LOW PRIORITY
 - install for multiple profiles
 - log flag
 - more browsers and respective data paths
+- prompt (reinstall?, are you sure?)
 - remove .cloned(), clone(), .to_owned(), .to_string(), .unwrap(), .as_str(), .as_ref()
 - remove format!()
 - search params (sort output by rating, score...)
 - smallvec, tinyvec
+- specific extension info flag
 - thunderbird (and derivatives) support
 - verbose flag
 - windows and macos compatibility

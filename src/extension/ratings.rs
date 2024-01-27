@@ -2,7 +2,7 @@ use colored::Colorize;
 use serde::Deserialize;
 use std::fmt::Display;
 
-#[derive(Clone, Deserialize)]
+#[derive(Deserialize)]
 pub struct Ratings {
 	average: Option<f32>,
 }

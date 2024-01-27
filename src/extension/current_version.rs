@@ -3,16 +3,16 @@ use colored::Colorize;
 use serde::Deserialize;
 use std::fmt::Display;
 
-#[derive(Clone, Deserialize)]
+#[derive(Deserialize)]
 pub struct CurrentVersion {
 	pub file: File,
 	pub license: License,
 	pub version: String,
 }
 
-#[derive(Clone, Deserialize)]
+#[derive(Deserialize)]
 pub struct File {
-	pub id: i32,
+	pub id: u32,
 }
 
 impl Display for CurrentVersion {

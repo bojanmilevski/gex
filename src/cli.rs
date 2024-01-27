@@ -23,7 +23,7 @@ pub struct Cli {
 #[derive(Args)]
 #[group(required = true, multiple = false)]
 pub struct Operation {
-	#[arg(short = 'i', long = "install", num_args = 1.., value_delimiter = ' ')]
+	#[arg(short = 'i', long = "install", num_args = 1..)]
 	pub extensions: Vec<String>,
 
 	#[arg(short, long)]

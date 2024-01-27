@@ -3,16 +3,17 @@ use chrono::Timelike;
 use colored::Colorize;
 use serde::Deserialize;
 use std::fmt::Display;
+use std::fmt::Formatter;
 
-#[derive(Clone, Deserialize)]
+#[derive(Deserialize)]
 #[serde(transparent)]
 pub struct CreationDateTime {
 	creation_date: String,
 }
 
 impl Display for CreationDateTime {
-	fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-		let parsed = chrono::DateTime::parse_from_rfc3339(&*self.creation_date)
+	fn fmt(&self, f: &mut Formatter) -> std::fmt::Result {
+		let parsed = chrono::DateTime::parse_from_rfc3339(&self.creation_date)
 			.map_err(|_| return std::fmt::Error) // TODO: please change this...
 			.unwrap();
 

@@ -2,13 +2,13 @@ use colored::Colorize;
 use serde::Deserialize;
 use std::fmt::Display;
 
-#[derive(Clone, Deserialize)]
+#[derive(Deserialize, Clone)]
 #[serde(transparent)]
 pub struct Description {
 	description: Option<Language>,
 }
 
-#[derive(Clone, Deserialize)]
+#[derive(Deserialize, Clone)]
 pub struct Language {
 	#[serde(rename = "en-US")]
 	language: Option<String>,

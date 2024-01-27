@@ -1,11 +1,33 @@
 # GEX
 
-An `ex`tension installer for `Ge`cko browsers. I created this extension to further simplify and
+An `ex`tension manager for `Ge`cko browsers. I created this extension to further simplify and
 automate a system (re)install. Currently only tested on `Linux`.
 
 ## THIS PROGRAM IS IN VERY EARLY STAGES AND SHOULD NOT BE USED IN PRODUCTION
 
+## MOZILLA API
+
+...
+
 ## FUNCTIONALITY
+
+### INSTALLING
+
+...
+
+### UPDATING (CURRENTLY NOT IMPLEMENTED)
+
+...
+
+### DELETING (CURRENTLY NOT IMPLEMENTED)
+
+...
+
+### LISTING (CURRENTLY NOT IMPLEMENTED)
+
+...
+
+### TODO
 
 At first, `gex` finds your browser's data path, where all user data is stored. This is achieved by
 providing `gex` with your browser and the profile you wish to use. It then scans your `profiles.ini`
@@ -37,7 +59,7 @@ extensions to `~/.mozilla/firefox/<currently_selected_profile>/extensions`.
 
 ## INSTRUCTIONS
 
-Running `gex -h` issues the following output:
+Running `gex -h` issues the following output. Keep in mind that not all commands are currently implemented:
 
 ```
 An extension installer for Gecko browsers

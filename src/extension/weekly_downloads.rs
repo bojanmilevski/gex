@@ -2,10 +2,10 @@ use colored::Colorize;
 use serde::Deserialize;
 use std::fmt::Display;
 
-#[derive(Clone, Deserialize)]
+#[derive(Deserialize)]
 #[serde(transparent)]
 pub struct WeeklyDownloads {
-	weekly_downloads: i32,
+	weekly_downloads: u32,
 }
 
 impl Display for WeeklyDownloads {

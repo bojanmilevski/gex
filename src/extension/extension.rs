@@ -10,12 +10,12 @@ use super::weekly_downloads::WeeklyDownloads;
 use serde::Deserialize;
 use std::fmt::Display;
 
-#[derive(Clone, Deserialize)]
+#[derive(Deserialize)]
 pub struct Extension {
-	pub authors: Authors,
+	authors: Authors,
 	created: CreationDateTime,
 	description: Description,
-	pub name: Name,
+	name: Name,
 	pub current_version: CurrentVersion,
 	pub guid: String,
 	pub slug: String,
@@ -24,6 +24,12 @@ pub struct Extension {
 	score: Score,
 	url: URL,
 	weekly_downloads: WeeklyDownloads,
+}
+
+impl Extension {
+	pub fn get_name(&self) -> String {
+		self.name.clone().name.unwrap_or("EMPTY".to_owned())
+	}
 }
 
 impl Display for Extension {

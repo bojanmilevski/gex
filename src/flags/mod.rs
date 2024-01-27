@@ -6,6 +6,7 @@ pub mod install;
 pub mod list;
 pub mod log;
 pub mod profile;
+pub mod runnable;
 pub mod search;
 pub mod update;
 pub mod verbose;
