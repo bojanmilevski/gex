@@ -6,7 +6,6 @@ HIGH PRIORITY
 
 MID PRORITY
 - async tasks execute without waiting
-- manage installed extensions (delete, update, list)
 - multi progress bar
 - parallel extension installs
 - send multiple extensions in one query in order to avoid multiple requests - avoid spamming mozilla servers
@@ -14,24 +13,26 @@ MID PRORITY
 
 LOW PRIORITY
 - &str instead of String
+- borrows and ownerships
 - code documentation
+- derives
 - description language
 - extension already installed
-- fix borrows and ownerships
-- fix derives
-- fix struct and field access modifiers
 - gex configuration file
 - if ext list empty, print "no extension found"
 - install for multiple browsers
 - install for multiple profiles
 - log flag
+- manually enable/disable extensions
 - more browsers and respective data paths
 - prompt (reinstall?, are you sure?)
 - remove .cloned(), clone(), .to_owned(), .to_string(), .unwrap(), .as_str(), .as_ref()
 - remove format!()
+- replace for and while loops with iterators
 - search params (sort output by rating, score...)
 - smallvec, tinyvec
 - specific extension info flag
+- struct and field access modifiers
 - thunderbird (and derivatives) support
 - verbose flag
 - windows and macos compatibility

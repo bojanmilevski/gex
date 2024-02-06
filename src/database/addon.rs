@@ -1,6 +1,10 @@
+use crate::errors::Error;
+use crate::errors::Result;
 use serde::Deserialize;
 use serde::Serialize;
 use std::collections::HashMap;
+use std::fmt::Display;
+use std::io::BufReader;
 use std::path::PathBuf;
 
 #[derive(Serialize, Deserialize)]
@@ -60,7 +64,7 @@ pub struct Addon {
 	pub blocklist_state: Option<u32>,
 	#[serde(rename = "blocklistURL")]
 	pub blocklist_url: Option<String>,
-	pub startup_data: Option<HashMap<String, String>>,
+	// pub startup_data: Option<HashMap<String, String>>,
 	pub hidden: Option<bool>,
 	pub install_telemetry_info: Option<InstallTelemetryInfo>,
 	pub recommendation_state: Option<RecommendationState>,
@@ -126,4 +130,22 @@ pub struct Message {
 pub struct InstallTelemetryInfo {
 	pub source: String,
 	pub method: String,
+}
+
+impl TryFrom<&PathBuf> for Addons {
+	type Error = Error;
+
+	fn try_from(path: &PathBuf) -> Result<Self> {
+		let extensions_json_path = path.join("extensions.json");
+		let database = std::fs::File::open(extensions_json_path)?;
+		let reader = BufReader::new(&database);
+		let addons: Addons = serde_json::from_reader(reader)?;
+		Ok(addons)
+	}
+}
+
+impl Display for Addon {
+	fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+		write!(f, "{}", &self.id)
+	}
 }

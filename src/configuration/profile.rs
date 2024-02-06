@@ -1,5 +1,4 @@
 use super::browser::Browser;
-use super::configurable::Configurable;
 use crate::cli::Cli;
 use crate::errors::Error;
 use crate::errors::Result;
@@ -7,23 +6,22 @@ use ini::Ini;
 use std::path::PathBuf;
 
 pub struct Profile {
-	name: String,
 	pub browser: Browser,
 	pub path: PathBuf,
+	pub name: String,
 }
 
 impl Profile {
-	async fn get_profile_in_use(ini: &Ini) -> Result<String> {
+	fn get_profile_in_use(ini: &Ini) -> Result<&str> {
 		Ok(ini
 			.sections()
 			.flatten()
 			.filter(|section| section.starts_with("Install"))
 			.find_map(|section| ini.get_from(Some(section), "Default"))
-			.ok_or(Error::ProfileNotFound("in use".to_owned()))?
-			.to_owned())
+			.ok_or(Error::ProfileNotFound("TODO".to_owned()))?)
 	}
 
-	async fn get_specified_profile(ini: &Ini, profile: String) -> Result<String> {
+	fn get_specified_profile(ini: &Ini, profile: String) -> Result<&str> {
 		Ok(ini
 			.sections()
 			.flatten()
@@ -35,28 +33,29 @@ impl Profile {
 					None
 				}
 			})
-			.ok_or(Error::ProfileNotFound(profile))?
-			.to_owned())
+			.ok_or(Error::ProfileNotFound(profile))?)
 	}
 }
 
-impl Configurable for Profile {
-	async fn try_configure_from(cli: &Cli) -> Result<Self> {
-		let browser = Browser::try_configure_from(&cli).await?;
+impl TryFrom<&Cli> for Profile {
+	type Error = Error;
+
+	fn try_from(cli: &Cli) -> Result<Self> {
+		let browser = Browser::try_from(cli)?;
 		let profiles_file = browser.path.join("profiles.ini");
 		let ini = Ini::load_from_file(&profiles_file)?;
 
 		let path_slug = match &cli.profile {
-			Some(profile) => Self::get_specified_profile(&ini, profile.to_owned()).await?,
-			None => Self::get_profile_in_use(&ini).await?,
+			Some(profile) => Self::get_specified_profile(&ini, profile.to_owned())?,
+			None => Self::get_profile_in_use(&ini)?,
 		};
 
 		let path = browser.path.join(&path_slug);
 
 		if !path.exists() {
-			tokio::fs::create_dir(&path).await?;
+			std::fs::create_dir(&path)?;
 		}
 
-		Ok(Self { browser, path, name: "TODO".to_string() })
+		Ok(Self { browser, path, name: path_slug.to_owned() })
 	}
 }

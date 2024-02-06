@@ -1,10 +1,11 @@
-use clap::Args;
 use clap::Parser;
+use clap::Subcommand;
+use std::path::PathBuf;
 
-#[derive(Parser)]
+#[derive(Parser, Clone)]
 #[command(author, version, about, long_about)]
 pub struct Cli {
-	#[command(flatten)]
+	#[command(subcommand)]
 	pub operation: Operation,
 
 	#[arg(short, long, default_value = "firefox")]
@@ -16,25 +17,18 @@ pub struct Cli {
 	#[arg(short, long)]
 	pub verbose: bool,
 
-	#[arg(short = 'o', long)]
-	pub log: bool,
+	#[arg(short, long)]
+	pub log: Option<PathBuf>,
+
+	#[arg(short, long)]
+	pub debug: bool,
 }
 
-#[derive(Args)]
-#[group(required = true, multiple = false)]
-pub struct Operation {
-	#[arg(short = 'i', long = "install", num_args = 1..)]
-	pub extensions: Vec<String>,
-
-	#[arg(short, long)]
-	pub search: Option<String>,
-
-	#[arg(short, long)]
-	pub delete: Vec<String>,
-
-	#[arg(short, long)]
-	pub update: Option<Vec<String>>,
-
-	#[arg(short, long)]
-	pub list: bool,
+#[derive(Subcommand, Clone)]
+pub enum Operation {
+	DELETE { delete: Vec<String> },
+	INSTALL { install: Vec<String> },
+	LIST,
+	SEARCH { search: String },
+	UPDATE { update: Option<Vec<String>> },
 }

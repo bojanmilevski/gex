@@ -9,6 +9,6 @@ pub struct Ratings {
 
 impl Display for Ratings {
 	fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-		write!(f, "{}: {}", "Average rating".bold().bright_blue(), self.average.unwrap_or(0.0).to_string())
+		write!(f, "{}: {}", "Average rating".bold().bright_blue(), &self.average.unwrap_or(0.0).to_owned())
 	}
 }
