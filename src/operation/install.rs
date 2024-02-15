@@ -1,40 +1,43 @@
+use super::configurable::Configurable;
 use super::runnable::Runnable;
 use crate::api::DOWNLOAD_URL;
 use crate::api::EXTENSION_URL;
+use crate::cli::Cli;
 use crate::configuration::profile::Profile;
-use crate::database::manifest::Manifest;
 use crate::errors::Error;
 use crate::errors::Result;
 use crate::extension::extension::Extension;
+use crate::manifest::manifest::Manifest;
 use crate::progress_bar::Bar;
 use colored::Colorize;
-use futures_util::StreamExt;
 use reqwest::Client;
 use tokio::io::AsyncWriteExt;
+use tokio_stream::StreamExt;
 
 pub struct Install {
-	pub extensions: Vec<Extension>,
+	client: Client,
 	profile: Profile,
+	pub extensions: Vec<Extension>,
 }
 
 impl Install {
-	async fn find_extension(slug: &str) -> Result<Extension> {
-		Ok(reqwest::Client::new()
+	pub async fn find_extension(client: &Client, slug: &str) -> Result<Extension> {
+		client
 			.get(format!("{EXTENSION_URL}/{slug}"))
 			.send()
 			.await
 			.or(Err(Error::Query(slug.to_owned())))?
 			.json::<Extension>()
 			.await
-			.or(Err(Error::ExtensionNotFound(slug.to_owned())))?)
+			.or(Err(Error::ExtensionNotFound(slug.to_owned())))
 	}
 
-	async fn install_extension(extension: &Extension, profile: &Profile) -> Result<()> {
-		let version = &extension.current_version.file.id;
-		let guid = &extension.guid;
+	async fn install_extension(client: &Client, extension: &Extension, profile: &Profile) -> Result<()> {
+		let version = extension.current_version.file.id;
+		let guid = extension.guid.clone();
 		let name = extension.get_name();
 
-		let response = Client::new()
+		let response = client
 			.get(format!("{DOWNLOAD_URL}/{version}"))
 			.send()
 			.await
@@ -67,17 +70,19 @@ impl Install {
 }
 
 impl Install {
-	pub async fn try_configure_from(val: Vec<String>, profile: Profile) -> Result<Self> {
+	pub async fn try_configure_from(val: Vec<String>, cli: Cli) -> Result<Self> {
+		let profile = Profile::try_configure_from(cli).await?;
 		let mut extensions = Vec::new();
+		let client = Client::new();
 
 		for extension in val {
-			match Self::find_extension(&extension).await {
+			match Self::find_extension(&client, &extension).await {
 				Ok(ext) => extensions.push(ext),
 				Err(err) => return Err(err),
 			};
 		}
 
-		Ok(Self { extensions, profile })
+		Ok(Self { extensions, profile, client })
 	}
 }
 
@@ -88,8 +93,8 @@ impl Runnable for Install {
 			println!("{}: {}", "Installing extension".bold().bright_blue(), name);
 			println!("{}", ext);
 
-			match Self::install_extension(&ext, &self.profile).await {
-				Ok(_) => Manifest::add_extension_to_database(&self.profile, &ext).await?,
+			match Self::install_extension(&self.client, ext, &self.profile).await {
+				Ok(_) => Manifest::add_extension_to_database(&self.profile.path, ext).await?,
 				Err(err) => {
 					eprintln!("{}: {}", "Error".bold().red(), err);
 					eprintln!("{}: {}", "Error installing extension".bold().red(), name);

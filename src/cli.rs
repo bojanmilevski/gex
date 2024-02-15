@@ -26,9 +26,25 @@ pub struct Cli {
 
 #[derive(Subcommand, Clone)]
 pub enum Operation {
-	DELETE { delete: Vec<String> },
-	INSTALL { install: Vec<String> },
-	LIST,
-	SEARCH { search: String },
-	UPDATE { update: Option<Vec<String>> },
+	Delete {
+		#[arg(num_args = 1.., required = true)]
+		delete: Vec<String>,
+	},
+
+	Install {
+		#[arg(num_args = 1.., required = true)]
+		install: Vec<String>,
+	},
+
+	List,
+
+	Search {
+		#[arg(required = true)]
+		search: String,
+	},
+
+	Update {
+		#[arg(num_args = 1..)]
+		update: Option<Vec<String>>,
+	},
 }

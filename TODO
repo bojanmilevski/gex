@@ -1,38 +1,41 @@
 HIGH PRIORITY
 - delete
 - list
-- organize database
+- middleman database
+- organize database (impl TryFrom)
 - update
 
 MID PRORITY
+- replace for and while loops with tokio_stream::iter
 - async tasks execute without waiting
+- each crate has it's own error module
 - multi progress bar
 - parallel extension installs
 - send multiple extensions in one query in order to avoid multiple requests - avoid spamming mozilla servers
-- single client instance
+- tokio::task::spawn vec and then run
 
 LOW PRIORITY
 - &str instead of String
 - borrows and ownerships
 - code documentation
-- derives
-- description language
+- configuration file
+- description languages
 - extension already installed
-- gex configuration file
-- if ext list empty, print "no extension found"
+- fix proc macros
+- if error, do not place installed extension in profile dir
+- if list empty, print "no extension found"
 - install for multiple browsers
 - install for multiple profiles
 - log flag
+- man file
 - manually enable/disable extensions
 - more browsers and respective data paths
-- prompt (reinstall?, are you sure?)
+- prompt (ext is already installed. reinstall?, are you sure?), options to auto accept/deny
 - remove .cloned(), clone(), .to_owned(), .to_string(), .unwrap(), .as_str(), .as_ref()
 - remove format!()
-- replace for and while loops with iterators
 - search params (sort output by rating, score...)
 - smallvec, tinyvec
-- specific extension info flag
-- struct and field access modifiers
-- thunderbird (and derivatives) support
+- struct and field access
+- thunderbird support
 - verbose flag
 - windows and macos compatibility

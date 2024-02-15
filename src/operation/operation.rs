@@ -7,25 +7,24 @@ use super::search::Search;
 use super::update::Update;
 use crate::cli::Cli;
 use crate::cli::Operation as Op;
-use crate::configuration::profile::Profile;
 use crate::errors::Result;
 
 pub enum Operation {
-	DELETE(Delete),
-	INSTALL(Install),
-	LIST(List),
-	SEARCH(Search),
-	UPDATE(Update),
+	Delete(Delete),
+	Install(Install),
+	List(List),
+	Search(Search),
+	Update(Update),
 }
 
 impl Configurable for Operation {
-	async fn try_configure_from(cli: Cli, profile: Profile) -> Result<Self> {
-		let operation = match cli.operation {
-			Op::DELETE { delete } => Self::DELETE(Delete::try_configure_from(delete, profile).await?),
-			Op::INSTALL { install } => Self::INSTALL(Install::try_configure_from(install, profile).await?),
-			Op::LIST => Self::LIST(List::try_configure_from(profile).await?),
-			Op::SEARCH { search } => Self::SEARCH(Search::try_configure_from(search, profile).await?),
-			Op::UPDATE { update } => Self::UPDATE(Update::try_configure_from(update, profile).await?),
+	async fn try_configure_from(cli: Cli) -> Result<Self> {
+		let operation = match cli.clone().operation {
+			Op::Delete { delete } => Self::Delete(Delete::try_configure_from(delete, cli).await?),
+			Op::Install { install } => Self::Install(Install::try_configure_from(install, cli).await?),
+			Op::List => Self::List(List::try_configure_from(cli).await?),
+			Op::Search { search } => Self::Search(Search::try_configure_from(search).await?),
+			Op::Update { update } => Self::Update(Update::try_configure_from(update, cli).await?),
 		};
 
 		Ok(operation)
@@ -35,11 +34,11 @@ impl Configurable for Operation {
 impl Runnable for Operation {
 	async fn try_run(&self) -> Result<()> {
 		match &self {
-			Self::DELETE(delete) => delete.try_run().await?,
-			Self::INSTALL(install) => install.try_run().await?,
-			Self::LIST(list) => list.try_run().await?,
-			Self::SEARCH(search) => search.try_run().await?,
-			Self::UPDATE(update) => update.try_run().await?,
+			Self::Delete(delete) => delete.try_run().await?,
+			Self::Install(install) => install.try_run().await?,
+			Self::List(list) => list.try_run().await?,
+			Self::Search(search) => search.try_run().await?,
+			Self::Update(update) => update.try_run().await?,
 		}
 
 		Ok(())

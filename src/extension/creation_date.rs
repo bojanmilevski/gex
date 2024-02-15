@@ -13,9 +13,8 @@ pub struct CreationDateTime {
 
 impl Display for CreationDateTime {
 	fn fmt(&self, f: &mut Formatter) -> std::fmt::Result {
-		let parsed = chrono::DateTime::parse_from_rfc3339(&self.creation_date)
-			.map_err(|_| return std::fmt::Error) // TODO: please change this...
-			.unwrap();
+		// TODO: stinks
+		let parsed = chrono::DateTime::parse_from_rfc3339(&self.creation_date).unwrap();
 
 		write!(
 			f,

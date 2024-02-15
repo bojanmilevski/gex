@@ -3,12 +3,12 @@ use serde::Deserialize;
 use std::fmt::Display;
 
 #[derive(Deserialize)]
-#[serde(transparent)]
-pub struct URL {
+#[serde(transparent, rename = "URL")]
+pub struct Url {
 	url: String,
 }
 
-impl Display for URL {
+impl Display for Url {
 	fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
 		write!(f, "{}: {}", "URL".bold().bright_blue(), self.url)
 	}

@@ -5,7 +5,7 @@ use super::description::Description;
 use super::name::Name;
 use super::ratings::Ratings;
 use super::score::Score;
-use super::url::URL;
+use super::url::Url;
 use super::weekly_downloads::WeeklyDownloads;
 use serde::Deserialize;
 use std::fmt::Display;
@@ -22,13 +22,13 @@ pub struct Extension {
 	ratings: Ratings,
 	#[serde(rename = "_score")]
 	score: Score,
-	url: URL,
+	url: Url,
 	weekly_downloads: WeeklyDownloads,
 }
 
 impl Extension {
 	pub fn get_name(&self) -> String {
-		self.name.clone().name.unwrap_or("EMPTY".to_owned())
+		self.name.name.to_owned().unwrap_or("EMPTY".to_owned())
 	}
 }
 

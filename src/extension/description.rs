@@ -2,7 +2,7 @@ use colored::Colorize;
 use serde::Deserialize;
 use std::fmt::Display;
 
-#[derive(Deserialize, Clone)]
+#[derive(Deserialize)]
 #[serde(transparent)]
 pub struct Description {
 	description: Option<Language>,
@@ -21,11 +21,11 @@ impl Display for Description {
 			"{}: {}",
 			"Description".bold().bright_blue(),
 			self.description
-				.clone()
+				.to_owned()
 				.unwrap_or(Language { language: None })
 				.language
 				.unwrap_or("None".to_owned())
-				.replace("\n", " ")
+				.replace('\n', " ")
 		)
 	}
 }

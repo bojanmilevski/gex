@@ -1,11 +1,11 @@
 use super::runnable::Runnable;
-use crate::configuration::profile::Profile;
+use crate::cli::Cli;
 use crate::errors::Result;
 
 pub struct Delete {}
 
 impl Delete {
-	pub async fn try_configure_from(val: Vec<String>, profile: Profile) -> Result<Self> {
+	pub async fn try_configure_from(_val: Vec<String>, _cli: Cli) -> Result<Self> {
 		Ok(Self {})
 	}
 }

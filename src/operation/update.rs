@@ -1,20 +1,17 @@
-use super::install::Install;
 use super::runnable::Runnable;
-use crate::configuration::profile::Profile;
+use crate::cli::Cli;
 use crate::errors::Result;
 
-pub struct Update {
-	pub update: Install,
-}
+pub struct Update {}
 
 impl Update {
-	pub async fn try_configure_from(val: Option<Vec<String>>, profile: Profile) -> Result<Self> {
-		Ok(Self { update: Install::try_configure_from(val.unwrap(), profile).await? })
+	pub async fn try_configure_from(_val: Option<Vec<String>>, _cli: Cli) -> Result<Self> {
+		Ok(Self {})
 	}
 }
 
 impl Runnable for Update {
 	async fn try_run(&self) -> Result<()> {
-		Ok(self.update.try_run().await?)
+		Ok(())
 	}
 }

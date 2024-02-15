@@ -1,6 +1,6 @@
 [package]
 name = "gex"
-version = "0.0.12"
+version = "0.0.1"
 edition = "2021"
 authors = [ "Bojan Milevski <bojan@bojanmilevski.com>" ]
 description = "An extension installer for Gecko browsers"
@@ -21,14 +21,13 @@ strip = true
 chrono = "0.4.31"
 clap = { version = "4.3.11", features = ["derive"] }
 colored = "2.0.4"
-futures-util = "0.3.30"
 home = "0.5.9"
 indicatif = "0.17.7"
-rayon = "1.8.0"
 reqwest = { version = "0.11.18", features = ["json", "stream"] }
 rust-ini = "0.19.0"
 serde = { version = "1.0.171", features = ["derive"] }
 serde_json = "1.0.100"
 thiserror = "1.0.43"
 tokio = { version = "1.29.1", features = ["macros", "fs", "rt-multi-thread"] }
+tokio-stream = "0.1.14"
 zip = "0.6.6"
