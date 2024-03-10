@@ -1,8 +1,8 @@
-use super::runnable::Runnable;
 use crate::api::SEARCH_URL;
 use crate::errors::Error;
 use crate::errors::Result;
 use crate::extension::extensions_list::ExtensionsList;
+use crate::runnable::Runnable;
 use reqwest::Client;
 
 pub struct Search {
@@ -13,7 +13,13 @@ impl Search {
 	async fn search_extension(slug: &str) -> Result<ExtensionsList> {
 		Client::new()
 			.get(SEARCH_URL)
-			.query(&[("q", slug), ("page_size", "50"), ("app", "firefox"), ("lang", "en-US"), ("sort", "users")])
+			.query(&[
+				("q", slug),
+				("page_size", "50"),
+				("app", "firefox"),
+				("lang", "en-US"),
+				("sort", "users"),
+			])
 			.send()
 			.await
 			.or(Err(Error::Query(slug.to_owned())))?
@@ -24,8 +30,13 @@ impl Search {
 }
 
 impl Search {
-	pub async fn try_configure_from(val: String) -> Result<Self> {
-		Ok(Self { search: Self::search_extension(&val).await? })
+	pub async fn try_configure_from(
+		slug: String,
+		_configuration: crate::cli::Configuration,
+	) -> Result<Self> {
+		Ok(Self {
+			search: Self::search_extension(&slug).await?,
+		})
 	}
 }
 

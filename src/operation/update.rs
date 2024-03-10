@@ -1,11 +1,13 @@
-use super::runnable::Runnable;
-use crate::cli::Cli;
 use crate::errors::Result;
+use crate::runnable::Runnable;
 
 pub struct Update {}
 
 impl Update {
-	pub async fn try_configure_from(_val: Option<Vec<String>>, _cli: Cli) -> Result<Self> {
+	pub async fn try_configure_from(
+		_val: Option<Vec<String>>,
+		_configuration: crate::cli::Configuration,
+	) -> Result<Self> {
 		Ok(Self {})
 	}
 }

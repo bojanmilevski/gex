@@ -1,17 +1,14 @@
 use super::browser::Browser;
-use super::database::Database;
-use crate::cli::Cli;
+use crate::cli::Configuration;
 use crate::errors::Error;
 use crate::errors::Result;
-use crate::operation::configurable::Configurable;
 use ini::Ini;
 use std::path::PathBuf;
 
 pub struct Profile {
-	pub browser: Browser,
-	pub database: Database,
 	pub name: String,
 	pub path: PathBuf,
+	pub browser: Browser,
 }
 
 impl Profile {
@@ -20,7 +17,9 @@ impl Profile {
 			.flatten()
 			.filter(|section| section.starts_with("Install"))
 			.find_map(|section| ini.get_from(Some(section), "Default"))
-			.ok_or(Error::ProfileNotFound("TODO".to_owned()))
+			.ok_or(Error::ProfileNotFound(
+				"Path for profile in use does not exist.".to_owned(),
+			))
 	}
 
 	fn get_specified_profile(ini: &Ini, profile: String) -> Result<&str> {
@@ -38,13 +37,15 @@ impl Profile {
 	}
 }
 
-impl Configurable for Profile {
-	async fn try_configure_from(cli: Cli) -> Result<Self> {
-		let browser = Browser::try_from(cli.clone())?;
+impl TryFrom<Configuration> for Profile {
+	type Error = Error;
+
+	fn try_from(configuration: Configuration) -> Result<Self> {
+		let browser = Browser::try_from(&configuration)?;
 		let profiles = browser.path.join("profiles.ini");
 		let ini = Ini::load_from_file(profiles)?;
 
-		let name = match cli.profile {
+		let name = match configuration.profile {
 			Some(profile) => Self::get_specified_profile(&ini, profile)?,
 			None => Self::get_profile_in_use(&ini)?,
 		}
@@ -57,8 +58,10 @@ impl Configurable for Profile {
 			return Err(Error::ProfileNotFound(name));
 		}
 
-		let database = Database::try_configure_from(&path).await?;
-
-		Ok(Self { browser, path, name, database })
+		Ok(Self {
+			browser,
+			path,
+			name,
+		})
 	}
 }

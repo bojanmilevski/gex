@@ -1,12 +1,13 @@
 use super::browser_specific_settings::BrowserSpecificSettings;
-use crate::addon::addon::Addon;
-use crate::addon::addons::Addons;
-use crate::addon::default_locale::DefaultLocale;
-use crate::addon::install_telemetry_info::InstallTelemetryInfo;
-use crate::addon::locale::Locale;
-use crate::addon::permissions::Permissions;
-use crate::addon::recommendation_state::RecommendationState;
-use crate::addon::target_application::TargetApplication;
+use crate::configuration::profile::Profile;
+use crate::database::addon::Addon;
+use crate::database::database::Database;
+use crate::database::default_locale::DefaultLocale;
+use crate::database::install_telemetry_info::InstallTelemetryInfo;
+use crate::database::locale::Locale;
+use crate::database::permissions::Permissions;
+use crate::database::recommendation_state::RecommendationState;
+use crate::database::target_application::TargetApplication;
 use crate::errors::Error;
 use crate::errors::Result;
 use crate::extension::extension::Extension;
@@ -24,8 +25,8 @@ pub struct Manifest {
 	pub manifest_version: u8,
 	pub name: String,
 	pub version: String,
-	pub author: String,
-	pub description: String,
+	pub author: Option<String>,
+	pub description: Option<String>,
 	pub default_locale: String,
 	pub icons: HashMap<String, String>,
 	pub permissions: Vec<String>,
@@ -61,13 +62,14 @@ impl Manifest {
 				let mut messages_json = zip.by_name(locale).unwrap();
 				let mut content = String::new();
 				messages_json.read_to_string(&mut content).unwrap();
+				// FIX: below
 				// let locale_file: LocaleFile = serde_json::from_str(content.as_str())?;
 				Locale {
 					description: None, // Some(locale_file.extension_description.unwrap().message),
 					locales: Some(vec![locale_slug.replace('_', "-")]),
 					contributors: None,
 					translators: None,
-					creator: Some(manifest.author.clone()),
+					creator: manifest.author.clone(),
 					developers: None,
 					name: Some(manifest.name.clone()),
 				}
@@ -77,7 +79,11 @@ impl Manifest {
 		Ok(locales)
 	}
 
-	fn generate_addon_info(manifest: &Manifest, locales: Vec<Locale>, path: &Path) -> Result<Addon> {
+	fn generate_addon_info(
+		manifest: &Manifest,
+		locales: Vec<Locale>,
+		path: &Path,
+	) -> Result<Addon> {
 		let target_applications = TargetApplication::try_from(manifest)?;
 		let user_permissions = Permissions::try_from(manifest)?;
 		let optional_permissions = Permissions::default();
@@ -96,7 +102,7 @@ impl Manifest {
 		let default_locale = DefaultLocale {
 			name: Some(manifest.name.clone()),
 			description,
-			creator: Some(manifest.author.clone()),
+			creator: manifest.author.clone(),
 			contributors: None,
 			developers: None,
 			translators: None,
@@ -157,7 +163,10 @@ impl Manifest {
 	}
 
 	fn get_addon(path: &Path, ext: &Extension) -> Result<Addon> {
-		let ext_path = PathBuf::from(format!("{}.xpi", path.join("extensions").join(&ext.guid).display()));
+		let ext_path = PathBuf::from(format!(
+			"{}.xpi",
+			path.join("extensions").join(&ext.guid).display()
+		));
 		let ext_file = std::fs::File::open(&ext_path)?;
 		let mut zip = zip::ZipArchive::new(ext_file).unwrap();
 		let manifest = Self::try_from(&mut zip)?;
@@ -166,12 +175,12 @@ impl Manifest {
 		Ok(addon)
 	}
 
-	pub async fn add_extension_to_database(path: &PathBuf, ext: &Extension) -> Result<()> {
-		let mut addons = Addons::try_from(path)?;
-		let addon = Self::get_addon(path, ext)?;
+	pub async fn add_extension_to_database(profile: &Profile, ext: &Extension) -> Result<()> {
+		let mut addons = Database::try_from(profile)?;
+		let addon = Self::get_addon(&profile.path, ext)?;
 		addons.addons.push(addon);
 		let content = serde_json::to_string(&addons)?;
-		tokio::fs::write(&path.join("extensions.json"), content).await?;
+		tokio::fs::write(&profile.path.join("extensions.json"), content).await?;
 
 		Ok(())
 	}

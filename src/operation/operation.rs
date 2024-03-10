@@ -1,13 +1,11 @@
-use super::configurable::Configurable;
 use super::delete::Delete;
 use super::install::Install;
 use super::list::List;
-use super::runnable::Runnable;
 use super::search::Search;
 use super::update::Update;
-use crate::cli::Cli;
 use crate::cli::Operation as Op;
 use crate::errors::Result;
+use crate::runnable::Runnable;
 
 pub enum Operation {
 	Delete(Delete),
@@ -17,14 +15,32 @@ pub enum Operation {
 	Update(Update),
 }
 
-impl Configurable for Operation {
-	async fn try_configure_from(cli: Cli) -> Result<Self> {
-		let operation = match cli.clone().operation {
-			Op::Delete { delete } => Self::Delete(Delete::try_configure_from(delete, cli).await?),
-			Op::Install { install } => Self::Install(Install::try_configure_from(install, cli).await?),
-			Op::List => Self::List(List::try_configure_from(cli).await?),
-			Op::Search { search } => Self::Search(Search::try_configure_from(search).await?),
-			Op::Update { update } => Self::Update(Update::try_configure_from(update, cli).await?),
+impl Operation {
+	pub async fn try_configure_from(operation: crate::cli::Operation) -> Result<Self> {
+		let operation = match operation {
+			Op::Delete {
+				delete,
+				configuration,
+			} => Self::Delete(Delete::try_configure_from(delete, configuration).await?),
+
+			Op::Install {
+				install,
+				configuration,
+			} => Self::Install(Install::try_configure_from(install, configuration).await?),
+
+			Op::List { configuration } => {
+				Self::List(List::try_configure_from(configuration).await?)
+			}
+
+			Op::Search {
+				search,
+				configuration,
+			} => Self::Search(Search::try_configure_from(search, configuration).await?),
+
+			Op::Update {
+				update,
+				configuration,
+			} => Self::Update(Update::try_configure_from(update, configuration).await?),
 		};
 
 		Ok(operation)
