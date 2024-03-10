@@ -2,17 +2,11 @@ use clap::Parser;
 use clap::Subcommand;
 use std::path::PathBuf;
 
-#[derive(Parser, Clone)]
+#[derive(Parser)]
 #[command(author, version, about, long_about)]
 pub struct Cli {
 	#[command(subcommand)]
 	pub operation: Operation,
-
-	#[arg(short, long, default_value = "firefox")]
-	pub browser: String,
-
-	#[arg(short, long)]
-	pub profile: Option<String>,
 
 	#[arg(short, long)]
 	pub verbose: bool,
@@ -24,27 +18,51 @@ pub struct Cli {
 	pub debug: bool,
 }
 
-#[derive(Subcommand, Clone)]
+#[derive(Parser)]
+pub struct Configuration {
+	#[arg(short, long, default_value = "firefox")]
+	pub browser: String,
+
+	#[arg(short, long)]
+	pub profile: Option<String>,
+}
+
+#[derive(Subcommand)]
 pub enum Operation {
 	Delete {
 		#[arg(num_args = 1.., required = true)]
 		delete: Vec<String>,
+
+		#[command(flatten)]
+		configuration: Configuration,
 	},
 
 	Install {
 		#[arg(num_args = 1.., required = true)]
 		install: Vec<String>,
+
+		#[command(flatten)]
+		configuration: Configuration,
 	},
 
-	List,
+	List {
+		#[command(flatten)]
+		configuration: Configuration,
+	},
 
 	Search {
 		#[arg(required = true)]
 		search: String,
+
+		#[command(flatten)]
+		configuration: Configuration,
 	},
 
 	Update {
 		#[arg(num_args = 1..)]
 		update: Option<Vec<String>>,
+
+		#[command(flatten)]
+		configuration: Configuration,
 	},
 }

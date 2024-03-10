@@ -120,7 +120,9 @@ This software is licensed under the [GPL v3.0 License](https://www.gnu.org/licen
 
 ## SPECIAL THANKS
 
-- [Interfiber's `firefoxext` program written in `C`](https://github.com/Interfiber/firefoxext)
-  for being an inspiration. This program is its spiritual successor. :)
+- [firefoxext](https://github.com/Interfiber/firefoxext) by Interfiber for being an inspiration.
+  This program is its spiritual successor. :)
 
 - [lsd](https://github.com/lsd-rs/lsd) for providing a well-designed and structured code base.
+
+- [bob](https://github.com/MordechaiHadad/bob) is another package manager.

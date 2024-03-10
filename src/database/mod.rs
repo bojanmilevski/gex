@@ -1,5 +1,5 @@
 pub mod addon;
-pub mod addons;
+pub mod database;
 pub mod default_locale;
 pub mod install_telemetry_info;
 pub mod locale;

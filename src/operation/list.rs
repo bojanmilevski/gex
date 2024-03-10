@@ -1,19 +1,20 @@
-use super::configurable::Configurable;
-use super::runnable::Runnable;
-use crate::cli::Cli;
-use crate::configuration::profile::Profile;
+use crate::configuration::configuration::Configuration;
 use crate::errors::Result;
+use crate::runnable::Runnable;
 
 pub struct List {
 	list: Vec<String>,
-	profile: Profile,
+	_configuration: Configuration,
 }
 
 impl List {
-	pub async fn try_configure_from(cli: Cli) -> Result<Self> {
-		let profile = Profile::try_configure_from(cli).await?;
-		let list = profile.database.slugs.clone();
-		Ok(Self { profile, list })
+	pub async fn try_configure_from(config: crate::cli::Configuration) -> Result<Self> {
+		let _configuration = Configuration::try_configure_from(config).await?;
+		let list = _configuration.intermediate_database.slugs.clone();
+		Ok(Self {
+			_configuration,
+			list,
+		})
 	}
 }
 

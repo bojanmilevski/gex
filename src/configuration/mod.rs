@@ -1,3 +1,4 @@
-pub mod browser;
-pub mod database;
+mod browser;
+pub mod configuration;
+mod intermediate_database;
 pub mod profile;

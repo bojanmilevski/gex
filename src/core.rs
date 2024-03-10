@@ -1,21 +1,21 @@
 use crate::cli::Cli;
+use crate::configurable::Configurable;
 use crate::errors::Result;
-use crate::operation::configurable::Configurable;
 use crate::operation::operation::Operation;
-use crate::operation::runnable::Runnable;
+use crate::runnable::Runnable;
 use std::path::PathBuf;
 
-pub struct Flags {
+pub struct Core {
 	_debug: bool,
 	_log: Option<PathBuf>,
 	operation: Operation,
 	_verbose: bool,
 }
 
-impl Configurable for Flags {
+impl Configurable for Core {
 	async fn try_configure_from(cli: Cli) -> Result<Self> {
 		Ok(Self {
-			operation: Operation::try_configure_from(cli.clone()).await?,
+			operation: Operation::try_configure_from(cli.operation).await?,
 			_verbose: cli.verbose,
 			_log: cli.log,
 			_debug: cli.debug,
@@ -23,7 +23,7 @@ impl Configurable for Flags {
 	}
 }
 
-impl Runnable for Flags {
+impl Runnable for Core {
 	async fn try_run(&self) -> Result<()> {
 		self.operation.try_run().await?;
 		Ok(())

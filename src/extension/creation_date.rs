@@ -13,7 +13,6 @@ pub struct CreationDateTime {
 
 impl Display for CreationDateTime {
 	fn fmt(&self, f: &mut Formatter) -> std::fmt::Result {
-		// TODO: stinks
 		let parsed = chrono::DateTime::parse_from_rfc3339(&self.creation_date).unwrap();
 
 		write!(
