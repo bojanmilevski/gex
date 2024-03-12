@@ -1,22 +1,20 @@
 mod api;
 mod cli;
-mod configurable;
 mod configuration;
 mod core;
 mod database;
 mod errors;
 mod extension;
-mod manifest;
 mod operation;
 mod progress_bar;
-mod runnable;
+mod traits;
 
 use clap::Parser;
 use cli::Cli;
-use configurable::Configurable;
 use core::Core;
 use errors::Result;
-use runnable::Runnable;
+use traits::configurable::Configurable;
+use traits::runnable::Runnable;
 
 #[tokio::main]
 async fn main() -> Result<()> {

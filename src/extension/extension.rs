@@ -11,6 +11,12 @@ use serde::Deserialize;
 use std::fmt::Display;
 
 #[derive(Deserialize)]
+pub struct ExtensionsList {
+	#[serde(rename = "results")]
+	pub extensions: Vec<Extension>,
+}
+
+#[derive(Deserialize)]
 pub struct Extension {
 	authors: Authors,
 	created: CreationDateTime,

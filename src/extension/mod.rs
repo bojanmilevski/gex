@@ -3,7 +3,6 @@ mod creation_date;
 mod current_version;
 mod description;
 pub mod extension;
-pub mod extensions_list;
 mod license;
 mod name;
 mod ratings;

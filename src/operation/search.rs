@@ -1,8 +1,8 @@
 use crate::api::SEARCH_URL;
 use crate::errors::Error;
 use crate::errors::Result;
-use crate::extension::extensions_list::ExtensionsList;
-use crate::runnable::Runnable;
+use crate::extension::extension::ExtensionsList;
+use crate::traits::runnable::Runnable;
 use reqwest::Client;
 
 pub struct Search {
@@ -30,10 +30,7 @@ impl Search {
 }
 
 impl Search {
-	pub async fn try_configure_from(
-		slug: String,
-		_configuration: crate::cli::Configuration,
-	) -> Result<Self> {
+	pub async fn try_configure_from(slug: String) -> Result<Self> {
 		Ok(Self {
 			search: Self::search_extension(&slug).await?,
 		})

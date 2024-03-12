@@ -5,7 +5,7 @@ use super::search::Search;
 use super::update::Update;
 use crate::cli::Operation as Op;
 use crate::errors::Result;
-use crate::runnable::Runnable;
+use crate::traits::runnable::Runnable;
 
 pub enum Operation {
 	Delete(Delete),
@@ -32,10 +32,7 @@ impl Operation {
 				Self::List(List::try_configure_from(configuration).await?)
 			}
 
-			Op::Search {
-				search,
-				configuration,
-			} => Self::Search(Search::try_configure_from(search, configuration).await?),
+			Op::Search { search } => Self::Search(Search::try_configure_from(search).await?),
 
 			Op::Update {
 				update,

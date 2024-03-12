@@ -46,12 +46,13 @@ More information on Mozilla's Add-On API can be found
 
 After profile validation, it searches an extension by its slug. A request is sent to
 `https://addons.mozilla.org/api/v5/addons/addon` with the slug appended to this string. This page
-returns a `.json` containing information about the extension, if it exists. The extension gets
+returns a `json` containing information about the extension, if it exists. The extension gets
 installed to the profile's `extensions` folder with it's `guid` being the filename.
 
 ### SEARCHING
 
-...
+The slug provided to this subcommand is sent to `https://addons.mozilla.org/api/v5/addons/search`.
+A `json` of the first 50 extensions, sorted by the number of users, is returned to the user.
 
 ### UPDATING (CURRENTLY NOT IMPLEMENTED)
 
@@ -83,10 +84,11 @@ Commands:
   help     Print this message or the help of the given subcommand(s)
 
 Options:
-  -b, --browser <BROWSER>  [default: firefox]
-  -p, --profile <PROFILE>
-  -h, --help               Print help
-  -V, --version            Print version
+  -v, --verbose
+  -l, --log <LOG>
+  -d, --debug
+  -h, --help       Print help
+  -V, --version    Print version
 ```
 
 ### EXAMPLES
@@ -101,13 +103,13 @@ gex install darkreader
 To achieve the same for `Librewolf`:
 
 ```
-gex -b librewolf install darkreader
+gex install darkreader -b librewolf
 ```
 
 ... for the `default` profile:
 
 ```
-gex -b librewolf -p default install darkreader
+gex install darkreader -b librewolf -p default
 ```
 
 ## CAVEATS

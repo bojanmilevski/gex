@@ -1,6 +1,6 @@
+use crate::database::manifest::manifest::Manifest;
 use crate::errors::Error;
 use crate::errors::Result;
-use crate::manifest::manifest::Manifest;
 use serde::Deserialize;
 use serde::Serialize;
 
@@ -23,6 +23,9 @@ impl TryFrom<&Manifest> for Permissions {
 			.filter(|o| o.starts_with('<'))
 			.collect();
 
-		Ok(Self { permissions, origins })
+		Ok(Self {
+			permissions,
+			origins,
+		})
 	}
 }

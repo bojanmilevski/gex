@@ -1,4 +1,4 @@
-use super::addon::Addon;
+use super::addon::addon::Addon;
 use crate::configuration::profile::Profile;
 use crate::errors::Error;
 use crate::errors::Result;
@@ -19,15 +19,14 @@ impl TryFrom<&Profile> for Database {
 		let extensions_json_path = profile.path.join("extensions.json");
 		let database = std::fs::File::open(extensions_json_path)?;
 		let reader = BufReader::new(database);
-		let a_addons: Database = serde_json::from_reader(reader)?;
-		let addons = a_addons
-			.addons
-			.into_iter()
-			.filter(|addon| {
-				addon.location != "app-builtin" && addon.location != "app-system-defaults"
-			})
-			.collect::<Vec<_>>(); // TODO: write deserializer
+		let mut addons: Database = serde_json::from_reader(reader)?;
 
-		Ok(Self { addons })
+		addons.addons.retain(|addon| {
+			addon.location != "app-builtin" && addon.location != "app-system-defaults"
+		});
+
+		Ok(Self {
+			addons: addons.addons,
+		})
 	}
 }

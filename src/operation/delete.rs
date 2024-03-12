@@ -1,5 +1,5 @@
 use crate::errors::Result;
-use crate::runnable::Runnable;
+use crate::traits::runnable::Runnable;
 
 pub struct Delete {}
 

@@ -1,10 +1,3 @@
 pub mod addon;
 pub mod database;
-pub mod default_locale;
-pub mod install_telemetry_info;
-pub mod locale;
-pub mod locale_file;
-pub mod message;
-pub mod permissions;
-pub mod recommendation_state;
-pub mod target_application;
+pub mod manifest;
