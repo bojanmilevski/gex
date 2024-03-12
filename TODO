@@ -1,37 +1,38 @@
 HIGH PRIORITY
+- crud operations for extensions.json and addons.json databases
 - implement remaining operations (delete, list, update)
-- reorganize main database (impl TryFrom)
+- reorganize manifest usage
 
 MID PRORITY
 - async tasks execute without waiting
 - each crate has it's own error module
 - multi progress bar
 - parallel extension installs
-- replace for and while loops with tokio_stream::iter
 - send multiple extensions in one query in order to avoid multiple requests - avoid spamming mozilla servers
 - tokio::task::spawn vec and then run
 
 LOW PRIORITY
 - &str instead of String
+- access modifiers
 - alphabetically order struct fields
 - borrows and ownerships
 - code documentation
 - configuration file
 - description languages
 - fix proc macros
-- if error, do not place installed extension in profile dir
-- if list empty, print "no extension found"
+- install extensions to /tmp
+- if install vec is empty, print "no extension found"
 - install for multiple browsers
 - install for multiple profiles
 - log flag, path
 - man file
 - manually enable/disable extensions
 - more browsers and respective data paths
-- prompt (ext is already installed. reinstall?, are you sure?), options to auto accept/deny
+- prompt for reinstall, force install etc.
+- references, ownerships, lifetimes
 - remove clone, cloned, to_owned, unwrap, as_str, format!
 - search params (sort output by rating, score...)
 - smallvec, tinyvec
-- struct and field access
 - thunderbird support
 - verbose flag
 - windows and macos compatibility

@@ -2,16 +2,16 @@ use crate::api::DOWNLOAD_URL;
 use crate::api::EXTENSION_URL;
 use crate::configuration::configuration::Configuration;
 use crate::configuration::profile::Profile;
-use crate::database::manifest::manifest::Manifest;
 use crate::errors::Error;
 use crate::errors::Result;
 use crate::extension::extension::Extension;
+use crate::manifest::manifest::Manifest;
 use crate::progress_bar::Bar;
 use crate::traits::runnable::Runnable;
 use colored::Colorize;
+use futures_util::StreamExt;
 use reqwest::Client;
 use tokio::io::AsyncWriteExt;
-use tokio_stream::StreamExt;
 
 pub struct Install {
 	client: Client,
@@ -31,11 +31,7 @@ impl Install {
 			.or(Err(Error::ExtensionNotFound(slug.to_owned())))
 	}
 
-	async fn install_extension(
-		client: &Client,
-		extension: &Extension,
-		profile: &Profile,
-	) -> Result<()> {
+	async fn install_extension(client: &Client, extension: &Extension, profile: &Profile) -> Result<()> {
 		let version = extension.current_version.file.id;
 		let guid = extension.guid.clone();
 		let name = extension.get_name();
@@ -73,12 +69,10 @@ impl Install {
 }
 
 impl Install {
-	pub async fn try_configure_from(
-		val: Vec<String>,
-		configuration: crate::cli::Configuration,
-	) -> Result<Self> {
-		let configuration = Configuration::try_configure_from(configuration).await?;
+	pub async fn try_configure_from(val: Vec<String>, configuration: crate::cli::Configuration) -> Result<Self> {
+		let configuration = Configuration::try_from(configuration)?;
 		let client = Client::new();
+
 		let mut extensions = Vec::new();
 
 		for extension in val {
@@ -88,32 +82,38 @@ impl Install {
 			};
 		}
 
-		Ok(Self {
-			extensions,
-			configuration,
-			client,
-		})
+		// TODO: I WILL HAVE MY REVENGE
+		// let extensions = futures_util::stream::iter(val.into_iter())
+		// .map(|extension| async move { Self::find_extension(&client, &extension).await })
+		// .try_collect::<Vec<Extension>>()
+		// .await?;
+
+		Ok(Self { extensions, configuration, client })
 	}
 }
 
 impl Runnable for Install {
 	async fn try_run(&self) -> Result<()> {
-		for ext in &self.extensions {
-			let name = ext.get_name();
-			println!("{}: {}", "Installing extension".bold().bright_blue(), name);
-			println!("{}", ext);
+		futures_util::stream::iter(&self.extensions)
+			.for_each(|ext| async move {
+				let name = ext.get_name();
+				println!("{}: {}", "Installing extension".bold().bright_blue(), name);
+				println!("{}", ext);
 
-			match Self::install_extension(&self.client, ext, &self.configuration.profile).await {
-				Ok(_) => {
-					Manifest::add_extension_to_database(&self.configuration.profile, ext).await?
-				}
+				match Self::install_extension(&self.client, ext, &self.configuration.profile).await {
+					Ok(_) => {
+						if let Err(err) = Manifest::add_extension_to_database(&self.configuration.profile, ext) {
+							eprintln!("{}: Manifest error: {}", "Error".bold().red(), err);
+						};
+					}
 
-				Err(err) => {
-					eprintln!("{}: {}", "Error".bold().red(), err);
-					eprintln!("{}: {}", "Error installing extension".bold().red(), name);
-				}
-			}
-		}
+					Err(err) => {
+						eprintln!("{}: {}", "Error".bold().red(), err);
+						eprintln!("{}: {}", "Error installing extension".bold().red(), name);
+					}
+				};
+			})
+			.await;
 
 		Ok(())
 	}

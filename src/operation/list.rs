@@ -8,9 +8,9 @@ pub struct List {
 
 impl List {
 	pub async fn try_configure_from(config: crate::cli::Configuration) -> Result<Self> {
-		let configuration = Configuration::try_configure_from(config).await?;
+		let configuration = Configuration::try_from(config)?;
 		let list = configuration
-			.intermediate_database
+			.addons_json_database
 			.addons
 			.iter()
 			.map(|addon| addon.slug.clone())

@@ -1,25 +1,27 @@
-use super::intermediate_database::IntermediateDatabase;
 use super::profile::Profile;
-use crate::database::database::Database;
+use crate::addons_json_database::addons_json_database::AddonsJsonDatabase;
+use crate::errors::Error;
+use crate::errors::Result;
+use crate::extensions_json_database::extensions_json_database::ExtensionsJsonDatabase;
 
 pub struct Configuration {
 	pub profile: Profile,
-	pub intermediate_database: IntermediateDatabase,
-	pub database: Database,
+	pub addons_json_database: AddonsJsonDatabase,
+	pub extensions_json_database: ExtensionsJsonDatabase,
 }
 
-impl Configuration {
-	pub async fn try_configure_from(
-		configuration: crate::cli::Configuration,
-	) -> crate::errors::Result<Self> {
+impl TryFrom<crate::cli::Configuration> for Configuration {
+	type Error = Error;
+
+	fn try_from(configuration: crate::cli::Configuration) -> Result<Self> {
 		let profile = Profile::try_from(configuration)?;
-		let database = Database::try_from(&profile)?;
-		let intermediate_database = IntermediateDatabase::try_configure_from(&profile).await?;
+		let extensions_json_database = ExtensionsJsonDatabase::try_from(&profile)?;
+		let addons_json_database = AddonsJsonDatabase::try_from(&profile)?;
 
 		Ok(Self {
 			profile,
-			database,
-			intermediate_database,
+			extensions_json_database,
+			addons_json_database,
 		})
 	}
 }

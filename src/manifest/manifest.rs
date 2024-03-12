@@ -1,16 +1,16 @@
 use super::browser_specific_settings::BrowserSpecificSettings;
 use crate::configuration::profile::Profile;
-use crate::database::addon::addon::Addon;
-use crate::database::addon::default_locale::DefaultLocale;
-use crate::database::addon::install_telemetry_info::InstallTelemetryInfo;
-use crate::database::addon::locale::Locale;
-use crate::database::addon::permissions::Permissions;
-use crate::database::addon::recommendation_state::RecommendationState;
-use crate::database::addon::target_application::TargetApplication;
-use crate::database::database::Database;
 use crate::errors::Error;
 use crate::errors::Result;
 use crate::extension::extension::Extension;
+use crate::extensions_json_database::addon::addon::Addon;
+use crate::extensions_json_database::addon::default_locale::DefaultLocale;
+use crate::extensions_json_database::addon::install_telemetry_info::InstallTelemetryInfo;
+use crate::extensions_json_database::addon::locale::Locale;
+use crate::extensions_json_database::addon::permissions::Permissions;
+use crate::extensions_json_database::addon::recommendation_state::RecommendationState;
+use crate::extensions_json_database::addon::target_application::TargetApplication;
+use crate::extensions_json_database::extensions_json_database::ExtensionsJsonDatabase;
 use serde::Deserialize;
 use serde::Serialize;
 use std::collections::HashMap;
@@ -175,12 +175,12 @@ impl Manifest {
 		Ok(addon)
 	}
 
-	pub async fn add_extension_to_database(profile: &Profile, ext: &Extension) -> Result<()> {
-		let mut addons = Database::try_from(profile)?;
+	pub fn add_extension_to_database(profile: &Profile, ext: &Extension) -> Result<()> {
+		let mut addons = ExtensionsJsonDatabase::try_from(profile)?;
 		let addon = Self::get_addon(&profile.path, ext)?;
 		addons.addons.push(addon);
 		let content = serde_json::to_string(&addons)?;
-		tokio::fs::write(&profile.path.join("extensions.json"), content).await?;
+		std::fs::write(&profile.path.join("extensions.json"), content)?;
 
 		Ok(())
 	}
