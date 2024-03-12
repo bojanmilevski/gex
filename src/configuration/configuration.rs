@@ -14,7 +14,7 @@ impl Configuration {
 	) -> crate::errors::Result<Self> {
 		let profile = Profile::try_from(configuration)?;
 		let database = Database::try_from(&profile)?;
-		let intermediate_database = IntermediateDatabase::try_configure_from(&database).await?;
+		let intermediate_database = IntermediateDatabase::try_configure_from(&profile).await?;
 
 		Ok(Self {
 			profile,

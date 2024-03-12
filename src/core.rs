@@ -1,8 +1,8 @@
 use crate::cli::Cli;
-use crate::configurable::Configurable;
 use crate::errors::Result;
 use crate::operation::operation::Operation;
-use crate::runnable::Runnable;
+use crate::traits::configurable::Configurable;
+use crate::traits::runnable::Runnable;
 use std::path::PathBuf;
 
 pub struct Core {

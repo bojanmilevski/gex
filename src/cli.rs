@@ -53,9 +53,6 @@ pub enum Operation {
 	Search {
 		#[arg(required = true)]
 		search: String,
-
-		#[command(flatten)]
-		configuration: Configuration,
 	},
 
 	Update {
