@@ -54,7 +54,6 @@ impl TryFrom<Configuration> for Profile {
 		let path = browser.path.join(&name);
 
 		if !path.exists() {
-			// std::fs::create_dir(&path)?;
 			return Err(Error::ProfileNotFound(name));
 		}
 

@@ -1,10 +1,12 @@
+mod addons_json_database;
 mod api;
 mod cli;
 mod configuration;
 mod core;
-mod database;
 mod errors;
 mod extension;
+mod extensions_json_database;
+mod manifest;
 mod operation;
 mod progress_bar;
 mod traits;
