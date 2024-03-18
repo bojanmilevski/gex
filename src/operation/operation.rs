@@ -18,26 +18,21 @@ pub enum Operation {
 impl Operation {
 	pub async fn try_configure_from(operation: crate::cli::Operation) -> Result<Self> {
 		let operation = match operation {
-			Op::Delete {
-				delete,
-				configuration,
-			} => Self::Delete(Delete::try_configure_from(delete, configuration).await?),
-
-			Op::Install {
-				install,
-				configuration,
-			} => Self::Install(Install::try_configure_from(install, configuration).await?),
-
-			Op::List { configuration } => {
-				Self::List(List::try_configure_from(configuration).await?)
+			Op::Delete { delete, configuration } => {
+				Self::Delete(Delete::try_configure_from(delete, configuration).await?)
 			}
+
+			Op::Install { install, configuration } => {
+				Self::Install(Install::try_configure_from(install, configuration).await?)
+			}
+
+			Op::List { configuration } => Self::List(List::try_configure_from(configuration).await?),
 
 			Op::Search { search } => Self::Search(Search::try_configure_from(search).await?),
 
-			Op::Update {
-				update,
-				configuration,
-			} => Self::Update(Update::try_configure_from(update, configuration).await?),
+			Op::Update { update, configuration } => {
+				Self::Update(Update::try_configure_from(update, configuration).await?)
+			}
 		};
 
 		Ok(operation)

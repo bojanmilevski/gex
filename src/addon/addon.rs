@@ -11,13 +11,13 @@ use serde::Deserialize;
 use std::fmt::Display;
 
 #[derive(Deserialize)]
-pub struct ExtensionsList {
+pub struct Addons {
 	#[serde(rename = "results")]
-	pub extensions: Vec<Extension>,
+	pub addons: Vec<Addon>,
 }
 
 #[derive(Deserialize)]
-pub struct Extension {
+pub struct Addon {
 	authors: Authors,
 	created: CreationDateTime,
 	description: Description,
@@ -32,13 +32,13 @@ pub struct Extension {
 	weekly_downloads: WeeklyDownloads,
 }
 
-impl Extension {
+impl Addon {
 	pub fn get_name(&self) -> String {
 		self.name.name.to_owned().unwrap_or("EMPTY".to_owned())
 	}
 }
 
-impl Display for Extension {
+impl Display for Addon {
 	fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
 		write!(
 			f,

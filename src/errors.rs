@@ -28,15 +28,15 @@ pub enum Error {
 	#[error("Profile {0} not found.")]
 	ProfileNotFound(String),
 
-	#[error("Extension {0} not found.")]
-	ExtensionNotFound(String),
+	#[error("Addon {0} not found.")]
+	AddonNotFound(String),
 
-	#[error("Error while installing extension {0}")]
+	#[error("Error while installing addon {0}")]
 	Install(String),
 
-	#[error("Content length not received for extension {0}")]
+	#[error("Content length not received for addon {0}")]
 	ContentLength(String),
 
-	#[error("Querying extension {0} failed")]
+	#[error("Querying addon {0} failed")]
 	Query(String),
 }

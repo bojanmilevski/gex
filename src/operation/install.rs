@@ -1,10 +1,10 @@
+use crate::addon::addon::Addon;
+use crate::api::ADDON_URL;
 use crate::api::DOWNLOAD_URL;
-use crate::api::EXTENSION_URL;
 use crate::configuration::configuration::Configuration;
 use crate::configuration::profile::Profile;
 use crate::errors::Error;
 use crate::errors::Result;
-use crate::extension::extension::Extension;
 use crate::manifest::manifest::Manifest;
 use crate::progress_bar::Bar;
 use crate::traits::runnable::Runnable;
@@ -16,25 +16,25 @@ use tokio::io::AsyncWriteExt;
 pub struct Install {
 	client: Client,
 	configuration: Configuration,
-	pub extensions: Vec<Extension>,
+	pub addons: Vec<Addon>,
 }
 
 impl Install {
-	pub async fn find_extension(client: &Client, slug: &str) -> Result<Extension> {
+	pub async fn find_addon(client: &Client, slug: &str) -> Result<Addon> {
 		client
-			.get(format!("{EXTENSION_URL}/{slug}"))
+			.get(format!("{ADDON_URL}/{slug}"))
 			.send()
 			.await
 			.or(Err(Error::Query(slug.to_owned())))?
-			.json::<Extension>()
+			.json::<Addon>()
 			.await
-			.or(Err(Error::ExtensionNotFound(slug.to_owned())))
+			.or(Err(Error::AddonNotFound(slug.to_owned())))
 	}
 
-	async fn install_extension(client: &Client, extension: &Extension, profile: &Profile) -> Result<()> {
-		let version = extension.current_version.file.id;
-		let guid = extension.guid.clone();
-		let name = extension.get_name();
+	async fn install_addon(client: &Client, addon: &Addon, profile: &Profile) -> Result<()> {
+		let version = addon.current_version.file.id;
+		let guid = addon.guid.clone();
+		let name = addon.get_name();
 
 		let response = client
 			.get(format!("{DOWNLOAD_URL}/{version}"))
@@ -42,13 +42,13 @@ impl Install {
 			.await
 			.or(Err(Error::Install(name.clone())))?;
 
-		let extensions_folder = profile.path.join("extensions");
+		let addons_folder = profile.path.join("extensions");
 
-		if !extensions_folder.exists() {
-			tokio::fs::create_dir(&extensions_folder).await?;
+		if !addons_folder.exists() {
+			tokio::fs::create_dir(&addons_folder).await?;
 		}
 
-		let path = format!("{}.xpi", extensions_folder.join(guid).display());
+		let path = format!("{}.xpi", addons_folder.join(guid).display());
 		let mut file = tokio::fs::File::create(path).await?;
 
 		let total_size = response
@@ -73,43 +73,43 @@ impl Install {
 		let configuration = Configuration::try_from(configuration)?;
 		let client = Client::new();
 
-		let mut extensions = Vec::new();
+		let mut addons = Vec::new();
 
-		for extension in val {
-			match Self::find_extension(&client, &extension).await {
-				Ok(ext) => extensions.push(ext),
+		for addon in val {
+			match Self::find_addon(&client, &addon).await {
+				Ok(ext) => addons.push(ext),
 				Err(err) => return Err(err),
 			};
 		}
 
 		// TODO: I WILL HAVE MY REVENGE
-		// let extensions = futures_util::stream::iter(val.into_iter())
-		// .map(|extension| async move { Self::find_extension(&client, &extension).await })
-		// .try_collect::<Vec<Extension>>()
+		// let addons = futures_util::stream::iter(val.into_iter())
+		// .map(|addon| async move { Self::find_addon(&client, &addon).await })
+		// .try_collect::<Vec<Addon>>()
 		// .await?;
 
-		Ok(Self { extensions, configuration, client })
+		Ok(Self { client, configuration, addons })
 	}
 }
 
 impl Runnable for Install {
 	async fn try_run(&self) -> Result<()> {
-		futures_util::stream::iter(&self.extensions)
-			.for_each(|ext| async move {
-				let name = ext.get_name();
-				println!("{}: {}", "Installing extension".bold().bright_blue(), name);
-				println!("{}", ext);
+		futures_util::stream::iter(&self.addons)
+			.for_each(|addon| async move {
+				let name = addon.get_name();
+				println!("{}: {}", "Installing addon".bold().bright_blue(), name);
+				println!("{}", addon);
 
-				match Self::install_extension(&self.client, ext, &self.configuration.profile).await {
+				match Self::install_addon(&self.client, addon, &self.configuration.profile).await {
 					Ok(_) => {
-						if let Err(err) = Manifest::add_extension_to_database(&self.configuration.profile, ext) {
+						if let Err(err) = Manifest::add_addon_to_database(&self.configuration.profile, addon) {
 							eprintln!("{}: Manifest error: {}", "Error".bold().red(), err);
 						};
 					}
 
 					Err(err) => {
 						eprintln!("{}: {}", "Error".bold().red(), err);
-						eprintln!("{}: {}", "Error installing extension".bold().red(), name);
+						eprintln!("{}: {}", "Error installing addon".bold().red(), name);
 					}
 				};
 			})

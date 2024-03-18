@@ -15,10 +15,10 @@ pub struct Core {
 impl Configurable for Core {
 	async fn try_configure_from(cli: Cli) -> Result<Self> {
 		Ok(Self {
+			_debug: cli.debug,
+			_log: cli.log,
 			operation: Operation::try_configure_from(cli.operation).await?,
 			_verbose: cli.verbose,
-			_log: cli.log,
-			_debug: cli.debug,
 		})
 	}
 }

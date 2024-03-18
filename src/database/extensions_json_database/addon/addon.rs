@@ -61,8 +61,7 @@ pub struct Addon {
 	pub blocklist_state: Option<u32>,
 	#[serde(rename = "blocklistURL")]
 	pub blocklist_url: Option<String>,
-	// FIX: below
-	// pub startup_data: Option<HashMap<String, String>>,
+	pub startup_data: Option<HashMap<String, String>>,
 	pub hidden: Option<bool>,
 	pub install_telemetry_info: Option<InstallTelemetryInfo>,
 	pub recommendation_state: Option<RecommendationState>,

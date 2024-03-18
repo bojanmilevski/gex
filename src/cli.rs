@@ -5,17 +5,17 @@ use std::path::PathBuf;
 #[derive(Parser)]
 #[command(author, version, about, long_about)]
 pub struct Cli {
+	#[arg(short, long)]
+	pub debug: bool,
+
+	#[arg(short, long)]
+	pub log: Option<PathBuf>,
+
 	#[command(subcommand)]
 	pub operation: Operation,
 
 	#[arg(short, long)]
 	pub verbose: bool,
-
-	#[arg(short, long)]
-	pub log: Option<PathBuf>,
-
-	#[arg(short, long)]
-	pub debug: bool,
 }
 
 #[derive(Parser)]
@@ -29,37 +29,42 @@ pub struct Configuration {
 
 #[derive(Subcommand)]
 pub enum Operation {
+	#[clap(alias = "remove", visible_alias = "rm")]
 	Delete {
+		#[command(flatten)]
+		configuration: Configuration,
+
 		#[arg(num_args = 1.., required = true)]
 		delete: Vec<String>,
-
-		#[command(flatten)]
-		configuration: Configuration,
 	},
 
+	#[clap(visible_alias = "i")]
 	Install {
+		#[command(flatten)]
+		configuration: Configuration,
+
 		#[arg(num_args = 1.., required = true)]
 		install: Vec<String>,
-
-		#[command(flatten)]
-		configuration: Configuration,
 	},
 
+	#[clap(visible_alias = "ls")]
 	List {
 		#[command(flatten)]
 		configuration: Configuration,
 	},
 
+	#[clap(visible_alias = "s")]
 	Search {
 		#[arg(required = true)]
 		search: String,
 	},
 
+	#[clap(visible_alias = "u")]
 	Update {
-		#[arg(num_args = 1..)]
-		update: Option<Vec<String>>,
-
 		#[command(flatten)]
 		configuration: Configuration,
+
+		#[arg(num_args = 1..)]
+		update: Option<Vec<String>>,
 	},
 }
