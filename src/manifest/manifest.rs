@@ -1,16 +1,16 @@
 use super::browser_specific_settings::BrowserSpecificSettings;
+use crate::addon::addon::Addon;
 use crate::configuration::profile::Profile;
+use crate::database::extensions_json_database::addon::addon::Addon as SelfAddon;
+use crate::database::extensions_json_database::addon::default_locale::DefaultLocale;
+use crate::database::extensions_json_database::addon::install_telemetry_info::InstallTelemetryInfo;
+use crate::database::extensions_json_database::addon::locale::Locale;
+use crate::database::extensions_json_database::addon::permissions::Permissions;
+use crate::database::extensions_json_database::addon::recommendation_state::RecommendationState;
+use crate::database::extensions_json_database::addon::target_application::TargetApplication;
+use crate::database::extensions_json_database::extensions_json_database::ExtensionsJsonDatabase;
 use crate::errors::Error;
 use crate::errors::Result;
-use crate::extension::extension::Extension;
-use crate::extensions_json_database::addon::addon::Addon;
-use crate::extensions_json_database::addon::default_locale::DefaultLocale;
-use crate::extensions_json_database::addon::install_telemetry_info::InstallTelemetryInfo;
-use crate::extensions_json_database::addon::locale::Locale;
-use crate::extensions_json_database::addon::permissions::Permissions;
-use crate::extensions_json_database::addon::recommendation_state::RecommendationState;
-use crate::extensions_json_database::addon::target_application::TargetApplication;
-use crate::extensions_json_database::extensions_json_database::ExtensionsJsonDatabase;
 use serde::Deserialize;
 use serde::Serialize;
 use std::collections::HashMap;
@@ -22,16 +22,16 @@ use zip::ZipArchive;
 
 #[derive(Serialize, Deserialize)]
 pub struct Manifest {
+	pub author: Option<String>,
+	pub browser_specific_settings: BrowserSpecificSettings,
+	pub default_locale: String,
+	pub description: Option<String>,
+	pub icons: HashMap<String, String>,
 	pub manifest_version: u8,
 	pub name: String,
-	pub version: String,
-	pub author: Option<String>,
-	pub description: Option<String>,
-	pub default_locale: String,
-	pub icons: HashMap<String, String>,
-	pub permissions: Vec<String>,
 	pub optional_permissions: Option<Vec<String>>,
-	pub browser_specific_settings: BrowserSpecificSettings,
+	pub permissions: Vec<String>,
+	pub version: String,
 }
 
 impl Manifest {
@@ -79,11 +79,7 @@ impl Manifest {
 		Ok(locales)
 	}
 
-	fn generate_addon_info(
-		manifest: &Manifest,
-		locales: Vec<Locale>,
-		path: &Path,
-	) -> Result<Addon> {
+	fn generate_addon_info(manifest: &Manifest, locales: Vec<Locale>, path: &Path) -> Result<SelfAddon> {
 		let target_applications = TargetApplication::try_from(manifest)?;
 		let user_permissions = Permissions::try_from(manifest)?;
 		let optional_permissions = Permissions::default();
@@ -100,16 +96,15 @@ impl Manifest {
 			.clone();
 
 		let default_locale = DefaultLocale {
-			name: Some(manifest.name.clone()),
-			description,
-			creator: manifest.author.clone(),
 			contributors: None,
+			creator: manifest.author.clone(),
+			description,
 			developers: None,
+			name: Some(manifest.name.clone()),
 			translators: None,
 		};
 
-		let addon = Addon {
-			ty: String::from("extension"),
+		let addon = SelfAddon {
 			about_url: None,
 			active: true,
 			app_disabled: false,
@@ -146,11 +141,12 @@ impl Manifest {
 			skinnable: false,
 			soft_disabled: false,
 			source_uri: None,
-			// startup_data: None,
+			startup_data: None,
 			strict_compatibility: true,
 			sync_guid: Some(String::new()),
 			target_applications: vec![target_applications],
 			target_platforms: Vec::new(),
+			ty: String::from("extension"),
 			update_date: Some(update_date),
 			update_url: None,
 			user_disabled: false,
@@ -162,11 +158,8 @@ impl Manifest {
 		Ok(addon)
 	}
 
-	fn get_addon(path: &Path, ext: &Extension) -> Result<Addon> {
-		let ext_path = PathBuf::from(format!(
-			"{}.xpi",
-			path.join("extensions").join(&ext.guid).display()
-		));
+	fn get_addon(path: &Path, addon: &Addon) -> Result<SelfAddon> {
+		let ext_path = PathBuf::from(format!("{}.xpi", path.join("extensions").join(&addon.guid).display()));
 		let ext_file = std::fs::File::open(&ext_path)?;
 		let mut zip = zip::ZipArchive::new(ext_file).unwrap();
 		let manifest = Self::try_from(&mut zip)?;
@@ -175,12 +168,13 @@ impl Manifest {
 		Ok(addon)
 	}
 
-	pub fn add_extension_to_database(profile: &Profile, ext: &Extension) -> Result<()> {
-		let mut addons = ExtensionsJsonDatabase::try_from(profile)?;
-		let addon = Self::get_addon(&profile.path, ext)?;
-		addons.addons.push(addon);
-		let content = serde_json::to_string(&addons)?;
-		std::fs::write(&profile.path.join("extensions.json"), content)?;
+	pub fn add_addon_to_database(profile: &Profile, addon: &Addon) -> Result<()> {
+		let addon = Self::get_addon(&profile.path, addon)?;
+		// FIX: below: disgusting...
+		let mut db = ExtensionsJsonDatabase::try_from(profile)?;
+		db.addons.push(addon);
+		let content = serde_json::to_string(&db)?;
+		std::fs::write(profile.path.join("extensions.json"), content)?;
 
 		Ok(())
 	}

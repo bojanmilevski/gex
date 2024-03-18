@@ -10,6 +10,7 @@ impl List {
 	pub async fn try_configure_from(config: crate::cli::Configuration) -> Result<Self> {
 		let configuration = Configuration::try_from(config)?;
 		let list = configuration
+			.database
 			.addons_json_database
 			.addons
 			.iter()

@@ -6,16 +6,21 @@ use serde::Serialize;
 
 #[derive(Serialize, Deserialize, Default)]
 pub struct Permissions {
-	pub permissions: Vec<String>,
 	pub origins: Vec<String>,
+	pub permissions: Vec<String>,
 }
 
 impl TryFrom<&Manifest> for Permissions {
 	type Error = Error;
 
 	fn try_from(manifest: &Manifest) -> Result<Self> {
-		let mut permissions = manifest.permissions.clone();
-		permissions.retain(|p| !p.starts_with('<'));
+		let permissions = manifest
+			.permissions
+			.clone()
+			.into_iter()
+			.filter(|p| !p.starts_with('<'))
+			.collect();
+
 		let origins = manifest
 			.permissions
 			.clone()
@@ -23,9 +28,6 @@ impl TryFrom<&Manifest> for Permissions {
 			.filter(|o| o.starts_with('<'))
 			.collect();
 
-		Ok(Self {
-			permissions,
-			origins,
-		})
+		Ok(Self { origins, permissions })
 	}
 }

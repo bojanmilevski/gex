@@ -6,9 +6,9 @@ use ini::Ini;
 use std::path::PathBuf;
 
 pub struct Profile {
+	pub browser: Browser,
 	pub name: String,
 	pub path: PathBuf,
-	pub browser: Browser,
 }
 
 impl Profile {
@@ -17,9 +17,7 @@ impl Profile {
 			.flatten()
 			.filter(|section| section.starts_with("Install"))
 			.find_map(|section| ini.get_from(Some(section), "Default"))
-			.ok_or(Error::ProfileNotFound(
-				"Path for profile in use does not exist.".to_owned(),
-			))
+			.ok_or(Error::ProfileNotFound("Path for profile in use does not exist.".to_owned()))
 	}
 
 	fn get_specified_profile(ini: &Ini, profile: String) -> Result<&str> {
@@ -57,10 +55,6 @@ impl TryFrom<Configuration> for Profile {
 			return Err(Error::ProfileNotFound(name));
 		}
 
-		Ok(Self {
-			browser,
-			path,
-			name,
-		})
+		Ok(Self { browser, name, path })
 	}
 }

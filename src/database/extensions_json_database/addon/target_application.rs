@@ -8,26 +8,26 @@ use serde::Serialize;
 #[serde(rename_all = "camelCase")]
 pub struct TargetApplication {
 	pub id: String,
-	pub min_version: Option<String>,
 	pub max_version: Option<String>,
+	pub min_version: Option<String>,
 }
 
 impl TryFrom<&Manifest> for TargetApplication {
 	type Error = Error;
 
 	fn try_from(manifest: &Manifest) -> Result<Self> {
-		Ok(Self {
-			id: String::from("toolkit@mozilla.org"),
-			min_version: manifest
-				.browser_specific_settings
-				.gecko
-				.strict_min_version
-				.clone(),
-			max_version: manifest
-				.browser_specific_settings
-				.gecko
-				.strict_max_version
-				.clone(),
-		})
+		let id = String::from("toolkit@mozilla.org");
+		let min_version = manifest
+			.browser_specific_settings
+			.gecko
+			.strict_min_version
+			.clone();
+		let max_version = manifest
+			.browser_specific_settings
+			.gecko
+			.strict_max_version
+			.clone();
+
+		Ok(Self { id, min_version, max_version })
 	}
 }

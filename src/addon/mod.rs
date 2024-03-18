@@ -1,8 +1,8 @@
+pub mod addon;
 mod authors;
 mod creation_date;
 mod current_version;
 mod description;
-pub mod extension;
 mod license;
 mod name;
 mod ratings;

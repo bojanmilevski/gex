@@ -4,10 +4,7 @@ use crate::traits::runnable::Runnable;
 pub struct Delete {}
 
 impl Delete {
-	pub async fn try_configure_from(
-		_val: Vec<String>,
-		_configuration: crate::cli::Configuration,
-	) -> Result<Self> {
+	pub async fn try_configure_from(_val: Vec<String>, _configuration: crate::cli::Configuration) -> Result<Self> {
 		Ok(Self {})
 	}
 }

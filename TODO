@@ -1,9 +1,11 @@
 HIGH PRIORITY
 - crud operations for extensions.json and addons.json databases
+- impl AsRef<T>
 - implement remaining operations (delete, list, update)
 - reorganize manifest usage
 
 MID PRORITY
+- addon duplicates (check before adding)
 - async tasks execute without waiting
 - each crate has it's own error module
 - multi progress bar
@@ -14,14 +16,13 @@ MID PRORITY
 LOW PRIORITY
 - &str instead of String
 - access modifiers
-- alphabetically order struct fields
 - borrows and ownerships
 - code documentation
-- configuration file
+- configuration file (~/.config/gex/config.json)
 - description languages
 - fix proc macros
-- install extensions to /tmp
 - if install vec is empty, print "no extension found"
+- install extensions to /tmp
 - install for multiple browsers
 - install for multiple profiles
 - log flag, path

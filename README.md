@@ -1,6 +1,6 @@
 # GEX
 
-An `ex`tension manager for `Ge`cko browsers. I created this extension to further simplify and
+An `ex`tension manager for `Ge`cko browsers. I created this program to further simplify and
 automate a system (re)install. Currently only tested on `Linux`.
 
 ## THIS PROGRAM IS IN VERY EARLY STAGES AND SHOULD NOT BE USED IN PRODUCTION
@@ -76,11 +76,11 @@ An extension installer for Gecko browsers
 Usage: gex [OPTIONS] <COMMAND>
 
 Commands:
-  delete
-  install
-  list
-  search
-  update
+  delete   [aliases: rm]
+  install  [aliases: i]
+  list     [aliases: ls]
+  search   [aliases: s]
+  update   [aliases: u]
   help     Print this message or the help of the given subcommand(s)
 
 Options:
