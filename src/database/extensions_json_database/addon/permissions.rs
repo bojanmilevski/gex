@@ -1,6 +1,6 @@
+use crate::database::manifest_database::manifest::Manifest;
 use crate::errors::Error;
 use crate::errors::Result;
-use crate::manifest::manifest::Manifest;
 use serde::Deserialize;
 use serde::Serialize;
 
@@ -17,6 +17,7 @@ impl TryFrom<&Manifest> for Permissions {
 		let permissions = manifest
 			.permissions
 			.clone()
+			.unwrap()
 			.into_iter()
 			.filter(|p| !p.starts_with('<'))
 			.collect();
@@ -24,6 +25,7 @@ impl TryFrom<&Manifest> for Permissions {
 		let origins = manifest
 			.permissions
 			.clone()
+			.unwrap()
 			.into_iter()
 			.filter(|o| o.starts_with('<'))
 			.collect();

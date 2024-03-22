@@ -24,7 +24,7 @@ impl Configurable for Core {
 }
 
 impl Runnable for Core {
-	async fn try_run(&self) -> Result<()> {
+	async fn try_run(&mut self) -> Result<()> {
 		self.operation.try_run().await?;
 		Ok(())
 	}

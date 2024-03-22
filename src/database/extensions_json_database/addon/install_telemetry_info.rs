@@ -9,6 +9,6 @@ pub struct InstallTelemetryInfo {
 
 impl InstallTelemetryInfo {
 	pub fn new() -> Self {
-		Self { source: Some("app-profile".to_owned()), method: Some("sideload".to_owned()) }
+		Self { source: Some(String::from("app-profile")), method: Some(String::from("sideload")) }
 	}
 }

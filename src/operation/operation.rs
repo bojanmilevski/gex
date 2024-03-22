@@ -40,8 +40,8 @@ impl Operation {
 }
 
 impl Runnable for Operation {
-	async fn try_run(&self) -> Result<()> {
-		match &self {
+	async fn try_run(&mut self) -> Result<()> {
+		match self {
 			Self::Delete(delete) => delete.try_run().await?,
 			Self::Install(install) => install.try_run().await?,
 			Self::List(list) => list.try_run().await?,

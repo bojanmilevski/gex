@@ -17,7 +17,7 @@ impl Authors {
 	pub fn get_joined(&self) -> String {
 		self.authors
 			.iter()
-			.map(|author| author.name.to_owned())
+			.map(|author| String::from(&author.name))
 			.collect::<Vec<_>>()
 			.join(", ")
 	}

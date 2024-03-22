@@ -17,10 +17,10 @@ impl Search {
 			.query(&[("q", slug), ("page_size", "50"), ("app", "firefox"), ("lang", "en-US"), ("sort", "users")])
 			.send()
 			.await
-			.or(Err(Error::Query(slug.to_owned())))?
+			.or(Err(Error::Query(String::from(slug))))?
 			.json()
 			.await
-			.or(Err(Error::AddonNotFound(slug.to_owned())))
+			.or(Err(Error::AddonNotFound(String::from(slug))))
 	}
 }
 
@@ -33,7 +33,7 @@ impl Search {
 }
 
 impl Runnable for Search {
-	async fn try_run(&self) -> Result<()> {
+	async fn try_run(&mut self) -> Result<()> {
 		futures_util::stream::iter(&self.search.addons)
 			.for_each(|addon| async move {
 				println!("{}", addon);

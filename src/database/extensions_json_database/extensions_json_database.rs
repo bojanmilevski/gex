@@ -1,65 +1,59 @@
-use super::addon::addon::Addon as SelfAddon;
+use super::addon::addon::ExtensionsJsonAddon;
 use crate::addon::addon::Addon;
 use crate::configuration::profile::Profile;
+use crate::database::manifest_database::manifest::Manifest;
 use crate::errors::Error;
 use crate::errors::Result;
-use crate::traits::crud::CRUD;
-use crate::traits::deserializeable::Deserializable;
-use crate::traits::serializeable::Serializable;
 use serde::Deserialize;
 use serde::Serialize;
-use std::io::BufReader;
 
 #[derive(Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct ExtensionsJsonDatabase {
-	pub addons: Vec<SelfAddon>,
+	schema_version: u8,
+	pub addons: Vec<ExtensionsJsonAddon>,
 }
 
 impl TryFrom<&Profile> for ExtensionsJsonDatabase {
 	type Error = Error;
 
 	fn try_from(profile: &Profile) -> Result<Self> {
-		let extensions_json_path = profile.path.join("extensions.json");
-		let database = std::fs::File::open(extensions_json_path)?;
-		let reader = BufReader::new(database);
-		let mut addons: ExtensionsJsonDatabase = serde_json::from_reader(reader)?;
+		let path = profile.path.join("extensions.json");
+		let content = std::fs::read_to_string(path)?;
+		let mut addons: ExtensionsJsonDatabase = serde_json::from_str(&content)?;
 
 		// TODO: write deserializer
 		addons
 			.addons
 			.retain(|addon| addon.location != "app-builtin" && addon.location != "app-system-defaults");
 
-		Ok(Self { addons: addons.addons })
+		Ok(addons)
 	}
 }
 
-impl Serializable for ExtensionsJsonDatabase {
-	fn serialize(&self) -> Result<()> {
-		todo!()
-	}
-}
-
-impl Deserializable for ExtensionsJsonDatabase {
-	fn deserialize(&self) -> Result<()> {
-		todo!()
-	}
-}
-
-impl CRUD for ExtensionsJsonDatabase {
-	fn create() -> Result<()> {
-		todo!()
+impl ExtensionsJsonDatabase {
+	pub fn add(&mut self, bytes: &Vec<u8>, manifest: &Manifest, profile: &Profile) -> Result<()> {
+		let extensions_json_addon = ExtensionsJsonAddon::try_from((bytes, manifest, profile))?;
+		self.addons.push(extensions_json_addon);
+		Ok(())
 	}
 
-	fn read(&self) -> Result<()> {
-		todo!()
+	pub fn delete(&mut self, addon: &Addon) -> Result<()> {
+		let index = self
+			.addons
+			.iter()
+			.position(|extensions_json_addon| extensions_json_addon.sync_guid.clone().unwrap() == addon.guid)
+			.unwrap();
+
+		self.addons.remove(index);
+
+		Ok(())
 	}
 
-	fn update(&self, _addon: Addon) -> Result<()> {
-		todo!()
-	}
+	pub fn write(&self, profile: &Profile) -> Result<()> {
+		let content = serde_json::to_string(&self)?;
+		std::fs::write(profile.path.join("extensions.json"), content)?;
 
-	fn delete(&self, _addon: Addon) -> Result<()> {
-		todo!()
+		Ok(())
 	}
 }

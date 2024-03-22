@@ -1,11 +1,10 @@
 use crate::addon::addon::Addon;
 use crate::api::ADDON_URL;
 use crate::api::DOWNLOAD_URL;
+use crate::cli::Configuration as CliConfiguration;
 use crate::configuration::configuration::Configuration;
-use crate::configuration::profile::Profile;
 use crate::errors::Error;
 use crate::errors::Result;
-use crate::manifest::manifest::Manifest;
 use crate::progress_bar::Bar;
 use crate::traits::runnable::Runnable;
 use colored::Colorize;
@@ -25,51 +24,39 @@ impl Install {
 			.get(format!("{ADDON_URL}/{slug}"))
 			.send()
 			.await
-			.or(Err(Error::Query(slug.to_owned())))?
+			.or(Err(Error::Query(String::from(slug))))?
 			.json::<Addon>()
 			.await
-			.or(Err(Error::AddonNotFound(slug.to_owned())))
+			.or(Err(Error::AddonNotFound(String::from(slug))))
 	}
 
-	async fn install_addon(client: &Client, addon: &Addon, profile: &Profile) -> Result<()> {
+	async fn install_addon(client: &Client, addon: &Addon) -> Result<Vec<u8>> {
 		let version = addon.current_version.file.id;
-		let guid = addon.guid.clone();
 		let name = addon.get_name();
 
 		let response = client
 			.get(format!("{DOWNLOAD_URL}/{version}"))
 			.send()
 			.await
-			.or(Err(Error::Install(name.clone())))?;
+			.or(Err(Error::Install(String::from(&name))))?;
 
-		let addons_folder = profile.path.join("extensions");
-
-		if !addons_folder.exists() {
-			tokio::fs::create_dir(&addons_folder).await?;
-		}
-
-		let path = format!("{}.xpi", addons_folder.join(guid).display());
-		let mut file = tokio::fs::File::create(path).await?;
-
-		let total_size = response
-			.content_length()
-			.ok_or(Error::ContentLength(name))?;
-
-		let mut bar = Bar::from(total_size);
+		let total_size = response.content_length().unwrap();
+		let mut progress_bar = Bar::from(total_size);
+		let mut bytes = Vec::new();
 		let mut bytes_stream = response.bytes_stream();
 
 		while let Some(item) = bytes_stream.next().await {
 			let chunk = item?;
-			file.write_all(&chunk).await?;
-			bar.update(chunk.len());
+			progress_bar.update(chunk.len());
+			bytes.extend_from_slice(&chunk);
 		}
 
-		Ok(())
+		Ok(bytes)
 	}
 }
 
 impl Install {
-	pub async fn try_configure_from(val: Vec<String>, configuration: crate::cli::Configuration) -> Result<Self> {
+	pub async fn try_configure_from(val: Vec<String>, configuration: CliConfiguration) -> Result<Self> {
 		let configuration = Configuration::try_from(configuration)?;
 		let client = Client::new();
 
@@ -93,27 +80,54 @@ impl Install {
 }
 
 impl Runnable for Install {
-	async fn try_run(&self) -> Result<()> {
-		futures_util::stream::iter(&self.addons)
-			.for_each(|addon| async move {
-				let name = addon.get_name();
-				println!("{}: {}", "Installing addon".bold().bright_blue(), name);
-				println!("{}", addon);
+	async fn try_run(&mut self) -> Result<()> {
+		// TODO: futures_util::stream::iter
 
-				match Self::install_addon(&self.client, addon, &self.configuration.profile).await {
-					Ok(_) => {
-						if let Err(err) = Manifest::add_addon_to_database(&self.configuration.profile, addon) {
-							eprintln!("{}: Manifest error: {}", "Error".bold().red(), err);
-						};
-					}
+		let mut addon_map: Vec<(&Addon, Vec<u8>)> = Vec::new();
+		for addon in &self.addons {
+			let name = addon.get_name();
+			match Self::install_addon(&self.client, addon).await {
+				Ok(bytes) => {
+					println!("{}: {}", "Installing addon".bold().bright_blue(), name);
+					println!("{}", addon);
+					addon_map.push((addon, bytes));
+				}
 
-					Err(err) => {
-						eprintln!("{}: {}", "Error".bold().red(), err);
-						eprintln!("{}: {}", "Error installing addon".bold().red(), name);
-					}
-				};
-			})
-			.await;
+				Err(err) => {
+					eprintln!("{}: {}", "Error installing addon".bold().red(), err);
+					return Err(err);
+				}
+			}
+		}
+
+		for addon in &addon_map {
+			if let Err(err) = &self
+				.configuration
+				.database
+				.add(addon.0, &addon.1, &self.configuration.profile)
+			{
+				eprintln!("{}: {}", "Error adding addon to database".bold().red(), err);
+			}
+		}
+
+		let addons_folder = self.configuration.profile.path.join("extensions");
+		if !addons_folder.exists() {
+			tokio::fs::create_dir(&addons_folder).await?;
+		}
+
+		if let Err(err) = &self
+			.configuration
+			.database
+			.write(&self.configuration.profile)
+		{
+			eprintln!("{}: {}", "Error writing to database".bold().red(), err);
+		}
+
+		for addon in addon_map {
+			let path = format!("{}.xpi", addons_folder.join(&addon.0.guid).display());
+			let mut file = tokio::fs::File::create(path).await?;
+			file.write_all(&addon.1).await?;
+		}
 
 		Ok(())
 	}
