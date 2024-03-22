@@ -1,20 +1,15 @@
-use super::addon::Addon as SelfAddon;
+use super::addon::AddonsJsonAddon;
 use crate::addon::addon::Addon;
 use crate::configuration::profile::Profile;
 use crate::errors::Error;
 use crate::errors::Result;
-use crate::traits::crud::CRUD;
-use crate::traits::deserializeable::Deserializable;
-use crate::traits::serializeable::Serializable;
-use reqwest::Url;
 use serde::Deserialize;
 use serde::Serialize;
-use std::io::BufReader;
-use std::io::Read;
 
 #[derive(Serialize, Deserialize)]
 pub struct AddonsJsonDatabase {
-	pub addons: Vec<SelfAddon>,
+	schema: u8,
+	pub addons: Vec<AddonsJsonAddon>,
 }
 
 impl TryFrom<&Profile> for AddonsJsonDatabase {
@@ -22,54 +17,48 @@ impl TryFrom<&Profile> for AddonsJsonDatabase {
 
 	fn try_from(profile: &Profile) -> Result<Self> {
 		let path = profile.path.join("addons.json");
-		let file = std::fs::File::open(path)?;
-		let mut reader = BufReader::new(file);
-		let mut content = String::new();
-		reader.read_to_string(&mut content)?;
-		let mut addons: AddonsJsonDatabase = serde_json::from_str(&content).unwrap();
+		let content = std::fs::read_to_string(path)?;
+		let mut addons: AddonsJsonDatabase = serde_json::from_str(&content)?;
 
 		// TODO: deserializer
 		addons.addons.iter_mut().for_each(|addon| {
-			let url = Url::parse(&addon.slug).unwrap();
-			let mut segments = url
-				.path_segments()
-				.map(|segment| segment.collect::<Vec<_>>())
-				.unwrap();
-
-			segments.pop().unwrap();
-			addon.slug = segments.last().unwrap().to_string();
+			addon.slug = addon.get_slug().unwrap();
 		});
 
-		Ok(Self { addons: addons.addons })
+		Ok(addons)
 	}
 }
 
-impl Serializable for AddonsJsonDatabase {
-	fn serialize(&self) -> Result<()> {
-		todo!()
-	}
-}
-
-impl Deserializable for AddonsJsonDatabase {
-	fn deserialize(&self) -> Result<()> {
-		todo!()
-	}
-}
-
-impl CRUD for AddonsJsonDatabase {
-	fn create() -> Result<()> {
-		todo!()
+impl AddonsJsonDatabase {
+	pub fn get(&self) -> Vec<String> {
+		self.addons
+			.iter()
+			.map(|addon| addon.get_slug().unwrap())
+			.collect()
 	}
 
-	fn read(&self) -> Result<()> {
-		todo!()
+	pub fn add(&mut self, addon: &Addon) -> Result<()> {
+		let addon = AddonsJsonAddon::try_from(addon)?;
+		self.addons.push(addon);
+		Ok(())
 	}
 
-	fn update(&self, _addon: Addon) -> Result<()> {
-		todo!()
+	pub fn delete(&mut self, addon: &Addon) -> Result<()> {
+		let index = self
+			.addons
+			.iter()
+			.position(|addons_json_addon| addons_json_addon.slug == addon.slug)
+			.unwrap();
+
+		self.addons.remove(index);
+
+		Ok(())
 	}
 
-	fn delete(&self, _addon: Addon) -> Result<()> {
-		todo!()
+	pub fn write(&self, profile: &Profile) -> Result<()> {
+		let content = serde_json::to_string(&self)?;
+		std::fs::write(profile.path.join("addons.json"), content)?;
+
+		Ok(())
 	}
 }

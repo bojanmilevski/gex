@@ -34,7 +34,7 @@ pub struct Addon {
 
 impl Addon {
 	pub fn get_name(&self) -> String {
-		self.name.name.to_owned().unwrap_or("EMPTY".to_owned())
+		self.name.name.to_owned().unwrap_or(String::from("None"))
 	}
 }
 

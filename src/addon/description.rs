@@ -24,7 +24,7 @@ impl Display for Description {
 				.to_owned()
 				.unwrap_or(Language { language: None })
 				.language
-				.unwrap_or("None".to_owned())
+				.unwrap_or(String::from("None"))
 				.replace('\n', " ")
 		)
 	}

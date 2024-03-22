@@ -1,4 +1,4 @@
-use crate::cli::Configuration;
+use crate::cli::Configuration as CliConfiguration;
 use crate::errors::Error;
 use crate::errors::Result;
 use std::path::PathBuf;
@@ -8,12 +8,12 @@ pub struct Browser {
 	pub path: PathBuf,
 }
 
-impl TryFrom<&Configuration> for Browser {
+impl TryFrom<&CliConfiguration> for Browser {
 	type Error = Error;
 
-	fn try_from(configuration: &Configuration) -> Result<Self> {
+	fn try_from(configuration: &CliConfiguration) -> Result<Self> {
 		let home = home::home_dir().ok_or(Error::Home)?;
-		let name = configuration.browser.to_owned();
+		let name = String::from(&configuration.browser);
 
 		let browser_path = match name.as_str() {
 			"firefox" => ".mozilla/firefox",

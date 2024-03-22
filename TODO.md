@@ -1,39 +1,46 @@
-HIGH PRIORITY
-- crud operations for extensions.json and addons.json databases
-- impl AsRef<T>
-- implement remaining operations (delete, list, update)
-- reorganize manifest usage
+# HIGH PRIORITY
 
-MID PRORITY
-- addon duplicates (check before adding)
-- async tasks execute without waiting
+- "super" addon struct
+  - consists of manifest, extensions.json addon info, addons.json addon info
+  - passed to database.add(), database.remove()
+  - created in try_run()
+- complete addons.json addon, extensions.json addon
+- database duplicates (check before adding)
 - each crate has it's own error module
+- fix mut runnable trait
+- fix try_configure_from configurable trait
+- implement remaining operations (delete, list, update)
+- rename structs
+- replace unwrap with ok_or errors
+- smallvec, tinyvec, set?
+
+# MID PRORITY
+
+- async tasks execute without waiting
 - multi progress bar
 - parallel extension installs
 - send multiple extensions in one query in order to avoid multiple requests - avoid spamming mozilla servers
 - tokio::task::spawn vec and then run
 
-LOW PRIORITY
+# LOW PRIORITY
+
 - &str instead of String
 - access modifiers
-- borrows and ownerships
 - code documentation
 - configuration file (~/.config/gex/config.json)
 - description languages
-- fix proc macros
 - if install vec is empty, print "no extension found"
-- install extensions to /tmp
 - install for multiple browsers
 - install for multiple profiles
-- log flag, path
+- log flag, path, level
 - man file
 - manually enable/disable extensions
 - more browsers and respective data paths
 - prompt for reinstall, force install etc.
 - references, ownerships, lifetimes
-- remove clone, cloned, to_owned, unwrap, as_str, format!
+- remove clone, cloned, to_owned, as_str, format!, String::from
 - search params (sort output by rating, score...)
-- smallvec, tinyvec
 - thunderbird support
 - verbose flag
 - windows and macos compatibility
+- search displays installed addon for profile, browser

@@ -5,7 +5,6 @@ mod configuration;
 mod core;
 mod database;
 mod errors;
-mod manifest;
 mod operation;
 mod progress_bar;
 mod traits;
@@ -20,7 +19,7 @@ use traits::runnable::Runnable;
 #[tokio::main]
 async fn main() -> Result<()> {
 	let cli = Cli::parse();
-	let core = Core::try_configure_from(cli).await?;
+	let mut core = Core::try_configure_from(cli).await?;
 	core.try_run().await?;
 
 	Ok(())
