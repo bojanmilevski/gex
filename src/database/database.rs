@@ -1,24 +1,24 @@
-use super::addons_json_database::addons_json_database::AddonsJsonDatabase;
-use super::extensions_json_database::extensions_json_database::ExtensionsJsonDatabase;
-use super::manifest_database::manifest_database::ManifestDatabase;
+use super::addons_json::addons_json::AddonsJson;
+use super::extensions_json::extensions_json::ExtensionsJson;
+use super::manifests::manifests::Manifests;
 use crate::addon::addon::Addon;
 use crate::configuration::profile::Profile;
 use crate::errors::Error;
 use crate::errors::Result;
 
 pub struct Database {
-	pub addons_json_database: AddonsJsonDatabase,
-	pub extensions_json_database: ExtensionsJsonDatabase,
-	manifest_database: ManifestDatabase,
+	pub addons_json_database: AddonsJson,
+	pub extensions_json_database: ExtensionsJson,
+	manifest_database: Manifests,
 }
 
 impl TryFrom<&Profile> for Database {
 	type Error = Error;
 
 	fn try_from(profile: &Profile) -> Result<Self> {
-		let addons_json_database = AddonsJsonDatabase::try_from(profile)?;
-		let extensions_json_database = ExtensionsJsonDatabase::try_from(profile)?;
-		let manifest_database = ManifestDatabase::try_from(&extensions_json_database)?;
+		let addons_json_database = AddonsJson::try_from(profile)?;
+		let extensions_json_database = ExtensionsJson::try_from(profile)?;
+		let manifest_database = Manifests::try_from(&extensions_json_database)?;
 
 		Ok(Self { addons_json_database, extensions_json_database, manifest_database })
 	}

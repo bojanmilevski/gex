@@ -5,7 +5,7 @@ use std::fmt::Display;
 #[derive(Deserialize)]
 #[serde(transparent, rename = "URL")]
 pub struct Url {
-	url: String,
+	url: url::Url,
 }
 
 impl Display for Url {

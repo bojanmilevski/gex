@@ -1,4 +1,4 @@
-use crate::database::manifest_database::manifest::Manifest;
+use crate::database::manifests::manifest::Manifest;
 use crate::errors::Error;
 use crate::errors::Result;
 use serde::Deserialize;

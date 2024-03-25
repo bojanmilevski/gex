@@ -5,7 +5,7 @@ use super::permissions::Permissions;
 use super::recommendation_state::RecommendationState;
 use super::target_application::TargetApplication;
 use crate::configuration::profile::Profile;
-use crate::database::manifest_database::manifest::Manifest;
+use crate::database::manifests::manifest::Manifest;
 use crate::errors::Error;
 use crate::errors::Result;
 use serde::Deserialize;
@@ -15,19 +15,20 @@ use std::fmt::Display;
 use std::io::Cursor;
 use std::io::Read;
 use std::path::PathBuf;
+use url::Url;
 use zip::ZipArchive;
 
 #[derive(Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct ExtensionsJsonAddon {
 	#[serde(rename = "aboutURL")]
-	pub about_url: Option<String>,
+	pub about_url: Option<Url>,
 	pub active: bool,
 	pub app_disabled: bool,
 	pub apply_background_updates: u32,
 	pub blocklist_state: Option<u32>,
 	#[serde(rename = "blocklistURL")]
-	pub blocklist_url: Option<String>,
+	pub blocklist_url: Option<Url>,
 	pub default_locale: Option<DefaultLocale>,
 	pub dependencies: Vec<String>,
 	pub embedder_disabled: bool,
@@ -48,21 +49,21 @@ pub struct ExtensionsJsonAddon {
 	pub optional_permissions: Option<Permissions>,
 	pub options_browser_style: bool,
 	pub options_type: Option<u32>,
-	pub options_url: Option<String>,
+	pub options_url: Option<Url>,
 	pub path: Option<PathBuf>,
 	pub recommendation_state: Option<RecommendationState>,
 	#[serde(rename = "releaseNotesURI")]
-	pub release_notes_uri: Option<String>,
+	pub release_notes_uri: Option<Url>,
 	#[serde(rename = "rootURI")]
-	pub root_uri: Option<String>,
+	pub root_uri: Option<Url>,
 	pub seen: Option<bool>,
 	pub signed_date: Option<u64>,
 	pub signed_state: Option<u8>,
 	pub skinnable: bool,
 	pub soft_disabled: bool,
 	#[serde(rename = "sourceURI")]
-	pub source_uri: Option<String>,
-	// pub startup_data: Option<HashMap<String, String>>, // FIX:
+	pub source_uri: Option<Url>,
+	pub startup_data: Option<StartupData>,
 	pub strict_compatibility: bool,
 	pub sync_guid: Option<String>,
 	pub target_applications: Vec<TargetApplication>,
@@ -70,11 +71,43 @@ pub struct ExtensionsJsonAddon {
 	#[serde(rename = "type")]
 	pub ty: String,
 	pub update_date: Option<i64>,
-	pub update_url: Option<String>,
+	pub update_url: Option<Url>,
 	pub user_disabled: bool,
 	pub user_permissions: Option<Permissions>,
 	pub version: String,
 	pub visible: bool,
+}
+
+#[derive(Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct StartupData {
+	persistent_listeners: PersistentListeners,
+}
+
+#[derive(Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct PersistentListeners {
+	web_request: WebRequest,
+}
+
+#[derive(Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct WebRequest {
+	on_before_request: Vec<Vec<Request>>,
+	on_before_send_headers: Vec<Vec<Request>>,
+	on_headers_received: Vec<Vec<Request>>,
+}
+
+#[derive(Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct Request {
+	incognito: Option<bool>,
+	tab_id: Option<u32>,
+	types: Vec<String>,
+	urls: Vec<String>, // TODO:
+	window_id: Option<u32>,
+	#[serde(default)]
+	actions: Vec<String>,
 }
 
 impl TryFrom<(&Vec<u8>, &Manifest, &Profile)> for ExtensionsJsonAddon {
@@ -102,6 +135,7 @@ impl TryFrom<(&Vec<u8>, &Manifest, &Profile)> for ExtensionsJsonAddon {
 			creator: value.1.author.clone(),
 			description,
 			developers: None,
+			homepage_url: None,
 			name: Some(value.1.name.clone()),
 			translators: None,
 		};
@@ -142,14 +176,14 @@ impl TryFrom<(&Vec<u8>, &Manifest, &Profile)> for ExtensionsJsonAddon {
 			path: Some(path.to_owned()),
 			recommendation_state: Some(recommendation_state),
 			release_notes_uri: None,
-			root_uri: Some(format!("jar:file://{}!/", &path.display())),
+			root_uri: None,
 			seen: Some(true),
 			signed_date: None,
 			signed_state: None,
 			skinnable: false,
 			soft_disabled: false,
 			source_uri: None,
-			// startup_data: None, // FIX:
+			startup_data: None,
 			strict_compatibility: true,
 			sync_guid: None,
 			target_applications: vec![target_applications],
@@ -210,6 +244,10 @@ impl ExtensionsJsonAddon {
 			.collect();
 
 		Ok(locales)
+	}
+
+	pub fn is_not_builtin(&self) -> bool {
+		self.location != "app-builtin" && self.location != "app-system-defaults"
 	}
 }
 

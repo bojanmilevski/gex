@@ -1,4 +1,4 @@
-mod addons_json_database;
+mod addons_json;
 pub mod database;
-pub mod extensions_json_database;
-pub mod manifest_database;
+mod extensions_json;
+mod manifests;

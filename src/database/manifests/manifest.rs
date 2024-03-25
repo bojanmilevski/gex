@@ -1,5 +1,5 @@
 use super::browser_specific_settings::BrowserSpecificSettings;
-use crate::database::extensions_json_database::addon::addon::ExtensionsJsonAddon;
+use crate::database::extensions_json::addon::addon::ExtensionsJsonAddon;
 use crate::errors::Error;
 use crate::errors::Result;
 use serde::Deserialize;

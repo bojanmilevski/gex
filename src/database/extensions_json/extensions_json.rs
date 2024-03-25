@@ -1,7 +1,7 @@
 use super::addon::addon::ExtensionsJsonAddon;
 use crate::addon::addon::Addon;
 use crate::configuration::profile::Profile;
-use crate::database::manifest_database::manifest::Manifest;
+use crate::database::manifests::manifest::Manifest;
 use crate::errors::Error;
 use crate::errors::Result;
 use serde::Deserialize;
@@ -9,29 +9,24 @@ use serde::Serialize;
 
 #[derive(Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
-pub struct ExtensionsJsonDatabase {
+pub struct ExtensionsJson {
 	schema_version: u8,
 	pub addons: Vec<ExtensionsJsonAddon>,
 }
 
-impl TryFrom<&Profile> for ExtensionsJsonDatabase {
+impl TryFrom<&Profile> for ExtensionsJson {
 	type Error = Error;
 
 	fn try_from(profile: &Profile) -> Result<Self> {
 		let path = profile.path.join("extensions.json");
 		let content = std::fs::read_to_string(path)?;
-		let mut addons: ExtensionsJsonDatabase = serde_json::from_str(&content)?;
-
-		// TODO: write deserializer
-		addons
-			.addons
-			.retain(|addon| addon.location != "app-builtin" && addon.location != "app-system-defaults");
+		let addons: ExtensionsJson = serde_json::from_str(&content)?;
 
 		Ok(addons)
 	}
 }
 
-impl ExtensionsJsonDatabase {
+impl ExtensionsJson {
 	pub fn add(&mut self, bytes: &Vec<u8>, manifest: &Manifest, profile: &Profile) -> Result<()> {
 		let extensions_json_addon = ExtensionsJsonAddon::try_from((bytes, manifest, profile))?;
 		self.addons.push(extensions_json_addon);
