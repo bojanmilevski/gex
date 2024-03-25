@@ -1,21 +1,11 @@
 use clap::Parser;
 use clap::Subcommand;
-use std::path::PathBuf;
 
 #[derive(Parser)]
 #[command(author, version, about, long_about)]
 pub struct Cli {
-	#[arg(short, long)]
-	pub debug: bool,
-
-	#[arg(short, long)]
-	pub log: Option<PathBuf>,
-
 	#[command(subcommand)]
 	pub operation: Operation,
-
-	#[arg(short, long)]
-	pub verbose: bool,
 }
 
 #[derive(Parser)]

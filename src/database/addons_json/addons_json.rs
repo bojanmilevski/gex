@@ -7,29 +7,24 @@ use serde::Deserialize;
 use serde::Serialize;
 
 #[derive(Serialize, Deserialize)]
-pub struct AddonsJsonDatabase {
+pub struct AddonsJson {
 	schema: u8,
 	pub addons: Vec<AddonsJsonAddon>,
 }
 
-impl TryFrom<&Profile> for AddonsJsonDatabase {
+impl TryFrom<&Profile> for AddonsJson {
 	type Error = Error;
 
 	fn try_from(profile: &Profile) -> Result<Self> {
 		let path = profile.path.join("addons.json");
 		let content = std::fs::read_to_string(path)?;
-		let mut addons: AddonsJsonDatabase = serde_json::from_str(&content)?;
-
-		// TODO: deserializer
-		addons.addons.iter_mut().for_each(|addon| {
-			addon.slug = addon.get_slug().unwrap();
-		});
+		let addons: AddonsJson = serde_json::from_str(&content)?;
 
 		Ok(addons)
 	}
 }
 
-impl AddonsJsonDatabase {
+impl AddonsJson {
 	pub fn get(&self) -> Vec<String> {
 		self.addons
 			.iter()
@@ -47,7 +42,7 @@ impl AddonsJsonDatabase {
 		let index = self
 			.addons
 			.iter()
-			.position(|addons_json_addon| addons_json_addon.slug == addon.slug)
+			.position(|addons_json_addon| addons_json_addon.get_slug().unwrap() == addon.slug)
 			.unwrap();
 
 		self.addons.remove(index);

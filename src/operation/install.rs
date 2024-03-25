@@ -11,6 +11,7 @@ use colored::Colorize;
 use futures_util::StreamExt;
 use reqwest::Client;
 use tokio::io::AsyncWriteExt;
+use url::Url;
 
 pub struct Install {
 	client: Client,
@@ -21,7 +22,7 @@ pub struct Install {
 impl Install {
 	pub async fn find_addon(client: &Client, slug: &str) -> Result<Addon> {
 		client
-			.get(format!("{ADDON_URL}/{slug}"))
+			.get(Url::parse(ADDON_URL)?.join(slug)?)
 			.send()
 			.await
 			.or(Err(Error::Query(String::from(slug))))?
@@ -35,7 +36,7 @@ impl Install {
 		let name = addon.get_name();
 
 		let response = client
-			.get(format!("{DOWNLOAD_URL}/{version}"))
+			.get(Url::parse(DOWNLOAD_URL)?.join(&version.to_string())?)
 			.send()
 			.await
 			.or(Err(Error::Install(String::from(&name))))?;
@@ -110,9 +111,9 @@ impl Runnable for Install {
 			}
 		}
 
-		let addons_folder = self.configuration.profile.path.join("extensions");
-		if !addons_folder.exists() {
-			tokio::fs::create_dir(&addons_folder).await?;
+		let extensions_path = self.configuration.profile.path.join("extensions");
+		if !extensions_path.exists() {
+			tokio::fs::create_dir(&extensions_path).await?;
 		}
 
 		if let Err(err) = &self
@@ -124,7 +125,7 @@ impl Runnable for Install {
 		}
 
 		for addon in addon_map {
-			let path = format!("{}.xpi", addons_folder.join(&addon.0.guid).display());
+			let path = format!("{}.xpi", extensions_path.join(&addon.0.guid).display());
 			let mut file = tokio::fs::File::create(path).await?;
 			file.write_all(&addon.1).await?;
 		}
