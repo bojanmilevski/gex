@@ -3,7 +3,7 @@
 An `ex`tension manager for `Ge`cko browsers. I created this program to further simplify and
 automate a system (re)install. Currently only tested on `Linux`.
 
-## THIS PROGRAM IS IN VERY EARLY STAGES AND SHOULD NOT BE USED IN PRODUCTION
+- THIS PROGRAM IS IN VERY EARLY STAGES
 
 ## FUNCTIONALITY
 
@@ -62,9 +62,9 @@ A `json` of the first 50 extensions, sorted by the number of users, is returned 
 
 ...
 
-### LISTING (CURRENTLY NOT IMPLEMENTED)
+### LISTING
 
-...
+The provided profile's `addons.json` file returns each `amoListingURL` final slug.
 
 ## INSTRUCTIONS
 
@@ -73,7 +73,7 @@ Running `gex -h` issues the following output. Keep in mind that not all commands
 ```
 An extension installer for Gecko browsers
 
-Usage: gex [OPTIONS] <COMMAND>
+Usage: gex <COMMAND>
 
 Commands:
   delete   [aliases: rm]
@@ -84,11 +84,8 @@ Commands:
   help     Print this message or the help of the given subcommand(s)
 
 Options:
-  -v, --verbose
-  -l, --log <LOG>
-  -d, --debug
-  -h, --help       Print help
-  -V, --version    Print version
+  -h, --help     Print help
+  -V, --version  Print version
 ```
 
 ### EXAMPLES
