@@ -11,7 +11,6 @@ use colored::Colorize;
 use futures_util::StreamExt;
 use reqwest::Client;
 use tokio::io::AsyncWriteExt;
-use url::Url;
 
 pub struct Install {
 	client: Client,
@@ -22,7 +21,7 @@ pub struct Install {
 impl Install {
 	pub async fn find_addon(client: &Client, slug: &str) -> Result<Addon> {
 		client
-			.get(Url::parse(ADDON_URL)?.join(slug)?)
+			.get(format!("{ADDON_URL}/{slug}"))
 			.send()
 			.await
 			.or(Err(Error::Query(String::from(slug))))?
@@ -36,7 +35,7 @@ impl Install {
 		let name = addon.get_name();
 
 		let response = client
-			.get(Url::parse(DOWNLOAD_URL)?.join(&version.to_string())?)
+			.get(format!("{DOWNLOAD_URL}/{version}"))
 			.send()
 			.await
 			.or(Err(Error::Install(String::from(&name))))?;
@@ -87,10 +86,11 @@ impl Runnable for Install {
 		let mut addon_map: Vec<(&Addon, Vec<u8>)> = Vec::new();
 		for addon in &self.addons {
 			let name = addon.get_name();
+			println!("{}: {}", "Installing addon".bold().bright_blue(), name);
+			println!("{}", addon);
+
 			match Self::install_addon(&self.client, addon).await {
 				Ok(bytes) => {
-					println!("{}: {}", "Installing addon".bold().bright_blue(), name);
-					println!("{}", addon);
 					addon_map.push((addon, bytes));
 				}
 
@@ -102,12 +102,13 @@ impl Runnable for Install {
 		}
 
 		for addon in &addon_map {
-			if let Err(err) = &self
+			if let Err(err) = self
 				.configuration
 				.database
 				.add(addon.0, &addon.1, &self.configuration.profile)
 			{
 				eprintln!("{}: {}", "Error adding addon to database".bold().red(), err);
+				return Err(err);
 			}
 		}
 
@@ -116,15 +117,16 @@ impl Runnable for Install {
 			tokio::fs::create_dir(&extensions_path).await?;
 		}
 
-		if let Err(err) = &self
+		if let Err(err) = self
 			.configuration
 			.database
 			.write(&self.configuration.profile)
 		{
 			eprintln!("{}: {}", "Error writing to database".bold().red(), err);
+			return Err(err);
 		}
 
-		for addon in addon_map {
+		for addon in &addon_map {
 			let path = format!("{}.xpi", extensions_path.join(&addon.0.guid).display());
 			let mut file = tokio::fs::File::create(path).await?;
 			file.write_all(&addon.1).await?;

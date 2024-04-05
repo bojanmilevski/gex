@@ -5,6 +5,9 @@ use std::fmt::Display;
 #[derive(Deserialize)]
 pub struct Ratings {
 	average: Option<f32>,
+	bayesian_average: f64,
+	count: u64,
+	text_count: u64,
 }
 
 impl Display for Ratings {

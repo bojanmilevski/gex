@@ -1,3 +1,7 @@
+# VERY HIGH PRIORITY
+
+- log
+
 # HIGH PRIORITY
 
 - "super" addon struct
@@ -9,7 +13,6 @@
 - complete addons.json addon, extensions.json addon
 - database duplicates (check before adding)
 - each crate has it's own error module
-- fill in all fields on crate::addon::addon based on https://addons.mozilla.org/api/v5/addons/addon/{slug}
 - fix mut runnable trait
 - fix try_configure_from configurable trait
 - implement remaining operations (delete, list, update)
@@ -28,7 +31,6 @@
 - rayon
 - send multiple extensions in one query in order to avoid multiple requests - avoid spamming mozilla servers
 - tokio::task::spawn vec and then run
-- verbose, debug, log (with path) flag
 
 # LOW PRIORITY
 

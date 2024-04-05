@@ -18,7 +18,7 @@ impl Search {
 			.send()
 			.await
 			.or(Err(Error::Query(String::from(slug))))?
-			.json()
+			.json::<Addons>()
 			.await
 			.or(Err(Error::AddonNotFound(String::from(slug))))
 	}

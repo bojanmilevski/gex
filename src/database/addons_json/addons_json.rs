@@ -42,7 +42,7 @@ impl AddonsJson {
 		let index = self
 			.addons
 			.iter()
-			.position(|addons_json_addon| addons_json_addon.get_slug().unwrap() == addon.slug)
+			.position(|addons_json_addon| addons_json_addon.get_slug().unwrap() == addon.slug.clone().unwrap())
 			.unwrap();
 
 		self.addons.remove(index);

@@ -1,11 +1,5 @@
 pub mod addon;
 mod authors;
-mod creation_date;
 mod current_version;
-mod description;
 mod license;
-mod name;
 mod ratings;
-mod score;
-mod url;
-mod weekly_downloads;

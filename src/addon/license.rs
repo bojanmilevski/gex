@@ -1,10 +1,16 @@
 use colored::Colorize;
 use serde::Deserialize;
+use std::collections::HashMap;
 use std::fmt::Display;
+use url::Url;
 
 #[derive(Deserialize)]
 pub struct License {
 	slug: Option<String>,
+	id: u64,
+	is_custom: bool,
+	name: HashMap<String, String>,
+	url: Option<Url>,
 }
 
 impl Display for License {

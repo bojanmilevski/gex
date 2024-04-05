@@ -96,7 +96,7 @@ impl TryFrom<&Addon> for AddonsJsonAddon {
 
 impl AddonsJsonAddon {
 	pub fn get_slug(&self) -> Result<String> {
-		let segments = self
+		let slug = self
 			.amo_listing_url
 			.path_segments()
 			.map(|segment| segment.collect::<Vec<_>>())
@@ -104,6 +104,6 @@ impl AddonsJsonAddon {
 			.pop()
 			.unwrap();
 
-		Ok(String::from(segments))
+		Ok(String::from(slug))
 	}
 }

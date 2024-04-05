@@ -1,6 +1,7 @@
 use colored::Colorize;
 use serde::Deserialize;
 use std::fmt::Display;
+use url::Url;
 
 #[derive(Deserialize)]
 #[serde(transparent)]
@@ -9,8 +10,12 @@ pub struct Authors {
 }
 
 #[derive(Deserialize)]
-pub struct Author {
+struct Author {
 	name: String,
+	id: u64,
+	url: Url,
+	username: String,
+	picture_url: Option<Url>,
 }
 
 impl Authors {
