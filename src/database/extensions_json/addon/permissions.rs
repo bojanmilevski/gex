@@ -1,33 +1,35 @@
-use crate::database::manifests::manifest::Manifest;
+use crate::addon::addon::Addon;
 use crate::errors::Error;
 use crate::errors::Result;
 use serde::Deserialize;
 use serde::Serialize;
 
-#[derive(Serialize, Deserialize, Default)]
+#[derive(Serialize, Deserialize)]
 pub struct Permissions {
 	pub origins: Vec<String>,
 	pub permissions: Vec<String>,
 }
 
-impl TryFrom<&Manifest> for Permissions {
+impl TryFrom<&Addon> for Permissions {
 	type Error = Error;
 
-	fn try_from(manifest: &Manifest) -> Result<Self> {
-		let permissions = manifest
+	fn try_from(addon: &Addon) -> Result<Self> {
+		let permissions = addon
+			.current_version
+			.file
 			.permissions
-			.clone()
-			.unwrap()
-			.into_iter()
-			.filter(|p| !p.starts_with('<'))
+			.iter()
+			.filter(|addon| !addon.contains(".com"))
+			.cloned()
 			.collect();
 
-		let origins = manifest
+		let origins = addon
+			.current_version
+			.file
 			.permissions
-			.clone()
-			.unwrap()
-			.into_iter()
-			.filter(|o| o.starts_with('<'))
+			.iter()
+			.filter(|addon| addon.contains(".com"))
+			.cloned()
 			.collect();
 
 		Ok(Self { origins, permissions })

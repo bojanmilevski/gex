@@ -1,6 +1,7 @@
 use colored::Colorize;
 use serde::Deserialize;
 use std::fmt::Display;
+use std::fmt::Formatter;
 
 #[derive(Deserialize)]
 pub struct Ratings {
@@ -11,7 +12,7 @@ pub struct Ratings {
 }
 
 impl Display for Ratings {
-	fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+	fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
 		write!(f, "{}: {}", "Average rating".bold().bright_blue(), &self.average.unwrap_or(0.0).to_owned())
 	}
 }

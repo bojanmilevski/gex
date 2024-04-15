@@ -12,7 +12,7 @@ use zip::ZipArchive;
 #[derive(Serialize, Deserialize)]
 pub struct Manifest {
 	pub author: Option<String>,
-	pub browser_specific_settings: BrowserSpecificSettings,
+	pub browser_specific_settings: Option<BrowserSpecificSettings>,
 	pub default_locale: Option<String>,
 	pub description: Option<String>,
 	pub icons: HashMap<String, String>,
@@ -23,7 +23,7 @@ pub struct Manifest {
 	pub version: String,
 }
 
-// TODO: redundant duplication
+// FIX: redundant duplication
 impl TryFrom<&ExtensionsJsonAddon> for Manifest {
 	type Error = Error;
 
@@ -39,7 +39,7 @@ impl TryFrom<&ExtensionsJsonAddon> for Manifest {
 	}
 }
 
-// TODO: redundant duplication
+// FIX: redundant duplication
 impl TryFrom<&Vec<u8>> for Manifest {
 	type Error = Error;
 

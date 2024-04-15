@@ -1,5 +1,13 @@
 pub mod addon;
 mod authors;
+mod compatibility;
+mod contributions_url;
 mod current_version;
+mod description;
+mod file;
+mod homepage;
 mod license;
+mod name;
+mod preview;
+mod promoted;
 mod ratings;

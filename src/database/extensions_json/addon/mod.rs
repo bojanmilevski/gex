@@ -1,9 +1,13 @@
 pub mod addon;
 pub mod default_locale;
 pub mod install_telemetry_info;
-pub mod locale;
 pub mod locale_file;
+pub mod locales;
 pub mod message;
 pub mod permissions;
+mod persistent_listeners;
 pub mod recommendation_state;
+mod request;
+mod startup_data;
 pub mod target_application;
+mod web_request;

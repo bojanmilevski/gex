@@ -1,4 +1,4 @@
-use super::addon::AddonsJsonAddon;
+use super::addon::addon::AddonsJsonAddon;
 use crate::addon::addon::Addon;
 use crate::configuration::profile::Profile;
 use crate::errors::Error;
@@ -25,27 +25,30 @@ impl TryFrom<&Profile> for AddonsJson {
 }
 
 impl AddonsJson {
-	pub fn get(&self) -> Vec<String> {
-		self.addons
+	pub fn add(&mut self, addon_map: &[(&Addon, Vec<u8>)]) -> Result<()> {
+		let new_addons = addon_map
 			.iter()
-			.map(|addon| addon.get_slug().unwrap())
-			.collect()
-	}
+			.map(|(addon, _)| AddonsJsonAddon::try_from(*addon))
+			.collect::<Result<Vec<AddonsJsonAddon>>>()?;
 
-	pub fn add(&mut self, addon: &Addon) -> Result<()> {
-		let addon = AddonsJsonAddon::try_from(addon)?;
-		self.addons.push(addon);
+		new_addons
+			.into_iter()
+			.for_each(|addon| self.addons.push(addon));
+
 		Ok(())
 	}
 
-	pub fn delete(&mut self, addon: &Addon) -> Result<()> {
-		let index = self
-			.addons
-			.iter()
-			.position(|addons_json_addon| addons_json_addon.get_slug().unwrap() == addon.slug.clone().unwrap())
-			.unwrap();
+	pub fn remove(&mut self, ids: &[&str]) -> Result<()> {
+		ids.iter().for_each(|id| {
+			let index = self
+				.addons
+				.iter()
+				.position(|addon| &addon.id == id)
+				.ok_or(crate::errors::Error::Home)
+				.unwrap();
 
-		self.addons.remove(index);
+			self.addons.remove(index);
+		});
 
 		Ok(())
 	}

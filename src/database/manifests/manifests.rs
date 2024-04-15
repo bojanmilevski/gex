@@ -1,6 +1,6 @@
+use super::super::extensions_json::extensions_json::ExtensionsJson;
 use super::manifest::Manifest;
 use crate::addon::addon::Addon;
-use crate::database::extensions_json::extensions_json::ExtensionsJson;
 use crate::errors::Error;
 use crate::errors::Result;
 
@@ -24,21 +24,35 @@ impl TryFrom<&ExtensionsJson> for Manifests {
 }
 
 impl Manifests {
-	pub fn add(&mut self, bytes: &Vec<u8>) -> Result<()> {
-		let manifest = Manifest::try_from(bytes)?;
-		self.manifests.push(manifest);
+	pub fn add(&mut self, addon_map: &[(&Addon, Vec<u8>)]) -> Result<()> {
+		let new = addon_map
+			.iter()
+			.map(|(_, bytes)| Manifest::try_from(bytes))
+			.collect::<Result<Vec<Manifest>>>()?;
+
+		new.into_iter()
+			.for_each(|manifest| self.manifests.push(manifest));
 
 		Ok(())
 	}
 
-	pub fn delete(&mut self, addon: &Addon) -> Result<()> {
-		let index = self
-			.manifests
-			.iter()
-			.position(|manifest| manifest.browser_specific_settings.gecko.id == addon.guid)
-			.unwrap();
+	pub fn remove(&mut self, ids: &[&str]) -> Result<()> {
+		ids.iter().for_each(|id| {
+			let index = self
+				.manifests
+				.iter()
+				.position(|manifest| {
+					&manifest
+						.browser_specific_settings
+						.as_ref()
+						.unwrap()
+						.gecko
+						.id == id
+				})
+				.unwrap();
 
-		self.manifests.remove(index);
+			self.manifests.remove(index);
+		});
 
 		Ok(())
 	}

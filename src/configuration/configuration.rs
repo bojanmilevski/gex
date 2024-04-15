@@ -1,5 +1,5 @@
 use super::profile::Profile;
-use crate::cli::Configuration as CliConfiguration;
+use crate::cli::CliConfiguration;
 use crate::database::database::Database;
 use crate::errors::Error;
 use crate::errors::Result;

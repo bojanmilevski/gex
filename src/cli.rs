@@ -5,11 +5,11 @@ use clap::Subcommand;
 #[command(author, version, about, long_about)]
 pub struct Cli {
 	#[command(subcommand)]
-	pub operation: Operation,
+	pub operation: CliOperation,
 }
 
 #[derive(Parser)]
-pub struct Configuration {
+pub struct CliConfiguration {
 	#[arg(short, long, default_value = "firefox")]
 	pub browser: String,
 
@@ -18,43 +18,43 @@ pub struct Configuration {
 }
 
 #[derive(Subcommand)]
-pub enum Operation {
-	#[clap(alias = "remove", visible_alias = "rm")]
-	Delete {
-		#[command(flatten)]
-		configuration: Configuration,
-
-		#[arg(num_args = 1.., required = true)]
-		delete: Vec<String>,
-	},
-
+pub enum CliOperation {
 	#[clap(visible_alias = "i")]
 	Install {
 		#[command(flatten)]
-		configuration: Configuration,
+		configuration: CliConfiguration,
 
-		#[arg(num_args = 1.., required = true)]
-		install: Vec<String>,
+		#[arg(name = "install", num_args = 1.., required = true)]
+		slugs: Vec<String>,
 	},
 
 	#[clap(visible_alias = "ls")]
 	List {
 		#[command(flatten)]
-		configuration: Configuration,
+		configuration: CliConfiguration,
+	},
+
+	#[clap(alias = "delete", visible_alias = "rm")]
+	Remove {
+		#[command(flatten)]
+		configuration: CliConfiguration,
+
+		#[arg(name = "remove", num_args = 1.., required = true)]
+		slugs: Vec<String>,
 	},
 
 	#[clap(visible_alias = "s")]
 	Search {
-		#[arg(required = true)]
-		search: String,
+		#[arg(name = "search", required = true)]
+		slug: String,
 	},
 
 	#[clap(visible_alias = "u")]
 	Update {
 		#[command(flatten)]
-		configuration: Configuration,
+		configuration: CliConfiguration,
 
-		#[arg(num_args = 1..)]
-		update: Option<Vec<String>>,
+		#[arg(name = "update", num_args = 1..)]
+		slugs: Option<Vec<String>>,
 	},
 }

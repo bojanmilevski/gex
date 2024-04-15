@@ -27,20 +27,26 @@ impl TryFrom<&Profile> for ExtensionsJson {
 }
 
 impl ExtensionsJson {
-	pub fn add(&mut self, bytes: &Vec<u8>, manifest: &Manifest, profile: &Profile) -> Result<()> {
-		let extensions_json_addon = ExtensionsJsonAddon::try_from((bytes, manifest, profile))?;
-		self.addons.push(extensions_json_addon);
+	pub fn add(&mut self, addon_map: &[(&Addon, Vec<u8>)], manifest: &Manifest, profile: &Profile) -> Result<()> {
+		let new = addon_map
+			.iter()
+			.map(|addon| ExtensionsJsonAddon::try_from((addon, manifest, profile)))
+			.collect::<Result<Vec<ExtensionsJsonAddon>>>()?;
+
+		new.into_iter().for_each(|addon| self.addons.push(addon));
 		Ok(())
 	}
 
-	pub fn delete(&mut self, addon: &Addon) -> Result<()> {
-		let index = self
-			.addons
-			.iter()
-			.position(|extensions_json_addon| extensions_json_addon.sync_guid.clone().unwrap() == addon.guid)
-			.unwrap();
+	pub fn remove(&mut self, ids: &[&str]) -> Result<()> {
+		ids.iter().for_each(|id| {
+			let index = self
+				.addons
+				.iter()
+				.position(|addon| &addon.id == id)
+				.unwrap();
 
-		self.addons.remove(index);
+			self.addons.remove(index);
+		});
 
 		Ok(())
 	}

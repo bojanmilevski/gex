@@ -1,5 +1,11 @@
 use super::authors::Authors;
+use super::contributions_url::ContributionsUrl;
 use super::current_version::CurrentVersion;
+use super::description::Description;
+use super::homepage::Homepage;
+use super::name::Name;
+use super::preview::Preview;
+use super::promoted::Promoted;
 use super::ratings::Ratings;
 use serde::Deserialize;
 use std::collections::HashMap;
@@ -8,19 +14,24 @@ use url::Url;
 
 #[derive(Deserialize)]
 pub struct Addons {
+	count: u64,
+	next: Option<Url>,
+	page_count: u64,
+	page_size: u64,
+	previous: Option<Url>,
 	#[serde(rename = "results")]
 	pub addons: Vec<Addon>,
 }
 
 #[derive(Deserialize)]
 pub struct Addon {
-	authors: Authors, // FIX:
+	authors: Authors,
 	average_daily_users: u64,
 	categories: Vec<String>,
-	// contributions_url: HashMap<String, Url>, // FIX:
-	created: String, // FIX: should be chrono
-	default_locale: String,
-	description: Option<HashMap<String, Option<String>>>,
+	contributions_url: ContributionsUrl,
+	created: String, // FIX: chrono
+	pub default_locale: String,
+	description: Description,
 	developer_comments: Option<HashMap<String, String>>,
 	edit_url: Url,
 	has_eula: bool,
@@ -31,55 +42,38 @@ pub struct Addon {
 	id: u64,
 	is_disabled: bool,
 	is_experimental: bool,
-	last_updated: String, // FIX: should be chrono
-	name: HashMap<String, Option<String>>,
-	pub current_version: CurrentVersion,
-	pub guid: String,
-	pub slug: Option<String>, // FIX: ???
-	ratings: Ratings,
-	#[serde(rename = "_score")]
-	score: Option<f64>, // FIX:
-	weekly_downloads: u64, // FIX:
+	last_updated: String, // FIX: chrono
+	pub name: Name,
 	previews: Vec<Preview>,
 	promoted: Option<Promoted>,
+	pub current_version: CurrentVersion,
+	pub guid: String,
+	pub slug: String,
+	ratings: Ratings,
 	ratings_url: Url,
 	requires_payment: bool,
 	review_url: Url,
+	#[serde(rename = "_score")]
+	score: Option<f64>, // FIX:
 	status: String,
 	summary: Option<HashMap<String, Option<String>>>,
 	support_email: Option<HashMap<String, Option<String>>>,
 	support_url: Option<Homepage>,
 	tags: Vec<String>,
+	#[serde(rename = "type")]
+	ty: String,
 	url: Option<Url>,
 	versions_url: Url,
-}
-
-#[derive(Deserialize)]
-struct Homepage {
-	url: HashMap<String, Option<String>>, // FIX: value should be url
-	outgoing: HashMap<String, Option<String>>,
-}
-
-#[derive(Deserialize)]
-struct Preview {
-	id: u64,
-	caption: Option<HashMap<String, String>>,
-	image_size: [u64; 2],
-	image_url: Url,
-	position: u64,
-	tuhmbnail_size: Option<[u64; 2]>,
-	thumbnail_url: Url,
-}
-
-#[derive(Deserialize)]
-struct Promoted {
-	apps: Vec<String>,
-	category: String,
+	pub weekly_downloads: u64, // FIX:
 }
 
 impl Addon {
-	pub fn get_name(&self) -> String {
-		self.name.clone().get("en-US").unwrap().clone().unwrap()
+	pub fn version(&self) -> Vec<u8> {
+		self.current_version
+			.version
+			.split('.')
+			.filter_map(|s| s.parse().ok())
+			.collect()
 	}
 }
 
@@ -88,7 +82,7 @@ impl Display for Addon {
 		write!(
 			f,
 			"{}\n{}\n{}\n{}\n{}\n{}\n{}\n{}\n{}\n{}\n",
-			self.get_name(),
+			self.name,
 			self.current_version,
 			self.url.clone().unwrap(),
 			self.authors,
@@ -97,13 +91,7 @@ impl Display for Addon {
 			self.ratings,
 			self.score.unwrap_or(0.0),
 			self.weekly_downloads,
-			self.description
-				.clone()
-				.unwrap_or(Default::default())
-				.get("en-US")
-				.unwrap()
-				.clone()
-				.unwrap(),
+			self.description,
 		)
 	}
 }

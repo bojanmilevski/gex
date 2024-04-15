@@ -39,4 +39,7 @@ pub enum Error {
 
 	#[error("serde_json error.")]
 	SerdeJson(#[from] serde_json::Error),
+
+	#[error("Plugins not installed: ")]
+	Update(String),
 }

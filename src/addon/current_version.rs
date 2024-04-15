@@ -1,3 +1,5 @@
+use super::compatibility::Compatibility;
+use super::file::File;
 use super::license::License;
 use colored::Colorize;
 use serde::Deserialize;
@@ -16,32 +18,6 @@ pub struct CurrentVersion {
 	pub version: String,
 	release_notes: Option<HashMap<String, String>>,
 	reviewed: String,
-}
-
-#[derive(Deserialize)]
-struct Compatibility {
-	firefox: CompatibilityType,
-	android: Option<CompatibilityType>,
-}
-
-#[derive(Deserialize)]
-struct CompatibilityType {
-	min: String,
-	max: String,
-}
-
-#[derive(Deserialize)]
-pub struct File {
-	pub id: u64,
-	created: String, // FIX: should be chrono
-	hash: String,    // FIX: should be hash
-	is_mozilla_signed_extension: bool,
-	size: u64,
-	status: String,
-	url: Url,
-	permissions: Vec<String>,
-	optional_permissions: Vec<String>,
-	host_permissions: Vec<String>,
 }
 
 impl Display for CurrentVersion {

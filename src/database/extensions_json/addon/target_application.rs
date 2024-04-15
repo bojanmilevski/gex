@@ -17,16 +17,8 @@ impl TryFrom<&Manifest> for TargetApplication {
 
 	fn try_from(manifest: &Manifest) -> Result<Self> {
 		let id = String::from("toolkit@mozilla.org");
-		let min_version = manifest
-			.browser_specific_settings
-			.gecko
-			.strict_min_version
-			.clone();
-		let max_version = manifest
-			.browser_specific_settings
-			.gecko
-			.strict_max_version
-			.clone();
+		let min_version = None;
+		let max_version = None;
 
 		Ok(Self { id, min_version, max_version })
 	}

@@ -1,17 +1,35 @@
-use super::browser::Browser;
-use crate::cli::Configuration as CliConfiguration;
+use crate::cli::CliConfiguration;
 use crate::errors::Error;
 use crate::errors::Result;
 use ini::Ini;
 use std::path::PathBuf;
 
 pub struct Profile {
-	pub browser: Browser,
+	pub browser_path: PathBuf,
 	pub name: String,
 	pub path: PathBuf,
 }
 
 impl Profile {
+	fn get_browser_path(browser: &str) -> Result<PathBuf> {
+		let home = home::home_dir().ok_or(Error::Home)?;
+
+		let browser_path = match browser {
+			"firefox" => ".mozilla/firefox",
+			"librewolf" => ".librewolf",
+			"firedragon" => ".firedragon",
+			_ => return Err(Error::BrowserNotSupported(browser.to_owned())),
+		};
+
+		let path = home.join(browser_path);
+
+		if !path.exists() {
+			return Err(Error::BrowserPathNotFound(browser.to_owned()));
+		}
+
+		Ok(path)
+	}
+
 	fn get_profile_in_use(ini: &Ini) -> Result<&str> {
 		ini.sections()
 			.flatten()
@@ -39,8 +57,8 @@ impl TryFrom<CliConfiguration> for Profile {
 	type Error = Error;
 
 	fn try_from(configuration: CliConfiguration) -> Result<Self> {
-		let browser = Browser::try_from(&configuration)?;
-		let profiles = browser.path.join("profiles.ini");
+		let browser_path = Self::get_browser_path(&configuration.browser)?;
+		let profiles = browser_path.join("profiles.ini");
 		let ini = Ini::load_from_file(profiles)?;
 
 		let name = match configuration.profile {
@@ -49,12 +67,12 @@ impl TryFrom<CliConfiguration> for Profile {
 		};
 
 		let name = String::from(name);
-		let path = browser.path.join(&name);
+		let path = browser_path.join(&name);
 
 		if !path.exists() {
 			return Err(Error::ProfileNotFound(name));
 		}
 
-		Ok(Self { browser, name, path })
+		Ok(Self { browser_path, name, path })
 	}
 }

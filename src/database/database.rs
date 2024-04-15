@@ -6,6 +6,7 @@ use crate::configuration::profile::Profile;
 use crate::errors::Error;
 use crate::errors::Result;
 
+// FIX: super database addon. vec<SuperDatabaseAddon>
 pub struct Database {
 	pub addons_json_database: AddonsJson,
 	pub extensions_json_database: ExtensionsJson,
@@ -25,23 +26,38 @@ impl TryFrom<&Profile> for Database {
 }
 
 impl Database {
-	pub fn get(&self) -> Vec<String> {
-		self.addons_json_database.get()
+	pub fn get_slugs(&self) -> Vec<String> {
+		self.addons_json_database
+			.addons
+			.iter()
+			.map(|addon| addon.slug())
+			.collect()
 	}
 
-	pub fn add(&mut self, addon: &Addon, bytes: &Vec<u8>, profile: &Profile) -> Result<()> {
-		self.addons_json_database.add(addon)?;
-		self.manifest_database.add(bytes)?;
+	pub fn add(&mut self, addon_map: &[(&Addon, Vec<u8>)], profile: &Profile) -> Result<()> {
+		self.addons_json_database.add(addon_map)?;
+		self.manifest_database.add(addon_map)?;
 		self.extensions_json_database
-			.add(bytes, self.manifest_database.manifests.last().unwrap(), profile)?;
+			.add(addon_map, self.manifest_database.manifests.last().unwrap(), profile)?;
 
 		Ok(())
 	}
 
-	pub fn delete(&mut self, addon: &Addon) -> Result<()> {
-		self.addons_json_database.delete(addon)?;
-		self.extensions_json_database.delete(addon)?;
-		self.manifest_database.delete(addon)?;
+	// FIX: slug instead of id
+	pub fn remove_from_disk(&mut self, ids: &[&str], profile: &Profile) -> Result<()> {
+		ids.iter().try_for_each(|id| {
+			let path = profile.path.join("extensions").join(format!("{}.xpi", id));
+			std::fs::remove_file(path)
+		})?;
+
+		Ok(())
+	}
+
+	// FIX: slug instead of id
+	pub fn remove_from_database(&mut self, ids: &[&str]) -> Result<()> {
+		self.addons_json_database.remove(ids)?;
+		self.extensions_json_database.remove(ids)?;
+		self.manifest_database.remove(ids)?;
 
 		Ok(())
 	}
@@ -51,5 +67,54 @@ impl Database {
 		self.addons_json_database.write(profile)?;
 
 		Ok(())
+	}
+
+	pub fn contains(&self, slug: &String) -> bool {
+		self.addons_json_database
+			.addons
+			.iter()
+			.map(|addon| addon.slug())
+			.collect::<Vec<_>>()
+			.contains(slug)
+	}
+
+	fn get_specified_addons(&self, slugs: Vec<String>) -> Result<Vec<(String, String, Vec<u8>)>> {
+		let excess: Vec<&String> = slugs.iter().filter(|slug| !self.contains(slug)).collect();
+
+		if !excess.is_empty() {
+			return Err(crate::errors::Error::Update(
+				excess
+					.into_iter()
+					.map(|slug| slug.as_str())
+					.collect::<Vec<_>>()
+					.join(", "),
+			));
+		}
+
+		let addons = self
+			.addons_json_database
+			.addons
+			.iter()
+			.map(|addon| (addon.slug(), addon.id.clone(), addon.version()))
+			.collect::<Vec<_>>();
+
+		Ok(addons)
+	}
+
+	fn get_all_addons(&self) -> Vec<(String, String, Vec<u8>)> {
+		self.addons_json_database
+			.addons
+			.iter()
+			.map(|addon| (addon.slug(), addon.id.clone(), addon.version()))
+			.collect()
+	}
+
+	pub fn get_addons(&self, slugs: Option<Vec<String>>) -> Result<Vec<(String, String, Vec<u8>)>> {
+		let addons = match slugs {
+			Some(slugs) => self.get_specified_addons(slugs)?,
+			None => self.get_all_addons(),
+		};
+
+		Ok(addons)
 	}
 }
