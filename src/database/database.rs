@@ -5,8 +5,9 @@ use crate::addon::addon::Addon;
 use crate::configuration::profile::Profile;
 use crate::errors::Error;
 use crate::errors::Result;
+use tokio::io::AsyncWriteExt;
 
-// FIX: super database addon. vec<SuperDatabaseAddon>
+// FIX: super database addon. vec<DatabaseAddon>
 pub struct Database {
 	pub addons_json_database: AddonsJson,
 	pub extensions_json_database: ExtensionsJson,
@@ -46,7 +47,7 @@ impl Database {
 	// FIX: slug instead of id
 	pub fn remove_from_disk(&mut self, ids: &[&str], profile: &Profile) -> Result<()> {
 		ids.iter().try_for_each(|id| {
-			let path = profile.path.join("extensions").join(format!("{}.xpi", id));
+			let path = profile.extensions.join(format!("{}.xpi", id));
 			std::fs::remove_file(path)
 		})?;
 
@@ -69,20 +70,20 @@ impl Database {
 		Ok(())
 	}
 
-	pub fn contains(&self, slug: &String) -> bool {
+	pub fn contains(&self, slug: &str) -> bool {
 		self.addons_json_database
 			.addons
 			.iter()
 			.map(|addon| addon.slug())
 			.collect::<Vec<_>>()
-			.contains(slug)
+			.contains(&slug.to_string())
 	}
 
 	fn get_specified_addons(&self, slugs: Vec<String>) -> Result<Vec<(String, String, Vec<u8>)>> {
 		let excess: Vec<&String> = slugs.iter().filter(|slug| !self.contains(slug)).collect();
 
 		if !excess.is_empty() {
-			return Err(crate::errors::Error::Update(
+			return Err(crate::errors::Error::NotInstalled(
 				excess
 					.into_iter()
 					.map(|slug| slug.as_str())

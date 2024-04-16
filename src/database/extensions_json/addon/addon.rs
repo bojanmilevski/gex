@@ -96,11 +96,7 @@ impl TryFrom<(&(&Addon, Vec<u8>), &Manifest, &Profile)> for ExtensionsJsonAddon 
 		let update_date = install_date;
 		let locales = Locales::try_from((bytes, manifest))?;
 		let default_locale = DefaultLocale::try_from(manifest)?;
-
-		let path = profile
-			.path
-			.join("extensions")
-			.join(format!("{}.xpi", &addon.guid));
+		let path = profile.extensions.join(format!("{}.xpi", &addon.guid));
 
 		let addon = Self {
 			about_url: None,

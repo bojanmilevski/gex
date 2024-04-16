@@ -20,7 +20,7 @@ impl Update {
 	) -> Result<Vec<Addon>> {
 		let addons_map = configuration.database.get_addons(slugs)?;
 		let addons = futures_util::stream::iter(addons_map)
-			.then(|(slug, id, version)| async move {
+			.then(|(slug, _, version)| async move {
 				match Install::find_addon(client, &slug).await {
 					Ok(new) if new.version() > version => Some(Ok(new)),
 					Ok(_) => None,

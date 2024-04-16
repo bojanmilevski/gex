@@ -11,19 +11,11 @@ pub struct Remove {
 impl Remove {
 	pub async fn try_configure_from(slugs: Vec<String>, configuration: CliConfiguration) -> Result<Self> {
 		let configuration = Configuration::try_from(configuration)?;
-		let ids = slugs
+		let ids = configuration
+			.database
+			.get_addons(Some(slugs))?
 			.iter()
-			.map(|slug| {
-				configuration
-					.database
-					.addons_json_database
-					.addons
-					.iter()
-					.find(|addon| &addon.slug() == slug)
-					.unwrap()
-					.id
-					.to_owned()
-			})
+			.map(|(_, id, _)| id.clone())
 			.collect();
 
 		Ok(Self { ids, configuration })

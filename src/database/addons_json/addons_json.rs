@@ -16,8 +16,7 @@ impl TryFrom<&Profile> for AddonsJson {
 	type Error = Error;
 
 	fn try_from(profile: &Profile) -> Result<Self> {
-		let path = profile.path.join("addons.json");
-		let content = std::fs::read_to_string(path)?;
+		let content = std::fs::read_to_string(&profile.addons_json)?;
 		let addons: AddonsJson = serde_json::from_str(&content)?;
 
 		Ok(addons)
@@ -55,7 +54,7 @@ impl AddonsJson {
 
 	pub fn write(&self, profile: &Profile) -> Result<()> {
 		let content = serde_json::to_string(&self)?;
-		std::fs::write(profile.path.join("addons.json"), content)?;
+		std::fs::write(&profile.addons_json, content)?;
 
 		Ok(())
 	}

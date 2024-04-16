@@ -115,15 +115,17 @@ impl Runnable for Install {
 			.database
 			.remove_from_disk(&duplicates, &self.configuration.profile)?;
 
-		let extensions_path = self.configuration.profile.path.join("extensions");
-
-		/* if !extensions_path.exists() {
-			tokio::fs::create_dir(&extensions_path).await?;
-		} */
-
 		// FIX: futures_util::stream::iter()
 		for addon in &addon_map {
-			let path = format!("{}.xpi", extensions_path.join(&addon.0.guid).display());
+			let path = format!(
+				"{}.xpi",
+				self.configuration
+					.profile
+					.extensions
+					.join(&addon.0.guid)
+					.display()
+			);
+
 			let mut file = tokio::fs::File::create(path).await?;
 			file.write_all(&addon.1).await?;
 		}

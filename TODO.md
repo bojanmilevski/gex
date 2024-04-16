@@ -1,13 +1,11 @@
 # VERY HIGH PRIORITY
 
-- complete addons.json
 - "super" addon struct
-  - consists of manifest, extensions.json addon info, addons.json addon info
-  - passed to database.add(), database.remove()
-  - created in try_run()
+  - consists of addon, bytes, manifest, extensions.json, addons.json
 
 # HIGH PRIORITY
 
+- complete addons.json
 - anyhow
 - chrono serde fields
 - each crate has it's own error module

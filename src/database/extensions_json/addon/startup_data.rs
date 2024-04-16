@@ -5,5 +5,5 @@ use serde::Serialize;
 #[derive(Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct StartupData {
-	persistent_listeners: PersistentListeners,
+	persistent_listeners: Option<PersistentListeners>,
 }

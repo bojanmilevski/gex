@@ -41,5 +41,5 @@ pub enum Error {
 	SerdeJson(#[from] serde_json::Error),
 
 	#[error("Plugins not installed: ")]
-	Update(String),
+	NotInstalled(String),
 }

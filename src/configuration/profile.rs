@@ -8,6 +8,9 @@ pub struct Profile {
 	pub browser_path: PathBuf,
 	pub name: String,
 	pub path: PathBuf,
+	pub extensions: PathBuf,
+	pub extensions_json: PathBuf,
+	pub addons_json: PathBuf,
 }
 
 impl Profile {
@@ -64,15 +67,30 @@ impl TryFrom<CliConfiguration> for Profile {
 		let name = match configuration.profile {
 			Some(profile) => Self::get_specified_profile(&ini, profile)?,
 			None => Self::get_profile_in_use(&ini)?,
-		};
+		}
+		.to_string();
 
-		let name = String::from(name);
+		// FIX: this mess below
 		let path = browser_path.join(&name);
-
 		if !path.exists() {
 			return Err(Error::ProfileNotFound(name));
 		}
 
-		Ok(Self { browser_path, name, path })
+		let extensions = path.join("extensions");
+		if !extensions.exists() {
+			return Err(Error::ProfileNotFound(name));
+		}
+
+		let extensions_json = path.join("extensions.json");
+		if !extensions_json.exists() {
+			return Err(Error::ProfileNotFound(name));
+		}
+
+		let addons_json = path.join("addons.json");
+		if !addons_json.exists() {
+			return Err(Error::ProfileNotFound(name));
+		}
+
+		Ok(Self { browser_path, name, path, extensions, extensions_json, addons_json })
 	}
 }
