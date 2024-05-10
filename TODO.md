@@ -1,19 +1,18 @@
 # VERY HIGH PRIORITY
 
-- "super" addon struct
-  - consists of addon, bytes, manifest, extensions.json, addons.json
+- log
+- FIX: TODO:
+- unwraps
+- url serde fields
 
 # HIGH PRIORITY
 
+- "super" addon struct
+  - consists of addon, bytes, manifest, extensions.json, addons.json
 - complete addons.json
-- anyhow
-- chrono serde fields
-- each crate has it's own error module
 - fix configurable trait
 - fix runnable trait
 - rename structs
-- unwraps
-- url serde fields
 
 # MID PRORITY
 
@@ -37,7 +36,6 @@
 - if install vec is empty, print "no extension found"
 - install for multiple browsers
 - install for multiple profiles
-- log
 - man file (clap_mangen)
 - manually enable/disable extensions
 - more browsers and respective data paths

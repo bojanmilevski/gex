@@ -7,6 +7,8 @@ use super::name::Name;
 use super::preview::Preview;
 use super::promoted::Promoted;
 use super::ratings::Ratings;
+use chrono::DateTime;
+use chrono::Utc;
 use serde::Deserialize;
 use std::collections::HashMap;
 use std::fmt::Display;
@@ -29,7 +31,7 @@ pub struct Addon {
 	average_daily_users: u64,
 	categories: Vec<String>,
 	contributions_url: ContributionsUrl,
-	created: String, // FIX: chrono
+	created: DateTime<Utc>,
 	pub default_locale: String,
 	description: Description,
 	developer_comments: Option<HashMap<String, String>>,
@@ -42,7 +44,7 @@ pub struct Addon {
 	id: u64,
 	is_disabled: bool,
 	is_experimental: bool,
-	last_updated: String, // FIX: chrono
+	last_updated: DateTime<Utc>,
 	pub name: Name,
 	previews: Vec<Preview>,
 	promoted: Option<Promoted>,
@@ -84,7 +86,7 @@ impl Display for Addon {
 			"{}\n{}\n{}\n{}\n{}\n{}\n{}\n{}\n{}\n{}\n",
 			self.name,
 			self.current_version,
-			self.url.clone().unwrap(),
+			self.url.as_ref().unwrap(),
 			self.authors,
 			self.created,
 			self.current_version.license,

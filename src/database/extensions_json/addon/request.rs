@@ -9,6 +9,4 @@ pub struct Request {
 	types: Vec<String>,
 	urls: Vec<String>, // FIX: Url
 	window_id: Option<u32>,
-	#[serde(default)]
-	actions: Vec<String>,
 }

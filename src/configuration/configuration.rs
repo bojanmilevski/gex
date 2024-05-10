@@ -1,8 +1,7 @@
 use super::profile::Profile;
 use crate::cli::CliConfiguration;
 use crate::database::database::Database;
-use crate::errors::Error;
-use crate::errors::Result;
+use anyhow::Result;
 
 pub struct Configuration {
 	pub database: Database,
@@ -10,7 +9,7 @@ pub struct Configuration {
 }
 
 impl TryFrom<CliConfiguration> for Configuration {
-	type Error = Error;
+	type Error = anyhow::Error;
 
 	fn try_from(configuration: CliConfiguration) -> Result<Self> {
 		let profile = Profile::try_from(configuration)?;

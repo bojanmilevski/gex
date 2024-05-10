@@ -8,8 +8,7 @@ use super::target_application::TargetApplication;
 use crate::addon::addon::Addon;
 use crate::configuration::profile::Profile;
 use crate::database::manifests::manifest::Manifest;
-use crate::errors::Error;
-use crate::errors::Result;
+use anyhow::Result;
 use serde::Deserialize;
 use serde::Serialize;
 use std::collections::HashMap;
@@ -38,7 +37,7 @@ pub struct ExtensionsJsonAddon {
 	icons: HashMap<String, String>,
 	pub id: String,
 	incognito: Option<String>,
-	install_date: Option<i64>,
+	install_date: Option<u64>,
 	install_origins: Option<String>,
 	install_telemetry_info: Option<InstallTelemetryInfo>,
 	loader: Option<String>,
@@ -70,7 +69,7 @@ pub struct ExtensionsJsonAddon {
 	target_platforms: Vec<String>,
 	#[serde(rename = "type")]
 	ty: String,
-	update_date: Option<i64>,
+	update_date: Option<u64>,
 	update_url: Option<Url>,
 	user_disabled: bool,
 	user_permissions: Option<Permissions>,
@@ -79,7 +78,7 @@ pub struct ExtensionsJsonAddon {
 }
 
 impl TryFrom<(&(&Addon, Vec<u8>), &Manifest, &Profile)> for ExtensionsJsonAddon {
-	type Error = Error;
+	type Error = anyhow::Error;
 
 	fn try_from(value: (&(&Addon, Vec<u8>), &Manifest, &Profile)) -> Result<Self> {
 		let addon = value.0 .0;
@@ -92,7 +91,7 @@ impl TryFrom<(&(&Addon, Vec<u8>), &Manifest, &Profile)> for ExtensionsJsonAddon 
 		let optional_permissions = Permissions::try_from(addon)?;
 		let recommendation_state = RecommendationState::new(); // FIX:
 		let install_telemetry_info = InstallTelemetryInfo::new(); // FIX:
-		let install_date = chrono::Utc::now().timestamp_millis();
+		let install_date = chrono::Utc::now().timestamp_millis() as u64;
 		let update_date = install_date;
 		let locales = Locales::try_from((bytes, manifest))?;
 		let default_locale = DefaultLocale::try_from(manifest)?;

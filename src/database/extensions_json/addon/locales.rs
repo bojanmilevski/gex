@@ -1,6 +1,6 @@
 use crate::database::manifests::manifest::Manifest;
-use crate::errors::Error;
-use crate::errors::Result;
+use anyhow::Context;
+use anyhow::Result;
 use serde::Deserialize;
 use serde::Serialize;
 use std::io::Cursor;
@@ -25,14 +25,14 @@ pub struct Locale {
 }
 
 impl TryFrom<(&Vec<u8>, &Manifest)> for Locales {
-	type Error = Error;
+	type Error = anyhow::Error;
 
 	fn try_from(value: (&Vec<u8>, &Manifest)) -> Result<Self> {
 		let bytes = value.0;
 		let manifest = value.1;
 
 		let cursor = Cursor::new(bytes);
-		let mut zip = ZipArchive::new(cursor).unwrap();
+		let mut zip = ZipArchive::new(cursor).context("Cannot open .xpi file.")?;
 		let range = 0..zip.len();
 
 		let locale_folders: Vec<String> = range
@@ -59,9 +59,10 @@ impl TryFrom<(&Vec<u8>, &Manifest)> for Locales {
 				let mut messages_json = zip.by_name(locale).unwrap();
 				let mut content = String::new();
 				messages_json.read_to_string(&mut content).unwrap();
+
 				// let locale_file: LocaleFile = serde_json::from_str(content.as_str())?; // FIX:
 				Locale {
-					description: None, // Some(locale_file.extension_description.unwrap().message), // FIX:
+					description: None, // Some(locale_file.extension_description.context("No extension_description.").message), // FIX:
 					locales: Some(vec![locale_slug.replace('_', "-")]),
 					contributors: None,
 					translators: None,

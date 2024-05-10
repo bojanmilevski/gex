@@ -1,6 +1,8 @@
 use super::compatibility::Compatibility;
 use super::file::File;
 use super::license::License;
+use chrono::DateTime;
+use chrono::Utc;
 use colored::Colorize;
 use serde::Deserialize;
 use std::collections::HashMap;
@@ -17,7 +19,7 @@ pub struct CurrentVersion {
 	pub license: License,
 	pub version: String,
 	release_notes: Option<HashMap<String, String>>,
-	reviewed: String,
+	reviewed: DateTime<Utc>,
 }
 
 impl Display for CurrentVersion {

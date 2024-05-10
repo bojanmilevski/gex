@@ -1,11 +1,13 @@
+use chrono::DateTime;
+use chrono::Utc;
 use serde::Deserialize;
 use url::Url;
 
 #[derive(Deserialize)]
 pub struct File {
 	pub id: u64,
-	created: String, // FIX: should be chrono
-	hash: String,    // FIX: should be hash
+	created: DateTime<Utc>,
+	hash: String,
 	is_mozilla_signed_extension: bool,
 	size: u64,
 	status: String,

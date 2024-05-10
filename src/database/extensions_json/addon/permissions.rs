@@ -1,6 +1,5 @@
 use crate::addon::addon::Addon;
-use crate::errors::Error;
-use crate::errors::Result;
+use anyhow::Result;
 use serde::Deserialize;
 use serde::Serialize;
 
@@ -11,7 +10,7 @@ pub struct Permissions {
 }
 
 impl TryFrom<&Addon> for Permissions {
-	type Error = Error;
+	type Error = anyhow::Error;
 
 	fn try_from(addon: &Addon) -> Result<Self> {
 		let permissions = addon
@@ -19,7 +18,7 @@ impl TryFrom<&Addon> for Permissions {
 			.file
 			.permissions
 			.iter()
-			.filter(|addon| !addon.contains(".com"))
+			.filter(|addon| !addon.contains(".com")) // FIX: this is not right
 			.cloned()
 			.collect();
 
@@ -28,7 +27,7 @@ impl TryFrom<&Addon> for Permissions {
 			.file
 			.permissions
 			.iter()
-			.filter(|addon| addon.contains(".com"))
+			.filter(|addon| addon.contains(".com")) // FIX: this is not right
 			.cloned()
 			.collect();
 

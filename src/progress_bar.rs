@@ -1,3 +1,5 @@
+use anyhow::Context;
+use anyhow::Result;
 use indicatif::ProgressBar;
 use indicatif::ProgressState;
 use indicatif::ProgressStyle;
@@ -9,13 +11,15 @@ pub struct Bar {
 	total_size: u64,
 }
 
-impl From<u64> for Bar {
-	fn from(total_size: u64) -> Self {
+impl TryFrom<u64> for Bar {
+	type Error = anyhow::Error;
+
+	fn try_from(total_size: u64) -> Result<Self> {
 		let progress = 0;
 		let bar = ProgressBar::new(total_size);
 		let style =
 			ProgressStyle::with_template("[{elapsed_precise}] [{wide_bar:.green/black}] {bytes}/{total_bytes} ({eta})")
-				.unwrap()
+				.context("Invalid progress bar template.")?
 				.with_key("eta", |state: &ProgressState, w: &mut dyn Write| {
 					write!(w, "{:.1}s", state.eta().as_secs_f64()).unwrap()
 				})
@@ -23,7 +27,9 @@ impl From<u64> for Bar {
 
 		bar.set_style(style);
 
-		Self { bar, progress, total_size }
+		let bar = Self { bar, progress, total_size };
+
+		Ok(bar)
 	}
 }
 

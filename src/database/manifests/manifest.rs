@@ -1,7 +1,7 @@
 use super::browser_specific_settings::BrowserSpecificSettings;
 use crate::database::extensions_json::addon::addon::ExtensionsJsonAddon;
-use crate::errors::Error;
-use crate::errors::Result;
+use anyhow::Error;
+use anyhow::Result;
 use serde::Deserialize;
 use serde::Serialize;
 use std::collections::HashMap;
@@ -21,6 +21,17 @@ pub struct Manifest {
 	pub optional_permissions: Option<Vec<String>>,
 	pub permissions: Option<Vec<String>>,
 	pub version: String,
+	pub applications: Option<Applications>,
+}
+
+#[derive(Serialize, Deserialize)]
+pub struct Applications {
+	gecko: Gecko,
+}
+
+#[derive(Serialize, Deserialize)]
+pub struct Gecko {
+	id: String,
 }
 
 // FIX: redundant duplication
@@ -28,7 +39,7 @@ impl TryFrom<&ExtensionsJsonAddon> for Manifest {
 	type Error = Error;
 
 	fn try_from(addon: &ExtensionsJsonAddon) -> Result<Self> {
-		let file = std::fs::File::open(addon.path.clone().unwrap())?;
+		let file = std::fs::File::open(addon.path.as_ref().unwrap())?;
 		let mut zip = ZipArchive::new(file).unwrap();
 		let mut manifest_file = zip.by_name("manifest.json").unwrap();
 		let mut content = String::new();

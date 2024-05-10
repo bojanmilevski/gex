@@ -5,5 +5,5 @@ use serde::Serialize;
 #[derive(Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct PersistentListeners {
-	web_request: WebRequest,
+	web_request: Option<WebRequest>,
 }

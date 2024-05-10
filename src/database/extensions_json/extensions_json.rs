@@ -2,8 +2,7 @@ use super::addon::addon::ExtensionsJsonAddon;
 use crate::addon::addon::Addon;
 use crate::configuration::profile::Profile;
 use crate::database::manifests::manifest::Manifest;
-use crate::errors::Error;
-use crate::errors::Result;
+use anyhow::Result;
 use serde::Deserialize;
 use serde::Serialize;
 
@@ -15,7 +14,7 @@ pub struct ExtensionsJson {
 }
 
 impl TryFrom<&Profile> for ExtensionsJson {
-	type Error = Error;
+	type Error = anyhow::Error;
 
 	fn try_from(profile: &Profile) -> Result<Self> {
 		let content = std::fs::read_to_string(&profile.extensions_json)?;
@@ -36,12 +35,12 @@ impl ExtensionsJson {
 		Ok(())
 	}
 
-	pub fn remove(&mut self, ids: &[&str]) -> Result<()> {
+	pub fn remove(&mut self, ids: &[String]) -> Result<()> {
 		ids.iter().for_each(|id| {
 			let index = self
 				.addons
 				.iter()
-				.position(|addon| &addon.id == id)
+				.position(|addon| addon.id == id.as_ref())
 				.unwrap();
 
 			self.addons.remove(index);

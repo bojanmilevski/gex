@@ -1,6 +1,5 @@
 use crate::database::manifests::manifest::Manifest;
-use crate::errors::Error;
-use crate::errors::Result;
+use anyhow::Result;
 use serde::Deserialize;
 use serde::Serialize;
 use url::Url;
@@ -18,7 +17,7 @@ pub struct DefaultLocale {
 }
 
 impl TryFrom<&Manifest> for DefaultLocale {
-	type Error = Error;
+	type Error = anyhow::Error;
 
 	fn try_from(manifest: &Manifest) -> Result<Self> {
 		let default_locale = Self {

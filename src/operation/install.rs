@@ -1,16 +1,19 @@
 use crate::addon::addon::Addon;
+use crate::addon::response::Response;
 use crate::api::ADDON_URL;
 use crate::api::DOWNLOAD_URL;
 use crate::cli::CliConfiguration;
 use crate::configuration::configuration::Configuration;
-use crate::errors::Error;
-use crate::errors::Result;
 use crate::progress_bar::Bar;
 use crate::traits::runnable::Runnable;
+use anyhow::anyhow;
+use anyhow::Context;
+use anyhow::Result;
 use colored::Colorize;
 use futures_util::StreamExt;
 use futures_util::TryStreamExt;
 use reqwest::Client;
+use std::sync::Arc;
 use tokio::io::AsyncWriteExt;
 
 pub struct Install {
@@ -21,12 +24,17 @@ pub struct Install {
 
 impl Install {
 	pub async fn find_addon(client: &Client, slug: &str) -> Result<Addon> {
-		Ok(client
+		let response = client
 			.get(format!("{ADDON_URL}/{slug}"))
 			.send()
 			.await?
-			.json::<Addon>()
-			.await?)
+			.json::<Response>()
+			.await?;
+
+		match response {
+			Response::Addon(addon) => Ok(addon),
+			_ => Err(anyhow!("{} not found.", slug)), // TODO: print a different message depending on variant?
+		}
 	}
 
 	async fn install_addon(client: &Client, addon: &Addon) -> Result<Vec<u8>> {
@@ -34,33 +42,37 @@ impl Install {
 		let name = addon.name.to_string();
 
 		let response = client
-			.get(format!("{}/{}", DOWNLOAD_URL, version))
+			.get(format!("{DOWNLOAD_URL}/{version}"))
 			.send()
 			.await
-			.or(Err(Error::Install(String::from(&name))))?;
+			.with_context(|| format!("Error installing {name}."))?;
 
-		let total_size = response.content_length().unwrap();
-		let mut progress_bar = Bar::from(total_size);
-		let mut bytes = Vec::new(); // FIX:
+		let total_size = response
+			.content_length()
+			.context("Cannot get response content length.")?;
+
+		let mut progress_bar = Bar::try_from(total_size)?;
+		let mut bytes = Vec::new(); // TODO: avoid duplicating buffer
 		let mut bytes_stream = response.bytes_stream();
 
 		while let Some(item) = bytes_stream.next().await {
 			let chunk = item?;
 			progress_bar.update(chunk.len());
-			bytes.extend_from_slice(&chunk); // FIX:
+			bytes.extend_from_slice(&chunk); // TODO: avoid duplicating buffer
 		}
 
 		Ok(bytes)
 	}
 }
 
+// FIX: configurable trait
 impl Install {
 	pub async fn try_configure_from(slugs: Vec<String>, cli_configuration: CliConfiguration) -> Result<Self> {
 		let configuration = Configuration::try_from(cli_configuration)?;
 		let client = Client::new();
 		let addons = futures_util::stream::iter(slugs)
 			.then(|slug| {
-				let client = client.clone();
+				let client = Arc::new(&client);
 				async move { Self::find_addon(&client, &slug).await }
 			})
 			.try_collect()
@@ -72,31 +84,30 @@ impl Install {
 
 impl Runnable for Install {
 	async fn try_run(&mut self) -> Result<()> {
-		// FIX: prompt user if force reinstall
+		// TODO: prompt user if force reinstall
 		let duplicates: Vec<&str> = self
 			.addons
 			.iter()
 			.filter(|addon| self.configuration.database.contains(&addon.slug))
-			.map(|addon| addon.guid.as_ref())
+			.map(|addon| addon.slug.as_ref())
 			.collect();
 
-		self.configuration
+		let removed = self
+			.configuration
 			.database
 			.remove_from_database(&duplicates)?;
 
+		// TODO: super-addon
 		let addon_map: Vec<(&Addon, Vec<u8>)> = futures_util::stream::iter(&self.addons)
 			.then(|addon| {
-				let client = self.client.clone();
+				let client = Arc::new(&self.client);
 				let name = addon.name.to_string();
-				println!("{}: {}", "Installing addon".bold().bright_blue(), name);
+				println!("{}: {name}", "Installing addon".bold().bright_blue());
 
 				async move {
 					match Self::install_addon(&client, addon).await {
-						Ok(bytes) => Ok((addon, bytes)),
-						Err(err) => {
-							eprintln!("{}: {}", "Error installing addon".bold().red(), err);
-							Err(err)
-						}
+						Ok(bytes) => Ok((addon, bytes)), // TODO: super addon is created here
+						Err(err) => Err(err),
 					}
 				}
 			})
@@ -113,9 +124,9 @@ impl Runnable for Install {
 
 		self.configuration
 			.database
-			.remove_from_disk(&duplicates, &self.configuration.profile)?;
+			.remove_from_disk(removed, &self.configuration.profile)?;
 
-		// FIX: futures_util::stream::iter()
+		// TODO: futures_util::stream::iter()
 		for addon in &addon_map {
 			let path = format!(
 				"{}.xpi",
@@ -126,8 +137,10 @@ impl Runnable for Install {
 					.display()
 			);
 
-			let mut file = tokio::fs::File::create(path).await?;
-			file.write_all(&addon.1).await?;
+			tokio::fs::File::create(path)
+				.await?
+				.write_all(&addon.1)
+				.await?;
 		}
 
 		Ok(())

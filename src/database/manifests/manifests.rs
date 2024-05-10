@@ -1,15 +1,14 @@
 use super::super::extensions_json::extensions_json::ExtensionsJson;
 use super::manifest::Manifest;
 use crate::addon::addon::Addon;
-use crate::errors::Error;
-use crate::errors::Result;
+use anyhow::Result;
 
 pub struct Manifests {
 	pub manifests: Vec<Manifest>,
 }
 
 impl TryFrom<&ExtensionsJson> for Manifests {
-	type Error = Error;
+	type Error = anyhow::Error;
 
 	fn try_from(db: &ExtensionsJson) -> Result<Self> {
 		let manifests = db
@@ -36,18 +35,18 @@ impl Manifests {
 		Ok(())
 	}
 
-	pub fn remove(&mut self, ids: &[&str]) -> Result<()> {
+	pub fn remove(&mut self, ids: &[String]) -> Result<()> {
 		ids.iter().for_each(|id| {
 			let index = self
 				.manifests
 				.iter()
 				.position(|manifest| {
-					&manifest
+					manifest
 						.browser_specific_settings
 						.as_ref()
 						.unwrap()
 						.gecko
-						.id == id
+						.id == id.as_ref()
 				})
 				.unwrap();
 

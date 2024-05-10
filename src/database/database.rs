@@ -3,9 +3,9 @@ use super::extensions_json::extensions_json::ExtensionsJson;
 use super::manifests::manifests::Manifests;
 use crate::addon::addon::Addon;
 use crate::configuration::profile::Profile;
-use crate::errors::Error;
-use crate::errors::Result;
-use tokio::io::AsyncWriteExt;
+use anyhow::anyhow;
+use anyhow::Context;
+use anyhow::Result;
 
 // FIX: super database addon. vec<DatabaseAddon>
 pub struct Database {
@@ -15,7 +15,7 @@ pub struct Database {
 }
 
 impl TryFrom<&Profile> for Database {
-	type Error = Error;
+	type Error = anyhow::Error;
 
 	fn try_from(profile: &Profile) -> Result<Self> {
 		let addons_json_database = AddonsJson::try_from(profile)?;
@@ -38,27 +38,40 @@ impl Database {
 	pub fn add(&mut self, addon_map: &[(&Addon, Vec<u8>)], profile: &Profile) -> Result<()> {
 		self.addons_json_database.add(addon_map)?;
 		self.manifest_database.add(addon_map)?;
+
+		let last_manifest = self
+			.manifest_database
+			.manifests
+			.last()
+			.context("No last element.")?;
+
 		self.extensions_json_database
-			.add(addon_map, self.manifest_database.manifests.last().unwrap(), profile)?;
+			.add(addon_map, last_manifest, profile)?;
 
 		Ok(())
 	}
 
-	// FIX: slug instead of id
-	pub fn remove_from_disk(&mut self, ids: &[&str], profile: &Profile) -> Result<()> {
+	pub fn remove_from_database(&mut self, slugs: &[&str]) -> Result<Vec<String>> {
+		let ids: Vec<String> = self
+			.addons_json_database
+			.addons
+			.iter()
+			.filter(|addon| slugs.contains(&addon.slug().as_str()))
+			.map(|addon| addon.id.clone())
+			.collect();
+
+		self.addons_json_database.remove(&ids)?;
+		self.extensions_json_database.remove(&ids)?;
+		self.manifest_database.remove(&ids)?;
+
+		Ok(ids)
+	}
+
+	pub fn remove_from_disk(&mut self, ids: Vec<String>, profile: &Profile) -> Result<()> {
 		ids.iter().try_for_each(|id| {
-			let path = profile.extensions.join(format!("{}.xpi", id));
+			let path = profile.extensions.join(format!("{id}.xpi"));
 			std::fs::remove_file(path)
 		})?;
-
-		Ok(())
-	}
-
-	// FIX: slug instead of id
-	pub fn remove_from_database(&mut self, ids: &[&str]) -> Result<()> {
-		self.addons_json_database.remove(ids)?;
-		self.extensions_json_database.remove(ids)?;
-		self.manifest_database.remove(ids)?;
 
 		Ok(())
 	}
@@ -83,7 +96,8 @@ impl Database {
 		let excess: Vec<&String> = slugs.iter().filter(|slug| !self.contains(slug)).collect();
 
 		if !excess.is_empty() {
-			return Err(crate::errors::Error::NotInstalled(
+			return Err(anyhow!(
+				"Plugins not installed: {}.",
 				excess
 					.into_iter()
 					.map(|slug| slug.as_str())
@@ -96,6 +110,7 @@ impl Database {
 			.addons_json_database
 			.addons
 			.iter()
+			.filter(|addon| slugs.contains(&addon.slug()))
 			.map(|addon| (addon.slug(), addon.id.clone(), addon.version()))
 			.collect::<Vec<_>>();
 

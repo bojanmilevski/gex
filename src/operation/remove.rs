@@ -1,36 +1,37 @@
 use crate::cli::CliConfiguration;
 use crate::configuration::configuration::Configuration;
-use crate::errors::Result;
 use crate::traits::runnable::Runnable;
+use anyhow::Result;
 
 pub struct Remove {
-	ids: Vec<String>,
+	slugs: Vec<String>,
 	configuration: Configuration,
 }
 
+// FIX: configurable trait
 impl Remove {
 	pub async fn try_configure_from(slugs: Vec<String>, configuration: CliConfiguration) -> Result<Self> {
 		let configuration = Configuration::try_from(configuration)?;
-		let ids = configuration
+		let slugs = configuration
 			.database
 			.get_addons(Some(slugs))?
 			.iter()
-			.map(|(_, id, _)| id.clone())
+			.map(|(slug, _, _)| slug.clone())
 			.collect();
 
-		Ok(Self { ids, configuration })
+		Ok(Self { slugs, configuration })
 	}
 }
 
 impl Runnable for Remove {
 	async fn try_run(&mut self) -> Result<()> {
-		let ids: Vec<&str> = self.ids.iter().map(|id| id.as_ref()).collect(); // FIX:
+		let slugs: Vec<&str> = self.slugs.iter().map(|slug| slug.as_ref()).collect(); // FIX:
 
-		self.configuration.database.remove_from_database(&ids)?;
+		let removed = self.configuration.database.remove_from_database(&slugs)?;
 
 		self.configuration
 			.database
-			.remove_from_disk(&ids, &self.configuration.profile)?;
+			.remove_from_disk(removed, &self.configuration.profile)?;
 
 		self.configuration
 			.database

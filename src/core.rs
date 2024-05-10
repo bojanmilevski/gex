@@ -1,8 +1,8 @@
 use crate::cli::Cli;
-use crate::errors::Result;
 use crate::operation::operation::Operation;
 use crate::traits::configurable::Configurable;
 use crate::traits::runnable::Runnable;
+use anyhow::Result;
 
 pub struct Core {
 	operation: Operation,

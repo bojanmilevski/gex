@@ -1,8 +1,8 @@
 use super::addon::addon::AddonsJsonAddon;
 use crate::addon::addon::Addon;
 use crate::configuration::profile::Profile;
-use crate::errors::Error;
-use crate::errors::Result;
+use anyhow::Context;
+use anyhow::Result;
 use serde::Deserialize;
 use serde::Serialize;
 
@@ -13,7 +13,7 @@ pub struct AddonsJson {
 }
 
 impl TryFrom<&Profile> for AddonsJson {
-	type Error = Error;
+	type Error = anyhow::Error;
 
 	fn try_from(profile: &Profile) -> Result<Self> {
 		let content = std::fs::read_to_string(&profile.addons_json)?;
@@ -37,13 +37,13 @@ impl AddonsJson {
 		Ok(())
 	}
 
-	pub fn remove(&mut self, ids: &[&str]) -> Result<()> {
+	pub fn remove(&mut self, ids: &[String]) -> Result<()> {
 		ids.iter().for_each(|id| {
 			let index = self
 				.addons
 				.iter()
-				.position(|addon| &addon.id == id)
-				.ok_or(crate::errors::Error::Home)
+				.position(|addon| addon.id == id.as_ref())
+				.context("index placeholder")
 				.unwrap();
 
 			self.addons.remove(index);

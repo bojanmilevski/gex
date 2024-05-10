@@ -4,8 +4,8 @@ use super::remove::Remove;
 use super::search::Search;
 use super::update::Update;
 use crate::cli::CliOperation;
-use crate::errors::Result;
 use crate::traits::runnable::Runnable;
+use anyhow::Result;
 
 pub enum Operation {
 	Remove(Remove),
@@ -16,20 +16,15 @@ pub enum Operation {
 }
 
 impl Operation {
-	// FIX: .dedup()
 	pub async fn try_configure_from(operation: CliOperation) -> Result<Self> {
 		let operation = match operation {
-			CliOperation::Remove { slugs, configuration } => {
-				let mut slugs = slugs.clone();
+			CliOperation::Remove { mut slugs, configuration } => {
 				slugs.dedup();
-
 				Self::Remove(Remove::try_configure_from(slugs, configuration).await?)
 			}
 
-			CliOperation::Install { slugs, configuration } => {
-				let mut slugs = slugs.clone();
+			CliOperation::Install { mut slugs, configuration } => {
 				slugs.dedup();
-
 				Self::Install(Install::try_configure_from(slugs, configuration).await?)
 			}
 
@@ -37,10 +32,9 @@ impl Operation {
 
 			CliOperation::Search { slug } => Self::Search(Search::try_configure_from(slug).await?),
 
-			CliOperation::Update { slugs, configuration } => {
-				if slugs.is_some() {
-					let slugs = slugs.clone();
-					slugs.unwrap().dedup();
+			CliOperation::Update { mut slugs, configuration } => {
+				if let Some(slugs) = &mut slugs {
+					slugs.dedup();
 				}
 
 				Self::Update(Update::try_configure_from(slugs, configuration).await?)

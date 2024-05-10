@@ -1,6 +1,7 @@
 use crate::cli::CliConfiguration;
-use crate::errors::Error;
-use crate::errors::Result;
+use anyhow::anyhow;
+use anyhow::Context;
+use anyhow::Result;
 use ini::Ini;
 use std::path::PathBuf;
 
@@ -15,19 +16,24 @@ pub struct Profile {
 
 impl Profile {
 	fn get_browser_path(browser: &str) -> Result<PathBuf> {
-		let home = home::home_dir().ok_or(Error::Home)?;
+		let home = home::home_dir().context("Cannot find user HOME path")?;
 
-		let browser_path = match browser {
+		let path = match browser {
 			"firefox" => ".mozilla/firefox",
 			"librewolf" => ".librewolf",
 			"firedragon" => ".firedragon",
-			_ => return Err(Error::BrowserNotSupported(browser.to_owned())),
+			_ => {
+				return Err(anyhow!(
+					"Browser {} is currently not supported. Please open an issue here: https://github.com/bojanmilevski/gex/issues",
+					browser
+				))
+			}
 		};
 
-		let path = home.join(browser_path);
+		let path = home.join(path);
 
 		if !path.exists() {
-			return Err(Error::BrowserPathNotFound(browser.to_owned()));
+			return Err(anyhow!("{} path ({}) does not exist.", browser, path.display()));
 		}
 
 		Ok(path)
@@ -38,10 +44,10 @@ impl Profile {
 			.flatten()
 			.filter(|section| section.starts_with("Install"))
 			.find_map(|section| ini.get_from(Some(section), "Default"))
-			.ok_or(Error::ProfileNotFound(String::from("Path for profile in use does not exist.")))
+			.context("Profile in use in profiles.ini does not exist.")
 	}
 
-	fn get_specified_profile(ini: &Ini, profile: String) -> Result<&str> {
+	fn get_specified_profile<'a>(ini: &'a Ini, profile: &str) -> Result<&'a str> {
 		ini.sections()
 			.flatten()
 			.filter(|section| section.starts_with("Profile"))
@@ -52,12 +58,12 @@ impl Profile {
 					None
 				}
 			})
-			.ok_or(Error::ProfileNotFound(profile))
+			.with_context(|| format!("Profile {profile} not found"))
 	}
 }
 
 impl TryFrom<CliConfiguration> for Profile {
-	type Error = Error;
+	type Error = anyhow::Error;
 
 	fn try_from(configuration: CliConfiguration) -> Result<Self> {
 		let browser_path = Self::get_browser_path(&configuration.browser)?;
@@ -65,31 +71,15 @@ impl TryFrom<CliConfiguration> for Profile {
 		let ini = Ini::load_from_file(profiles)?;
 
 		let name = match configuration.profile {
-			Some(profile) => Self::get_specified_profile(&ini, profile)?,
+			Some(profile) => Self::get_specified_profile(&ini, &profile)?,
 			None => Self::get_profile_in_use(&ini)?,
 		}
 		.to_string();
 
-		// FIX: this mess below
 		let path = browser_path.join(&name);
-		if !path.exists() {
-			return Err(Error::ProfileNotFound(name));
-		}
-
 		let extensions = path.join("extensions");
-		if !extensions.exists() {
-			return Err(Error::ProfileNotFound(name));
-		}
-
 		let extensions_json = path.join("extensions.json");
-		if !extensions_json.exists() {
-			return Err(Error::ProfileNotFound(name));
-		}
-
 		let addons_json = path.join("addons.json");
-		if !addons_json.exists() {
-			return Err(Error::ProfileNotFound(name));
-		}
 
 		Ok(Self { browser_path, name, path, extensions, extensions_json, addons_json })
 	}

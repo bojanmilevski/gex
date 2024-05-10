@@ -2,8 +2,8 @@ use super::install::Install;
 use crate::addon::addon::Addon;
 use crate::cli::CliConfiguration;
 use crate::configuration::configuration::Configuration;
-use crate::errors::Result;
 use crate::traits::runnable::Runnable;
+use anyhow::Result;
 use futures_util::StreamExt;
 use futures_util::TryStreamExt;
 use reqwest::Client;
@@ -35,6 +35,7 @@ impl Update {
 	}
 }
 
+// FIX: configurable trait
 impl Update {
 	pub async fn try_configure_from(slugs: Option<Vec<String>>, cli_configuration: CliConfiguration) -> Result<Self> {
 		let configuration = Configuration::try_from(cli_configuration)?;

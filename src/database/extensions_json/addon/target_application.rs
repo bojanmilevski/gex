@@ -1,6 +1,5 @@
 use crate::database::manifests::manifest::Manifest;
-use crate::errors::Error;
-use crate::errors::Result;
+use anyhow::Result;
 use serde::Deserialize;
 use serde::Serialize;
 
@@ -13,7 +12,7 @@ pub struct TargetApplication {
 }
 
 impl TryFrom<&Manifest> for TargetApplication {
-	type Error = Error;
+	type Error = anyhow::Error;
 
 	fn try_from(manifest: &Manifest) -> Result<Self> {
 		let id = String::from("toolkit@mozilla.org");
