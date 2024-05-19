@@ -1,4 +1,4 @@
-use crate::cli::Cli;
+use crate::cli::cli::Cli;
 use crate::operation::operation::Operation;
 use crate::traits::configurable::Configurable;
 use crate::traits::runnable::Runnable;

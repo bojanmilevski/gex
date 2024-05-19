@@ -41,12 +41,16 @@ impl Manifests {
 				.manifests
 				.iter()
 				.position(|manifest| {
-					manifest
-						.browser_specific_settings
-						.as_ref()
-						.unwrap()
-						.gecko
-						.id == id.as_ref()
+					if manifest.browser_specific_settings.is_some() {
+						manifest
+							.browser_specific_settings
+							.as_ref()
+							.unwrap()
+							.gecko
+							.id == id.as_ref()
+					} else {
+						manifest.applications.as_ref().unwrap().gecko.id == id.as_ref()
+					}
 				})
 				.unwrap();
 

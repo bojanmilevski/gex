@@ -3,7 +3,7 @@ use super::list::List;
 use super::remove::Remove;
 use super::search::Search;
 use super::update::Update;
-use crate::cli::CliOperation;
+use crate::cli::operation::CliOperation;
 use crate::traits::runnable::Runnable;
 use anyhow::Result;
 
@@ -20,24 +20,33 @@ impl Operation {
 		let operation = match operation {
 			CliOperation::Remove { mut slugs, configuration } => {
 				slugs.dedup();
-				Self::Remove(Remove::try_configure_from(slugs, configuration).await?)
+				let remove = Remove::try_configure_from(slugs, configuration).await?;
+				Self::Remove(remove)
 			}
 
 			CliOperation::Install { mut slugs, configuration } => {
 				slugs.dedup();
-				Self::Install(Install::try_configure_from(slugs, configuration).await?)
+				let install = Install::try_configure_from(slugs, configuration).await?;
+				Self::Install(install)
 			}
 
-			CliOperation::List { configuration } => Self::List(List::try_configure_from(configuration).await?),
+			CliOperation::List { configuration } => {
+				let list = List::try_configure_from(configuration).await?;
+				Self::List(list)
+			}
 
-			CliOperation::Search { slug } => Self::Search(Search::try_configure_from(slug).await?),
+			CliOperation::Search { slug } => {
+				let search = Search::try_configure_from(slug).await?;
+				Self::Search(search)
+			}
 
 			CliOperation::Update { mut slugs, configuration } => {
 				if let Some(slugs) = &mut slugs {
 					slugs.dedup();
 				}
 
-				Self::Update(Update::try_configure_from(slugs, configuration).await?)
+				let update = Update::try_configure_from(slugs, configuration).await?;
+				Self::Update(update)
 			}
 		};
 

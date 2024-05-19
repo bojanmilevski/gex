@@ -12,5 +12,5 @@ pub struct Screenshot {
 	thumbnail_url: Url,
 	thumbnail_width: u32,
 	thumbnail_height: u32,
-	caption: String,
+	caption: Option<String>,
 }

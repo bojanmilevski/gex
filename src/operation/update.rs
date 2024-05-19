@@ -1,6 +1,6 @@
 use super::install::Install;
 use crate::addon::addon::Addon;
-use crate::cli::CliConfiguration;
+use crate::cli::configuration::CliConfiguration;
 use crate::configuration::configuration::Configuration;
 use crate::traits::runnable::Runnable;
 use anyhow::Result;
@@ -41,6 +41,9 @@ impl Update {
 		let configuration = Configuration::try_from(cli_configuration)?;
 		let client = Client::new();
 		let addons = Self::filter_addons(slugs, &configuration, &client).await?;
+		for addon in &addons {
+			println!("addon to update: {}", addon.slug);
+		}
 		let install = Install { addons, client, configuration };
 
 		Ok(Self { install })

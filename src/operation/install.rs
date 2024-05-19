@@ -1,8 +1,7 @@
+use super::api::ADDON_URL;
 use crate::addon::addon::Addon;
 use crate::addon::response::Response;
-use crate::api::ADDON_URL;
-use crate::api::DOWNLOAD_URL;
-use crate::cli::CliConfiguration;
+use crate::cli::configuration::CliConfiguration;
 use crate::configuration::configuration::Configuration;
 use crate::progress_bar::Bar;
 use crate::traits::runnable::Runnable;
@@ -38,14 +37,11 @@ impl Install {
 	}
 
 	async fn install_addon(client: &Client, addon: &Addon) -> Result<Vec<u8>> {
-		let version = addon.current_version.file.id;
-		let name = addon.name.to_string();
-
 		let response = client
-			.get(format!("{DOWNLOAD_URL}/{version}"))
+			.get(addon.current_version.file.url.as_ref())
 			.send()
 			.await
-			.with_context(|| format!("Error installing {name}."))?;
+			.with_context(|| format!("Error installing {}.", addon.name))?;
 
 		let total_size = response
 			.content_length()

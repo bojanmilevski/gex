@@ -2,7 +2,7 @@ use super::contribution_url::ContributionUrl;
 use super::creator::Creator;
 use super::screenshot::Screenshot;
 use crate::addon::addon::Addon;
-use crate::api::ADDON_URL;
+use crate::operation::api::ADDON_URL;
 use anyhow::Result;
 use serde::Deserialize;
 use serde::Serialize;
@@ -48,7 +48,7 @@ impl TryFrom<&Addon> for AddonsJsonAddon {
 	fn try_from(addon: &Addon) -> Result<Self> {
 		let url = Url::parse("https://example.com")?;
 		let average_rating = 0.0;
-		let amo_listing_url = Url::parse(&format!("{ADDON_URL}/{}/", &addon.slug))?;
+		let amo_listing_url = Url::parse(&format!("{ADDON_URL}/{}/", addon.slug))?;
 		let contribution_url = ContributionUrl::Empty(String::new());
 		let creator = Creator::from(&url);
 		let description = String::new();

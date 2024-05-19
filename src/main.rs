@@ -1,5 +1,4 @@
 mod addon;
-mod api;
 mod cli;
 mod configuration;
 mod core;
@@ -10,7 +9,7 @@ mod traits;
 
 use anyhow::Result;
 use clap::Parser;
-use cli::Cli;
+use cli::cli::Cli;
 use colored::Colorize;
 use core::Core;
 use traits::configurable::Configurable;

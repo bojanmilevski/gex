@@ -1,5 +1,5 @@
+use super::api::SEARCH_URL;
 use crate::addon::addon::Addons;
-use crate::api::SEARCH_URL;
 use crate::traits::runnable::Runnable;
 use anyhow::Result;
 use futures_util::StreamExt;

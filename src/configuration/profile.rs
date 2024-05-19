@@ -1,4 +1,4 @@
-use crate::cli::CliConfiguration;
+use crate::cli::configuration::CliConfiguration;
 use anyhow::anyhow;
 use anyhow::Context;
 use anyhow::Result;

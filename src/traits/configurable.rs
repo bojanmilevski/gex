@@ -1,4 +1,4 @@
-use crate::cli::Cli;
+use crate::cli::cli::Cli;
 use anyhow::Result;
 
 // FIX:

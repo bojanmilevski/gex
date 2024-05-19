@@ -7,9 +7,8 @@ automate a system (re)install. Currently only tested on `Linux`.
 
 ## MOZILLA API
 
-`gex` uses three URLs to communicate to Mozilla's APIs:
+`gex` uses two URLs to communicate to Mozilla's APIs:
 
-- `https://addons.mozilla.org/firefox/downloads/file` to download an addon
 - `https://addons.mozilla.org/api/v5/addons/addon` to find information about an addon
 - `https://addons.mozilla.org/api/v5/addons/search` to search for addons similar to a provided
   slug
@@ -55,10 +54,10 @@ and keeps information about all of the installed plugins in memory.
 
 ### INSTALL
 
-After gex configures itself, it searches an addon by its slug. A request is sent to
-`https://addons.mozilla.org/api/v5/addons/addon` with the slug appended to this string. This page
-returns a `json` containing information about the addon, if it exists. The addon gets
-installed to the profile's `extensions` folder with it's `guid` being the filename.
+After gex configures itself, it searches an addon by its slug. This page returns a `json` containing
+information about the addon, if it exists. Each addon contains a URL which points to the it's latest
+xpi file. The addon gets installed to the profile's `extensions` folder with it's `guid` being the
+filename.
 
 ### LIST
 
