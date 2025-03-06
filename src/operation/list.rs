@@ -1,17 +1,17 @@
-use crate::cli::configuration::CliConfiguration;
-use crate::configuration::configuration::Configuration;
-use crate::traits::runnable::Runnable;
+use crate::cli::CliConfiguration;
+use crate::database::database::Database;
+use crate::traits::Runnable;
 use anyhow::Result;
 
 pub struct List {
 	slugs: Vec<String>,
 }
 
-// FIX: configurable trait
+// FIX: init trait
 impl List {
-	pub async fn try_configure_from(configuration: CliConfiguration) -> Result<Self> {
-		let configuration = Configuration::try_from(configuration)?;
-		let slugs = configuration.database.get_slugs();
+	pub async fn try_init(cli_configuration: CliConfiguration) -> Result<Self> {
+		let database = Database::try_from(cli_configuration)?;
+		let slugs = database.get_slugs();
 
 		Ok(Self { slugs })
 	}

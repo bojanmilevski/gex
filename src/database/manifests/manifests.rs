@@ -1,6 +1,6 @@
 use super::super::extensions_json::extensions_json::ExtensionsJson;
 use super::manifest::Manifest;
-use crate::addon::addon::Addon;
+use crate::operation::install::Package;
 use anyhow::Result;
 
 pub struct Manifests {
@@ -15,47 +15,27 @@ impl TryFrom<&ExtensionsJson> for Manifests {
 			.addons
 			.iter()
 			.filter(|addon| addon.is_not_builtin())
-			.map(|addon| Manifest::try_from(addon).unwrap())
-			.collect();
+			.map(Manifest::try_from)
+			.collect::<Result<Vec<Manifest>>>()?;
 
 		Ok(Self { manifests })
 	}
 }
 
 impl Manifests {
-	pub fn add(&mut self, addon_map: &[(&Addon, Vec<u8>)]) -> Result<()> {
-		let new = addon_map
-			.iter()
-			.map(|(_, bytes)| Manifest::try_from(bytes))
-			.collect::<Result<Vec<Manifest>>>()?;
-
-		new.into_iter()
-			.for_each(|manifest| self.manifests.push(manifest));
+	pub fn add(&mut self, addons: &[Package]) -> Result<()> {
+		self.manifests.extend(
+			addons
+				.iter()
+				.map(|addon| Manifest::try_from(&addon.xpi))
+				.collect::<Result<Vec<Manifest>>>()?,
+		);
 
 		Ok(())
 	}
 
-	pub fn remove(&mut self, ids: &[String]) -> Result<()> {
-		ids.iter().for_each(|id| {
-			let index = self
-				.manifests
-				.iter()
-				.position(|manifest| {
-					if manifest.browser_specific_settings.is_some() {
-						manifest
-							.browser_specific_settings
-							.as_ref()
-							.unwrap()
-							.gecko
-							.id == id.as_ref()
-					} else {
-						manifest.applications.as_ref().unwrap().gecko.id == id.as_ref()
-					}
-				})
-				.unwrap();
-
-			self.manifests.remove(index);
-		});
+	pub fn remove(&mut self, addons: &[Package]) -> Result<()> {
+		// TODO:
 
 		Ok(())
 	}

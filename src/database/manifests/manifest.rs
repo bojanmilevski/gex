@@ -1,6 +1,4 @@
-use super::super::extensions_json::addon::addon::ExtensionsJsonAddon;
-use super::applications::Applications;
-use super::browser_specific_settings::BrowserSpecificSettings;
+use super::super::extensions_json::addon::ExtensionsJsonAddon;
 use anyhow::Error;
 use anyhow::Result;
 use serde::Deserialize;
@@ -17,7 +15,7 @@ pub struct Manifest {
 	pub browser_specific_settings: Option<BrowserSpecificSettings>,
 	pub default_locale: Option<String>,
 	pub description: Option<String>,
-	pub icons: HashMap<String, String>,
+	pub icons: Option<HashMap<String, String>>,
 	pub manifest_version: u8,
 	pub name: String,
 	pub optional_permissions: Option<Vec<String>>,
@@ -31,6 +29,17 @@ impl Manifest {
 		let mut zip = ZipArchive::new(content).unwrap();
 		let manifest_file = zip.by_name("manifest.json").unwrap();
 		let manifest: Manifest = serde_json::from_reader(manifest_file)?;
+
+		// FIX: DEBUG INFO
+		let manifest_file = zip.by_name("manifest.json").unwrap();
+		let deserialized = &mut serde_json::Deserializer::from_reader(manifest_file);
+		let res: Result<Self, _> = serde_path_to_error::deserialize(deserialized);
+
+		match res {
+			Ok(_) => (),
+			Err(e) => println!("Failed to parse manifest: {}", e.path()),
+		}
+		// FIX: DEBUG INFO
 
 		Ok(manifest)
 	}
@@ -56,4 +65,21 @@ impl TryFrom<&Vec<u8>> for Manifest {
 
 		Ok(manifest)
 	}
+}
+
+#[derive(Serialize, Deserialize)]
+pub struct Applications {
+	pub gecko: Gecko,
+}
+
+#[derive(Serialize, Deserialize)]
+pub struct BrowserSpecificSettings {
+	pub gecko: Gecko,
+}
+
+#[derive(Serialize, Deserialize)]
+pub struct Gecko {
+	pub id: String,
+	pub strict_max_version: Option<String>,
+	pub strict_min_version: Option<String>,
 }

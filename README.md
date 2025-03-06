@@ -1,7 +1,7 @@
 # GEX
 
-An `ex`tension manager for `Ge`cko browsers. I created this program to further simplify and
-automate a system (re)install. Currently only tested on `Linux`.
+An addon manager for Gecko-based browsers. I created this program to further simplify and automate
+a system (re)install. Currently only tested on `Linux`.
 
 - THIS PROGRAM IS IN VERY EARLY STAGES
 

@@ -1,6 +1,6 @@
 use super::api::SEARCH_URL;
-use crate::addon::addon::Addons;
-use crate::traits::runnable::Runnable;
+use crate::addon::Addons;
+use crate::traits::Runnable;
 use anyhow::Result;
 use futures_util::StreamExt;
 use reqwest::Client;
@@ -11,19 +11,21 @@ pub struct Search {
 
 impl Search {
 	async fn search_addon(slug: &str) -> Result<Addons> {
-		Ok(Client::new()
-			.get(SEARCH_URL)
-			.query(&[("q", slug), ("page_size", "50"), ("app", "firefox"), ("lang", "en-US"), ("sort", "users")])
-			.send()
-			.await?
-			.json::<Addons>()
-			.await?)
+		Ok(
+			Client::new()
+				.get(SEARCH_URL)
+				.query(&[("q", slug), ("page_size", "50"), ("app", "firefox"), ("lang", "en-US"), ("sort", "users")]) // FIX: make a struct for this?
+				.send()
+				.await?
+				.json::<Addons>()
+				.await?,
+		)
 	}
 }
 
-// FIX: configurable trait
+// FIX: init trait
 impl Search {
-	pub async fn try_configure_from(slug: String) -> Result<Self> {
+	pub async fn try_init(slug: String) -> Result<Self> {
 		let search = Self::search_addon(&slug).await?;
 
 		Ok(Self { search })

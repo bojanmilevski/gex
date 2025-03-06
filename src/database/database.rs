@@ -1,136 +1,90 @@
 use super::addons_json::addons_json::AddonsJson;
 use super::extensions_json::extensions_json::ExtensionsJson;
-use super::manifests::manifests::Manifests;
-use crate::addon::addon::Addon;
-use crate::configuration::profile::Profile;
-use anyhow::anyhow;
-use anyhow::Context;
+use crate::cli::CliConfiguration;
+use crate::operation::install::Package;
+use crate::profile::Profile;
 use anyhow::Result;
+use tokio::io::AsyncWriteExt;
 
-// FIX: super database addon. vec<DatabaseAddon>
 pub struct Database {
-	pub addons_json_database: AddonsJson,
-	pub extensions_json_database: ExtensionsJson,
-	manifest_database: Manifests,
+	profile: Profile,
+	addons_json: AddonsJson,
+	extensions_json: ExtensionsJson,
+	// manifests: Manifests,
 }
 
-impl TryFrom<&Profile> for Database {
+impl TryFrom<CliConfiguration> for Database {
 	type Error = anyhow::Error;
 
-	fn try_from(profile: &Profile) -> Result<Self> {
-		let addons_json_database = AddonsJson::try_from(profile)?;
-		let extensions_json_database = ExtensionsJson::try_from(profile)?;
-		let manifest_database = Manifests::try_from(&extensions_json_database)?;
+	fn try_from(cli_configuration: CliConfiguration) -> Result<Self> {
+		let profile = Profile::try_from(cli_configuration)?;
+		let addons_json = AddonsJson::try_from(&profile)?;
+		let extensions_json = ExtensionsJson::try_from(&profile)?;
+		// let manifests = Manifests::try_from(&extensions_json)?;
 
-		Ok(Self { addons_json_database, extensions_json_database, manifest_database })
+		Ok(Self { profile, addons_json, extensions_json /*manifests */ })
 	}
 }
 
 impl Database {
 	pub fn get_slugs(&self) -> Vec<String> {
-		self.addons_json_database
+		self
+			.addons_json
 			.addons
-			.iter()
-			.map(|addon| addon.slug())
+			.keys()
+			.map(|id| id.slug.clone())
 			.collect()
 	}
 
-	pub fn add(&mut self, addon_map: &[(&Addon, Vec<u8>)], profile: &Profile) -> Result<()> {
-		self.addons_json_database.add(addon_map)?;
-		self.manifest_database.add(addon_map)?;
-
-		let last_manifest = self
-			.manifest_database
-			.manifests
-			.last()
-			.context("No last element.")?;
-
-		self.extensions_json_database
-			.add(addon_map, last_manifest, profile)?;
+	pub fn add(&mut self, addons: &[Package]) -> Result<()> {
+		self.addons_json.add(addons)?;
+		self.extensions_json.add(addons, &self.profile)?;
+		// self.manifests.add(addons)?;
 
 		Ok(())
 	}
 
-	pub fn remove_from_database(&mut self, slugs: &[&str]) -> Result<Vec<String>> {
-		let ids: Vec<String> = self
-			.addons_json_database
-			.addons
-			.iter()
-			.filter(|addon| slugs.contains(&addon.slug().as_str()))
-			.map(|addon| addon.id.clone())
-			.collect();
-
-		self.addons_json_database.remove(&ids)?;
-		self.extensions_json_database.remove(&ids)?;
-		self.manifest_database.remove(&ids)?;
-
-		Ok(ids)
-	}
-
-	pub fn remove_from_disk(&mut self, ids: Vec<String>, profile: &Profile) -> Result<()> {
-		ids.iter().try_for_each(|id| {
-			let path = profile.extensions.join(format!("{id}.xpi"));
-			std::fs::remove_file(path)
-		})?;
+	pub fn remove_from_database(&mut self, addons: &[Package]) -> Result<()> {
+		self.addons_json.remove(&addons)?;
+		self.extensions_json.remove(&addons)?;
+		// self.manifest_database.remove(&addons)?;
 
 		Ok(())
 	}
 
-	pub fn write(&self, profile: &Profile) -> Result<()> {
-		self.extensions_json_database.write(profile)?;
-		self.addons_json_database.write(profile)?;
+	pub fn remove_from_disk(&mut self, addons: &[Package]) -> Result<()> {
+		// TODO:
+		// delete file from profile/extensions/*.xpi fodler
 
 		Ok(())
 	}
 
-	pub fn contains(&self, slug: &str) -> bool {
-		self.addons_json_database
-			.addons
-			.iter()
-			.map(|addon| addon.slug())
-			.collect::<Vec<_>>()
-			.contains(&slug.to_string())
+	pub fn write_to_disk(&self) -> Result<()> {
+		self.addons_json.write_to_disk(&self.profile)?;
+		self.extensions_json.write_to_disk(&self.profile)?;
+
+		Ok(())
 	}
 
-	fn get_specified_addons(&self, slugs: Vec<String>) -> Result<Vec<(String, String, Vec<u8>)>> {
-		let excess: Vec<&String> = slugs.iter().filter(|slug| !self.contains(slug)).collect();
+	pub async fn write_new_addons_to_disk<'a>(&self, addons: &[Package<'a>]) -> Result<()> {
+		// TODO: futures_util::stream::iter()
+		for addon in addons {
+			let path = format!(
+				"{}.xpi",
+				self
+					.profile
+					.path
+					.join("extensions")
+					.join(&addon.json_response.guid)
+					.display()
+			);
 
-		if !excess.is_empty() {
-			return Err(anyhow!(
-				"Plugins not installed: {}.",
-				excess
-					.into_iter()
-					.map(|slug| slug.as_str())
-					.collect::<Vec<_>>()
-					.join(", "),
-			));
+			tokio::fs::File::create(path)
+				.await?
+				.write_all(&addon.xpi)
+				.await?;
 		}
 
-		let addons = self
-			.addons_json_database
-			.addons
-			.iter()
-			.filter(|addon| slugs.contains(&addon.slug()))
-			.map(|addon| (addon.slug(), addon.id.clone(), addon.version()))
-			.collect::<Vec<_>>();
-
-		Ok(addons)
-	}
-
-	fn get_all_addons(&self) -> Vec<(String, String, Vec<u8>)> {
-		self.addons_json_database
-			.addons
-			.iter()
-			.map(|addon| (addon.slug(), addon.id.clone(), addon.version()))
-			.collect()
-	}
-
-	pub fn get_addons(&self, slugs: Option<Vec<String>>) -> Result<Vec<(String, String, Vec<u8>)>> {
-		let addons = match slugs {
-			Some(slugs) => self.get_specified_addons(slugs)?,
-			None => self.get_all_addons(),
-		};
-
-		Ok(addons)
+		Ok(())
 	}
 }

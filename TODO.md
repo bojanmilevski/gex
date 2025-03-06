@@ -1,16 +1,20 @@
+# NEW
+
+- replace HashMap with proper struct in Addon (src/addon.rs)
+- AUR link
+- async closures are not a thing
+
 # VERY HIGH PRIORITY
 
 - log
 - FIX: TODO:
 - unwraps
 - url serde fields
+- remove `clone`, `cloned`, `to_owned`, `as_str`, `format!`, `String::from`
 
 # HIGH PRIORITY
 
-- "super" addon struct
-  - consists of addon, bytes, manifest, extensions.json, addons.json
-- complete addons.json
-- fix configurable trait
+- fix initializable trait
 - fix runnable trait
 - rename structs
 
@@ -25,23 +29,22 @@
 
 # LOW PRIORITY
 
-- &str instead of String
+- `&str` instead of `String`
 - access modifiers
-- clap_complete
+- `clap_complete`
 - code documentation
-- configuration file (~/.config/gex/config.json)
+- configuration file (`~/.config/gex/config.json`)
   - cli args override config file
 - description languages
 - html parser for description
 - if install vec is empty, print "no extension found"
 - install for multiple browsers
 - install for multiple profiles
-- man file (clap_mangen)
+- man file (`clap_mangen`)
 - manually enable/disable extensions
 - more browsers and respective data paths
 - prompt for reinstall, force install etc.
 - references, ownerships, lifetimes
-- remove clone, cloned, to_owned, as_str, format!, String::from
 - search displays installed addon for profile, browser
 - search params (sort output by rating, score...)
 - thunderbird support

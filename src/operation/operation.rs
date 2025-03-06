@@ -3,8 +3,8 @@ use super::list::List;
 use super::remove::Remove;
 use super::search::Search;
 use super::update::Update;
-use crate::cli::operation::CliOperation;
-use crate::traits::runnable::Runnable;
+use crate::cli::CliOperation;
+use crate::traits::Runnable;
 use anyhow::Result;
 
 pub enum Operation {
@@ -16,27 +16,28 @@ pub enum Operation {
 }
 
 impl Operation {
-	pub async fn try_configure_from(operation: CliOperation) -> Result<Self> {
+	// FIX: init trait
+	pub async fn try_init(operation: CliOperation) -> Result<Self> {
 		let operation = match operation {
 			CliOperation::Remove { mut slugs, configuration } => {
 				slugs.dedup();
-				let remove = Remove::try_configure_from(slugs, configuration).await?;
+				let remove = Remove::try_init(slugs, configuration).await?;
 				Self::Remove(remove)
 			}
 
 			CliOperation::Install { mut slugs, configuration } => {
 				slugs.dedup();
-				let install = Install::try_configure_from(slugs, configuration).await?;
+				let install = Install::try_init(slugs, configuration).await?;
 				Self::Install(install)
 			}
 
 			CliOperation::List { configuration } => {
-				let list = List::try_configure_from(configuration).await?;
+				let list = List::try_init(configuration).await?;
 				Self::List(list)
 			}
 
 			CliOperation::Search { slug } => {
-				let search = Search::try_configure_from(slug).await?;
+				let search = Search::try_init(slug).await?;
 				Self::Search(search)
 			}
 
@@ -45,7 +46,7 @@ impl Operation {
 					slugs.dedup();
 				}
 
-				let update = Update::try_configure_from(slugs, configuration).await?;
+				let update = Update::try_init(slugs, configuration).await?;
 				Self::Update(update)
 			}
 		};
@@ -55,6 +56,8 @@ impl Operation {
 }
 
 impl Runnable for Operation {
+	// FIX: is there any way to avoid having to call .try_run() on each variant
+	// without having to use Box?
 	async fn try_run(&mut self) -> Result<()> {
 		match self {
 			Self::Remove(delete) => delete.try_run().await?,

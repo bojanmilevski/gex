@@ -1,4 +1,5 @@
 pub mod addons_json;
 pub mod database;
-mod extensions_json;
-mod manifests;
+pub mod extensions_json;
+mod identifier;
+pub mod manifests;

@@ -1,5 +1,12 @@
-use super::configuration::CliConfiguration;
+use clap::Parser;
 use clap::Subcommand;
+
+#[derive(Parser)]
+#[command(author, version, about, long_about)]
+pub struct Cli {
+	#[command(subcommand)]
+	pub operation: CliOperation,
+}
 
 #[derive(Subcommand)]
 pub enum CliOperation {
@@ -41,4 +48,13 @@ pub enum CliOperation {
 		#[arg(name = "update", num_args = 1..)]
 		slugs: Option<Vec<String>>,
 	},
+}
+
+#[derive(Parser)]
+pub struct CliConfiguration {
+	#[arg(short, long, default_value = "firefox")]
+	pub browser: String,
+
+	#[arg(short, long)]
+	pub profile: Option<String>,
 }
