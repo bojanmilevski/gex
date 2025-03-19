@@ -1,5 +1,5 @@
 chain_width = 60
-edition = "2021"
+edition = "2024"
 empty_item_single_line = true
 fn_single_line = false
 hard_tabs = true
