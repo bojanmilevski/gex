@@ -132,7 +132,8 @@ The desired browser must have been previously opened in order for this program t
 
 ## LICENSE
 
-This software is licensed under the [GPL v3.0 License](https://www.gnu.org/licenses/gpl-3.0.en.html).
+This software, like all my other software, is licensed under the [GPL v3.0 license](https://www.gnu.org/licenses/gpl-3.0.en.html).
+Please consider licensing your software under this license as well.
 
 ## THANKS
 
